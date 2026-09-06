@@ -20,3 +20,5 @@ NOT AUTOMATIC / REVIEW BEFORE RUNNING:
 R12: APPLY-R12-MISSED-VISIT-RESOLUTION.sql — restores three-way missed-visit resolution in Schedule.
 
 R13: APPLY-R13-GROUP-DRAG.sql — atomic multi-select calendar moves and group moves to Basket.
+
+R14: APPLY-R14-VISIT-DETAIL.sql — Schedule card detail restores service/task names, site instructions and simplified actions.

@@ -446,3 +446,22 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .calendar-grid.drag-mode-active .visit-info-hover:hover,.calendar-grid.drag-mode-active .visit-info-hover:focus{opacity:1}
 .drag-ghost.drag-id-ghost strong+small{max-width:270px}
 @media(max-width:700px){.visit-hover-card{width:220px;right:-24px}}
+
+/* R14 — restore visit detail as the primary card-click experience. */
+.visit-detail-dialog-r14{width:min(760px,calc(100vw - 28px))}
+.visit-work-detail-r14{padding:12px 14px;border:1px solid #dce8e1;border-radius:14px;background:linear-gradient(180deg,#fbfdfc,#f7fbf8);gap:10px}
+.visit-address-line-r14{display:flex;align-items:baseline;justify-content:space-between;gap:14px;padding-bottom:8px;border-bottom:1px solid #e6ede9}
+.visit-address-line-r14 strong{font-size:13px;color:#173d2e}.visit-address-line-r14 span{font-size:11px;color:#65776d;text-align:right}
+.visit-task-list-r14{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.visit-task-r14{display:flex;align-items:flex-start;gap:7px;border:1px solid #dfe9e3;background:#fff;border-radius:10px;padding:8px 10px;min-width:0}
+.visit-task-r14>span{display:grid;place-items:center;flex:0 0 18px;width:18px;height:18px;border-radius:999px;background:#e4f4eb;color:#1f7353;font-size:10px;font-weight:900}.visit-task-r14 strong{font-size:11.5px;line-height:1.35;color:#29483a;overflow-wrap:anywhere}
+.visit-instructions-r14{display:grid;gap:6px;padding-top:2px}.visit-instructions-r14 p{margin:0;display:grid;grid-template-columns:105px 1fr;gap:8px;padding:7px 9px;border-radius:9px;background:#fff;border:1px solid #e6ece8}.visit-instructions-r14 b{font-size:10px;text-transform:uppercase;letter-spacing:.045em;color:#567064}.visit-instructions-r14 span{font-size:11px;line-height:1.4;color:#344b3f}
+.visit-actions-r14{padding-top:3px;border-top:1px solid #edf1ee}.primary-actions-r14{grid-template-columns:repeat(2,minmax(0,1fr))}.primary-actions-r14 button{min-height:58px}
+@media(max-width:700px){.visit-task-list-r14{grid-template-columns:1fr}.visit-address-line-r14{display:grid}.visit-address-line-r14 span{text-align:left}.visit-instructions-r14 p{grid-template-columns:1fr}.primary-actions-r14{grid-template-columns:1fr}}
+
+/* R15 — DNS must be visibly reversible from the active warning itself. */
+.active-dns-warning-r15{grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:12px!important}
+.active-dns-warning-r15>div{display:grid;gap:2px;min-width:0}
+.dns-clear-inline-r15{border:1px solid currentColor;border-radius:9px;background:rgba(255,255,255,.78);color:inherit;font:700 10px/1.15 inherit;padding:8px 10px;white-space:nowrap;cursor:pointer}
+.dns-clear-inline-r15:hover{background:#fff;box-shadow:0 2px 8px rgba(61,35,29,.08)}
+@media(max-width:620px){.active-dns-warning-r15{grid-template-columns:1fr!important}.dns-clear-inline-r15{justify-self:start}}

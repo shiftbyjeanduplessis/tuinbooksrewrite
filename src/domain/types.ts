@@ -5,6 +5,7 @@ export interface Membership { businessId: string; role: 'owner' | 'admin' | 'fie
 export interface Team { id: string; businessId: string; name: string; active: boolean; capacityHours: number; bufferHours: number; }
 export interface Account { id: string; businessId: string; name: string; status: 'active' | 'paused' | 'archived' | string; contactName: string; phone: string; email: string; }
 export interface ServiceLocation { id: string; businessId: string; accountId: string; siteName: string; address: string; suburb: string; accessNotes: string; instructions: string; active: boolean; }
+export interface BusinessService { id:string; businessId:string; name:string; notes:string; active:boolean; }
 
 export type VisitStatus = 'scheduled' | 'completed' | 'cancelled' | 'missed' | 'rescheduled' | 'suspended' | 'deferred' | string;
 export type VisitType = 'routine' | 'additional' | 'quoted' | 'once-off';
@@ -85,6 +86,8 @@ export interface ScheduleWeek {
   teams: Team[];
   accounts: Account[];
   locations: ServiceLocation[];
+  services: BusinessService[];
+  agreements: ServiceAgreement[];
   visits: Visit[];
   queueItems: ScheduleQueueItem[];
   series: ScheduleSeries[];

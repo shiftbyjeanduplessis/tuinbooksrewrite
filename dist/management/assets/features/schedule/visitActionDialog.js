@@ -1,41 +1,63 @@
 import { visitDoNotService } from '../../domain/operations.js';
-export function openVisitActionDialog(visit, account, teams, hold, callbacks) {
+export function openVisitActionDialog(visit, account, location, agreement, services, teams, hold, callbacks) {
     const d = document.createElement('dialog');
-    d.className = 'operation-dialog visit-control-dialog';
+    d.className = 'operation-dialog visit-control-dialog visit-detail-dialog-r14';
     document.body.append(d);
     const status = String(visit.status).toLowerCase();
     const visitDns = visitDoNotService(visit);
+    const team = teams.find(t => t.id === visit.teamId);
     const teamOptions = teams.map(t => `<option value="${esc(t.id)}" ${t.id === visit.teamId ? 'selected' : ''}>${esc(t.name)}</option>`).join('');
     const clientName = account?.name || visit.accountId;
+    const taskLabels = tasksForVisitDetail(visit, agreement, services);
+    const address = [location?.address, location?.suburb].filter(Boolean).join(' · ');
+    const visitNote = String(visit.payload?.notes ?? visit.payload?.note ?? '').trim();
+    const typeLabel = visit.visitType === 'additional' ? 'Additional visit' : visit.visitType === 'quoted' ? 'Quoted work' : 'Recurring visit';
     d.innerHTML = `<form class="dialog-shell">
-    <header class="visit-dialog-head"><div><p class="eyebrow">Visit</p><h2>${esc(clientName)}</h2><p class="scope-copy">${esc(visit.date)} · ${esc(statusLabel(status))}</p></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></header>
+    <header class="visit-dialog-head"><div><p class="eyebrow">${esc(typeLabel)}</p><h2>${esc(clientName)}</h2><p class="scope-copy">${esc(visit.date)} · ${esc(team?.name || 'No team')} · ${esc(statusLabel(status))}</p></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></header>
 
-    ${(visitDns.active || hold) ? `<div class="dialog-warning-stack">${visitDns.active ? `<div class="dialog-warning visit-dns"><strong>DO NOT SERVICE — THIS VISIT</strong><span>${esc([visitDns.reason, visitDns.note].filter(Boolean).join(' · '))}</span></div>` : ''}${hold ? `<div class="dialog-warning client-dns"><strong>DO NOT SERVICE — CLIENT</strong><span>${esc([hold.reason, hold.note].filter(Boolean).join(' · '))}</span></div>` : ''}</div>` : ''}
+    <section class="visit-work-detail-r14 dialog-section">
+      <div class="visit-address-line-r14"><strong>${esc(location?.siteName || address || 'Service location')}</strong>${address ? `<span>${esc(address)}</span>` : ''}</div>
+      <div class="dialog-section-title"><strong>Work for this visit</strong><span>What the team is expected to do</span></div>
+      <div class="visit-task-list-r14">${taskLabels.map(task => `<div class="visit-task-r14"><span aria-hidden="true">✓</span><strong>${esc(task)}</strong></div>`).join('')}</div>
+      ${(location?.instructions || location?.accessNotes || agreement?.notes || visitNote) ? `<div class="visit-instructions-r14">
+        ${location?.instructions ? `<p><b>Site instructions</b><span>${esc(location.instructions)}</span></p>` : ''}
+        ${location?.accessNotes ? `<p><b>Access</b><span>${esc(location.accessNotes)}</span></p>` : ''}
+        ${agreement?.notes ? `<p><b>Routine notes</b><span>${esc(agreement.notes)}</span></p>` : ''}
+        ${visitNote ? `<p><b>This visit</b><span>${esc(visitNote)}</span></p>` : ''}
+      </div>` : ''}
+    </section>
+
+    ${(visitDns.active || hold) ? `<div class="dialog-warning-stack">${visitDns.active ? `<div class="dialog-warning visit-dns active-dns-warning-r15"><div><strong>DO NOT SERVICE — THIS VISIT</strong><span>${esc([visitDns.reason, visitDns.note].filter(Boolean).join(' · '))}</span></div><button type="button" data-op="clear-visit-dns" class="dns-clear-inline-r15">Allow this visit again</button></div>` : ''}${hold ? `<div class="dialog-warning client-dns active-dns-warning-r15"><div><strong>DO NOT SERVICE — CLIENT</strong><span>${esc([hold.reason, hold.note].filter(Boolean).join(' · '))}</span></div><button type="button" data-op="clear-hold" class="dns-clear-inline-r15">Clear client DNS</button></div>` : ''}</div>` : ''}
 
     ${status === 'missed' ? `<section class="dialog-section missed-resolution-section">
-      <div class="dialog-section-title"><strong>Resolve missed visit</strong><span>Choose the actual outcome. The original visit stays in history.</span></div>
+      <div class="dialog-section-title"><strong>Resolve missed visit</strong><span>Choose what actually happened</span></div>
       <div class="missed-resolution-grid">
-        <button type="button" data-op="missed-complete" class="resolution-choice completed"><b>It was completed</b><span>Office confirms the visit happened and records it in Work.</span></button>
-        <button type="button" data-op="reschedule" class="resolution-choice catchup"><b>Reschedule / catch-up</b><span>Create a linked replacement visit. Keep the original missed visit in history.</span></button>
-        <button type="button" data-op="missed-no-return" class="resolution-choice no-return"><b>No catch-up / no charge</b><span>Close the missed visit with no replacement and no charge.</span></button>
+        <button type="button" data-op="missed-complete" class="resolution-choice completed"><b>It was completed</b><span>Record the visit in Work.</span></button>
+        <button type="button" data-op="reschedule" class="resolution-choice catchup"><b>Reschedule / catch-up</b><span>Create a linked replacement visit.</span></button>
+        <button type="button" data-op="missed-no-return" class="resolution-choice no-return"><b>No catch-up / no charge</b><span>Close this visit without replacement.</span></button>
       </div>
-    </section>` : `<section class="dialog-section">
-      <div class="dialog-section-title"><strong>Visit actions</strong><span>Changes apply to this visit only unless stated otherwise.</span></div>
-      <div class="operation-grid compact-operation-grid">
-        ${status === 'scheduled' ? `${visitDns.active ? `<button type="button" data-op="clear-visit-dns" class="dns-primary-action"><b>Clear Do not service</b><span>Allow this visit to be serviced again</span></button>` : `<button type="button" data-op="visit-dns" class="dns-primary-action"><b>Do not service this visit</b><span>Block this occurrence only. Future recurrence is unchanged.</span></button>`}<button type="button" data-op="cancel-no"><b>Cancel visit</b><span>Do not charge</span></button><button type="button" data-op="cancel-charge"><b>Cancel visit</b><span>Charge</span></button><button type="button" data-op="missed"><b>Mark missed</b><span>Keep in history for resolution</span></button><button type="button" data-op="suspend"><b>Suspend visit</b><span>Pause this occurrence</span></button>` : ''}
-        ${status === 'suspended' ? `<button type="button" data-op="resume"><b>Resume visit</b><span>Return to scheduled</span></button>` : ''}
+    </section>` : `<section class="dialog-section visit-actions-r14">
+      <div class="dialog-section-title"><strong>Visit actions</strong><span>Administrative actions are secondary to the work details above</span></div>
+      <div class="operation-grid compact-operation-grid primary-actions-r14">
+        ${status === 'scheduled' ? `<button type="button" data-op="dns-choice" class="dns-primary-action"><b>${visitDns.active || hold ? 'Do not service settings' : 'Do not service'}</b><span>${visitDns.active || hold ? 'Change visit/client DNS scope' : 'Choose this visit or the client'}</span></button><button type="button" data-op="cancel-choice"><b>Cancel visit</b><span>Choose charge or no charge</span></button>` : ''}
+        ${status === 'suspended' ? `<button type="button" data-op="resume"><b>Resume visit</b><span>Return this occurrence to scheduled</span></button>` : ''}
         ${status === 'cancelled' ? `<button type="button" data-op="undo-cancel"><b>Undo cancellation</b><span>Restore this visit</span></button>` : ''}
       </div>
     </section>`}
 
-    <section class="dialog-section dns-controls-section client-dns-section">
-      <div class="dialog-section-title"><strong>Client-level Do not service</strong><span>This is different from blocking one visit. It applies until cleared.</span></div>
-      <div class="operation-grid compact-operation-grid">
-        ${hold ? `<button type="button" data-op="clear-hold"><b>Clear client warning</b><span>Allow future visits again</span></button>` : `<button type="button" data-op="hold"><b>Do not service client</b><span>Block the client until the warning is cleared</span></button>`}
-      </div>
+    <section class="operation-fields hidden" data-cancel-choice-panel>
+      <div class="dialog-section-title"><strong>Cancel this visit</strong><span>Future recurrence is unchanged</span></div>
+      <label>Reason / note<textarea data-reason rows="3" placeholder="Optional cancellation note"></textarea></label>
+      <div class="operation-grid compact-operation-grid"><button type="button" data-op="cancel-no"><b>Cancel — no charge</b><span>Do not bill this occurrence</span></button><button type="button" data-op="cancel-charge"><b>Cancel & charge</b><span>Keep this occurrence billable</span></button></div>
+      <div class="dialog-actions"><button type="button" class="secondary-button" data-cancel-choice-back>Back</button></div>
     </section>
 
-    <section class="operation-fields hidden" data-reason-panel><label>Reason / note<textarea data-reason rows="3" placeholder="Optional note for office and field team"></textarea></label><div class="dialog-actions"><button type="button" class="secondary-button" data-reason-cancel>Back</button><button type="button" class="primary-button" data-reason-save>Confirm</button></div></section>
+    <section class="operation-fields hidden" data-dns-choice-panel>
+      <div class="dialog-section-title"><strong>Do not service</strong><span>Choose the scope deliberately</span></div>
+      <div class="operation-grid compact-operation-grid"><button type="button" data-op="visit-dns"><b>This visit only</b><span>Future recurrence remains unchanged</span></button>${hold ? `<button type="button" data-op="clear-hold"><b>Clear client warning</b><span>Client-level Do not service is currently active</span></button>` : `<button type="button" data-op="hold"><b>Entire client</b><span>Block client visits until cleared</span></button>`}</div>
+      <div class="dialog-actions"><button type="button" class="secondary-button" data-dns-choice-back>Back</button></div>
+    </section>
+
     <section class="operation-fields hidden" data-missed-resolution-panel><label>Office note<textarea data-missed-resolution-note rows="3" placeholder="Optional reason or confirmation note"></textarea></label><div class="dialog-actions"><button type="button" class="secondary-button" data-missed-resolution-cancel>Back</button><button type="button" class="primary-button" data-missed-resolution-save>Confirm outcome</button></div></section>
     <section class="operation-fields hidden" data-reschedule-panel><label>New date<input data-new-date type="date" value="${esc(visit.date)}"></label><label>Team<select data-new-team>${teamOptions}</select></label><div class="dialog-actions"><button type="button" class="secondary-button" data-reschedule-cancel>Back</button><button type="button" class="primary-button" data-reschedule-save>Reschedule</button></div></section>
     <section class="operation-fields hidden" data-dns-panel><label>Reason<input data-dns-reason value="${esc(visitDns.reason || 'Do not service this visit')}"></label><label>Note<textarea data-dns-note rows="3">${esc(visitDns.note || '')}</textarea></label><div class="dialog-actions"><button type="button" class="secondary-button" data-dns-cancel>Back</button><button type="button" class="primary-button" data-dns-save>Save visit warning</button></div></section>
@@ -44,22 +66,30 @@ export function openVisitActionDialog(visit, account, teams, hold, callbacks) {
     const close = () => d.close();
     d.querySelectorAll('[data-close]').forEach(b => b.onclick = close);
     d.addEventListener('close', () => d.remove(), { once: true });
-    const sections = Array.from(d.querySelectorAll('.dialog-section'));
-    const reasonPanel = d.querySelector('[data-reason-panel]');
+    const mainSections = Array.from(d.querySelectorAll('.dialog-section,.dialog-warning-stack'));
+    const cancelChoicePanel = d.querySelector('[data-cancel-choice-panel]');
+    const dnsChoicePanel = d.querySelector('[data-dns-choice-panel]');
     const missedResolutionPanel = d.querySelector('[data-missed-resolution-panel]');
     const reschedulePanel = d.querySelector('[data-reschedule-panel]');
     const dnsPanel = d.querySelector('[data-dns-panel]');
     const holdPanel = d.querySelector('[data-hold-panel]');
+    const panels = [cancelChoicePanel, dnsChoicePanel, missedResolutionPanel, reschedulePanel, dnsPanel, holdPanel];
     let pending = '';
-    const showPanel = (panel) => { sections.forEach(s => s.classList.add('hidden')); for (const p of [reasonPanel, missedResolutionPanel, reschedulePanel, dnsPanel, holdPanel])
-        p.classList.add('hidden'); panel.classList.remove('hidden'); };
-    const showSections = () => { for (const p of [reasonPanel, missedResolutionPanel, reschedulePanel, dnsPanel, holdPanel])
-        p.classList.add('hidden'); sections.forEach(s => s.classList.remove('hidden')); };
+    const showPanel = (panel) => { mainSections.forEach(s => s.classList.add('hidden')); panels.forEach(p => p.classList.add('hidden')); panel.classList.remove('hidden'); };
+    const showSections = () => { panels.forEach(p => p.classList.add('hidden')); mainSections.forEach(s => s.classList.remove('hidden')); };
     d.querySelectorAll('[data-op]').forEach(button => button.onclick = () => {
         const op = button.dataset.op || '';
-        if (['cancel-no', 'cancel-charge', 'missed', 'suspend'].includes(op)) {
-            pending = op;
-            showPanel(reasonPanel);
+        if (op === 'cancel-choice') {
+            showPanel(cancelChoicePanel);
+            return;
+        }
+        if (op === 'dns-choice') {
+            showPanel(dnsChoicePanel);
+            return;
+        }
+        if (op === 'cancel-no' || op === 'cancel-charge') {
+            const reason = (d.querySelector('[data-reason]')?.value || '').trim();
+            void callbacks.onCancel(visit.id, op === 'cancel-charge' ? 'charge' : 'no-charge', reason).then(close);
             return;
         }
         if (op === 'resume') {
@@ -95,12 +125,8 @@ export function openVisitActionDialog(visit, account, teams, hold, callbacks) {
             void callbacks.onClientHold(visit.accountId, false, hold?.reason || 'Do not service', hold?.note || '').then(close);
         }
     });
-    d.querySelector('[data-reason-cancel]').onclick = showSections;
-    d.querySelector('[data-reason-save]').onclick = () => { const reason = (d.querySelector('[data-reason]').value || '').trim(); if (pending === 'cancel-no')
-        void callbacks.onCancel(visit.id, 'no-charge', reason).then(close); if (pending === 'cancel-charge')
-        void callbacks.onCancel(visit.id, 'charge', reason).then(close); if (pending === 'missed')
-        void callbacks.onMissed(visit.id, reason).then(close); if (pending === 'suspend')
-        void callbacks.onSuspend([visit.id], true, reason).then(close); };
+    d.querySelector('[data-cancel-choice-back]').onclick = showSections;
+    d.querySelector('[data-dns-choice-back]').onclick = showSections;
     d.querySelector('[data-missed-resolution-cancel]').onclick = showSections;
     d.querySelector('[data-missed-resolution-save]').onclick = () => { const note = (d.querySelector('[data-missed-resolution-note]').value || '').trim(); if (pending === 'missed-complete')
         void callbacks.onResolveMissed(visit.id, 'complete', note).then(close); if (pending === 'missed-no-return')
@@ -108,11 +134,34 @@ export function openVisitActionDialog(visit, account, teams, hold, callbacks) {
     d.querySelector('[data-reschedule-cancel]').onclick = showSections;
     d.querySelector('[data-reschedule-save]').onclick = () => { const date = d.querySelector('[data-new-date]').value, teamId = d.querySelector('[data-new-team]').value; if (!date || !teamId)
         return; void callbacks.onReschedule({ visitId: visit.id, newVisitId: `sch-v2-rescheduled-${crypto.randomUUID()}`, date, teamId, sortOrder: visit.sortOrder }).then(close); };
-    d.querySelector('[data-dns-cancel]').onclick = showSections;
+    d.querySelector('[data-dns-cancel]').onclick = () => showPanel(dnsChoicePanel);
     d.querySelector('[data-dns-save]').onclick = () => { const reason = d.querySelector('[data-dns-reason]').value.trim() || 'Do not service this visit', note = d.querySelector('[data-dns-note]').value.trim(); void callbacks.onVisitDoNotService(visit.id, true, reason, note).then(close); };
-    d.querySelector('[data-hold-cancel]').onclick = showSections;
+    d.querySelector('[data-hold-cancel]').onclick = () => showPanel(dnsChoicePanel);
     d.querySelector('[data-hold-save]').onclick = () => { const reason = d.querySelector('[data-hold-reason]').value.trim() || 'Do not service', note = d.querySelector('[data-hold-note]').value.trim(); void callbacks.onClientHold(visit.accountId, true, reason, note).then(close); };
     d.showModal();
+}
+function tasksForVisitDetail(visit, agreement, services) {
+    const labels = [];
+    const add = (value) => { const text = String(value ?? '').trim(); if (text && !labels.includes(text))
+        labels.push(text); };
+    const payload = visit.payload ?? {};
+    for (const key of ['tasks', 'customTasks']) {
+        const value = payload[key];
+        if (Array.isArray(value))
+            value.forEach(add);
+        else if (typeof value === 'string')
+            value.split(/\r?\n|\s*;\s*/).forEach(add);
+    }
+    add(payload.task);
+    add(payload.serviceDescription);
+    const serviceIds = visit.serviceIds.length ? visit.serviceIds : (agreement?.serviceIds ?? []);
+    for (const id of serviceIds) {
+        const service = services.find(row => row.id === id);
+        add(service?.name || id);
+    }
+    if (!labels.length)
+        add('Garden service');
+    return labels;
 }
 function statusLabel(status) { if (status === 'scheduled')
     return 'Scheduled'; if (status === 'missed')

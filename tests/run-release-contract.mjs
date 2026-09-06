@@ -240,3 +240,38 @@ console.log('TUINBOOKS R12 MISSED-VISIT/ACTION CONTRACT: PASS');
   has(styles,'R13 — one card action surface + hover-only info + multi-select rearrange','R13 interaction styles must be active');
 }
 console.log('TUINBOOKS R13 MULTI-SELECT/ONE-ACTION CONTRACT: PASS');
+
+// R14 Schedule: card click restores the actual work expected at the client before admin actions.
+{
+  const [schedulePage,visitDialog,repository,sql,styles]=await Promise.all([
+    read('src/features/schedule/schedulePage.ts'),read('src/features/schedule/visitActionDialog.ts'),read('src/features/schedule/scheduleRepository.ts'),read('supabase/APPLY-R14-VISIT-DETAIL.sql'),read('src/styles.css')
+  ]);
+  has(visitDialog,'Work for this visit','R14 visit dialog must lead with the work expected at the client');
+  has(visitDialog,'Site instructions','R14 visit detail must show site instructions when present');
+  has(visitDialog,'Access','R14 visit detail must show access notes when present');
+  has(visitDialog,'Routine notes','R14 visit detail must preserve agreement-specific notes');
+  has(visitDialog,'tasksForVisitDetail','R14 must derive visit-specific task labels');
+  has(visitDialog,'data-op="dns-choice"','Do not service must be one simple top-level action that then asks scope');
+  has(visitDialog,'data-op="cancel-choice"','Cancel must be one simple top-level action that then asks billing choice');
+  not(visitDialog,'<b>Suspend visit</b>','Suspend must not compete in the primary visit action menu');
+  has(schedulePage,'data.agreements','Schedule must resolve the active service agreement for the clicked visit');
+  has(schedulePage,'data.services','Schedule must pass service labels into visit detail');
+  has(repository,'const services:BusinessService[]','Week normalisation must include service catalogue labels');
+  has(repository,'const agreements:ServiceAgreement[]','Week normalisation must include active service agreement detail');
+  has(sql,"'services'",'R14 schedule week RPC must return business service labels');
+  has(sql,"'agreements'",'R14 schedule week RPC must return active service agreements');
+  has(styles,'R14 — restore visit detail as the primary card-click experience','R14 visit detail styles must be active');
+}
+console.log('TUINBOOKS R14 VISIT-DETAIL CONTRACT: PASS');
+
+// R15 Schedule: active Do Not Service states are directly reversible.
+{
+  const [visitDialog,styles]=await Promise.all([read('src/features/schedule/visitActionDialog.ts'),read('src/styles.css')]);
+  has(visitDialog,'Allow this visit again','R15 active visit DNS must expose a direct clear action');
+  has(visitDialog,'Clear client DNS','R15 active client DNS must expose a direct clear action');
+  has(visitDialog,"onVisitDoNotService(visit.id,false",'R15 visit DNS clear must persist active=false');
+  has(visitDialog,"onClientHold(visit.accountId,false",'R15 client DNS clear must persist active=false');
+  has(styles,'R15 — DNS must be visibly reversible','R15 reversible DNS styles must be active');
+}
+console.log('TUINBOOKS R15 REVERSIBLE-DNS CONTRACT: PASS');
+
