@@ -1,0 +1,25 @@
+import { addDays, startOfWeek, todayIso } from '../../domain/dates.js';
+export function demoWeek(requestedWeekStart) {
+    const weekStart = requestedWeekStart ?? startOfWeek(todayIso());
+    const teams = ['Daniel', 'Freddie', 'Team Blue'].map((name, index) => ({ id: `team-${index + 1}`, businessId: 'demo', name, active: true, capacityHours: 8, bufferHours: 1 }));
+    const accounts = Array.from({ length: 22 }, (_, i) => ({ id: `client-${i + 1}`, businessId: 'demo', name: `Garden Client ${i + 1}`, status: 'active', contactName: '', phone: '', email: '' }));
+    const locations = accounts.map((account, i) => ({ id: `site-${i + 1}`, businessId: 'demo', accountId: account.id, siteName: '', address: `${10 + i} Example Street`, suburb: i % 2 ? 'George Central' : 'Heatherlands', accessNotes: '', instructions: '', active: true }));
+    const series = [
+        { id: 'series-1', businessId: 'demo', accountId: 'client-1', serviceLocationId: 'site-1', status: 'active', frequency: 'weekly', anchorDate: weekStart, slots: [{ id: 'slot-1-mon', seriesId: 'series-1', weekday: 1, monthlyOrdinal: null, defaultTeamId: 'team-1', estimatedMinutes: 60, serviceIds: [], payload: {} }], payload: {} },
+        { id: 'series-2', businessId: 'demo', accountId: 'client-2', serviceLocationId: 'site-2', status: 'active', frequency: 'weekly', anchorDate: weekStart, slots: [{ id: 'slot-2-tue', seriesId: 'series-2', weekday: 2, monthlyOrdinal: null, defaultTeamId: 'team-2', estimatedMinutes: 75, serviceIds: [], payload: {} }, { id: 'slot-2-fri', seriesId: 'series-2', weekday: 5, monthlyOrdinal: null, defaultTeamId: 'team-2', estimatedMinutes: 75, serviceIds: [], payload: {} }], payload: {} },
+        { id: 'series-3', businessId: 'demo', accountId: 'client-3', serviceLocationId: 'site-3', status: 'active', frequency: 'fortnightly', anchorDate: addDays(weekStart, 2), slots: [{ id: 'slot-3-wed', seriesId: 'series-3', weekday: 3, monthlyOrdinal: null, defaultTeamId: 'team-3', estimatedMinutes: 60, serviceIds: [], payload: {} }], payload: {} }
+    ];
+    const mapped = [
+        recurringVisit('visit-1', 'client-1', 'site-1', 'team-1', weekStart, 100, 60, 'series-1', 'slot-1-mon'),
+        recurringVisit('visit-2', 'client-2', 'site-2', 'team-2', addDays(weekStart, 1), 100, 75, 'series-2', 'slot-2-tue'),
+        recurringVisit('visit-3', 'client-3', 'site-3', 'team-3', addDays(weekStart, 2), 100, 60, 'series-3', 'slot-3-wed'),
+        recurringVisit('visit-16', 'client-2', 'site-2', 'team-2', addDays(weekStart, 4), 100, 75, 'series-2', 'slot-2-fri')
+    ];
+    const visits = [...mapped, ...accounts.slice(3, 14).map((account, i) => ({ id: `visit-${i + 4}`, businessId: 'demo', date: addDays(weekStart, (i + 1) % 5), accountId: account.id, serviceLocationId: `site-${i + 4}`, teamId: teams[i % teams.length].id, status: 'scheduled', estimatedMinutes: i === 1 ? 0 : 60 + (i % 3) * 15, sortOrder: 200 + (Math.floor(i / 3) * 100), serviceIds: [], visitType: i === 1 ? 'additional' : 'routine', billingDisposition: i === 1 ? 'additional' : 'routine', seriesId: null, seriesSlotId: null, occurrenceDate: null, recurrenceManualOverride: false, payload: i === 1 ? { visitType: 'additional', workKind: 'additional-visit' } : { workMarker: 'R' }, updatedAt: null }))];
+    const queueItems = accounts.slice(15, 19).map((account, i) => ({ id: `queue-demo-${i + 1}`, businessId: 'demo', accountId: account.id, serviceLocationId: `site-${15 + i + 1}`, sourceVisitId: null, seriesId: null, seriesSlotId: null, occurrenceDate: null, originalDate: null, originalTeamId: null, estimatedMinutes: 45 + (i * 15), serviceIds: [], visitType: i === 2 ? 'quoted' : 'routine', billingDisposition: i === 2 ? 'quoted' : 'routine', reason: i === 2 ? 'Accepted quoted work' : 'Unscheduled routine visit', payload: {} }));
+    const clientHolds = [{ businessId: 'demo', clientId: 'client-4', active: true, reason: 'Do not service', note: 'Office must confirm before team enters.', updatedAt: null }];
+    const dayActions = [{ id: 'action-demo-note', businessId: 'demo', date: addDays(weekStart, 1), teamId: 'team-1', kind: 'team_note', title: 'Day instruction', detail: 'Collect green bags before first visit.', time: '', status: 'active', updatedAt: null }, { id: 'action-demo-event', businessId: 'demo', date: addDays(weekStart, 3), teamId: 'team-2', kind: 'internal_event', title: 'Vehicle service', detail: 'Workshop stop', time: '11:30', status: 'active', updatedAt: null }];
+    return { weekStart, weekEnd: addDays(weekStart, 6), teams, accounts, locations, visits, queueItems, series, clientHolds, dayActions };
+}
+function recurringVisit(id, accountId, siteId, teamId, date, sortOrder, minutes, seriesId, seriesSlotId) { return { id, businessId: 'demo', date, accountId, serviceLocationId: siteId, teamId, status: 'scheduled', estimatedMinutes: minutes, sortOrder, serviceIds: [], visitType: 'routine', billingDisposition: 'routine', seriesId, seriesSlotId, occurrenceDate: date, recurrenceManualOverride: false, payload: { workMarker: 'R', autoGenerated: true, scheduleSeriesId: seriesId }, updatedAt: null }; }
+//# sourceMappingURL=demoData.js.map
