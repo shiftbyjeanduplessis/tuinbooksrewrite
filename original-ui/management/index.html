@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <title>TuinBooks Management</title>
+  <link rel="stylesheet" href="management.css?v=59.6.93-onboarding-access-hardening">
+  <script src="../app/supabase-config.js"></script>
+  <script src="../app/vendor/supabase.js"></script>
+  <script defer src="management.js?v=59.6.93-onboarding-access-hardening"></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="../">
+        <span class="brand-mark">T</span>
+        <span><strong>TuinBooks</strong><small>Management</small></span>
+      </a>
+      <nav id="managementNav" hidden>
+        <button class="nav-button active" data-view="accounts">Accounts</button>
+        <button class="nav-button" data-view="activity">Support activity</button>
+        <button class="nav-button trash-nav-button" data-view="trash">Trash <span id="trashCountBadge" class="nav-count" hidden>0</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <span id="signedInIdentity">Not signed in</span>
+        <button id="signOutButton" class="text-button" type="button" hidden>Sign out</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="loadingScreen" class="gate-card">
+        <div class="spinner" aria-hidden="true"></div>
+        <h1>Opening TuinBooks Management</h1>
+        <p>Checking the secure connection and your account.</p>
+      </section>
+
+      <section id="connectionError" class="gate-card error-card" hidden>
+        <span class="gate-icon">!</span>
+        <h1>TuinBooks is temporarily unavailable</h1>
+        <p id="connectionErrorText">Please wait a moment and try again. Your client data has not been changed.</p>
+        <button id="retryManagementConnectionButton" class="primary-button" type="button">Retry management connection</button>
+      </section>
+
+      <section id="signInScreen" class="gate-card" hidden>
+        <span class="eyebrow">PRIVATE MANAGEMENT ACCESS</span>
+        <h1>Sign in to TuinBooks Management</h1>
+        <p>Use the named platform-management account. Client passwords are never used.</p>
+        <form id="signInForm" class="form-stack">
+          <label>Email<input id="signInEmail" type="email" autocomplete="username" required></label>
+          <label>Password<input id="signInPassword" type="password" autocomplete="current-password" required></label>
+          <button class="primary-button" type="submit">Sign in</button>
+          <p id="signInMessage" class="form-message" role="status"></p>
+        </form>
+      </section>
+
+      <section id="mfaScreen" class="gate-card" hidden>
+        <span class="eyebrow">MULTI-FACTOR VERIFICATION</span>
+        <h1>Verify management access</h1>
+        <p id="mfaExplanation">Enter the six-digit code from your authenticator app.</p>
+
+        <div id="mfaEnrollPanel" hidden>
+          <div class="qr-frame"><img id="mfaQrCode" alt="Authenticator QR code"></div>
+          <p>Scan this QR code with an authenticator app, then enter the first six-digit code.</p>
+          <p class="secret-line">Manual setup key: <code id="mfaSecret"></code></p>
+        </div>
+
+        <form id="mfaForm" class="form-stack">
+          <label>Authentication code<input id="mfaCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label>
+          <button class="primary-button" type="submit">Verify</button>
+          <p id="mfaMessage" class="form-message" role="status"></p>
+        </form>
+      </section>
+
+      <section id="accessDeniedScreen" class="gate-card error-card" hidden>
+        <span class="gate-icon">×</span>
+        <h1>Management access denied</h1>
+        <p>This authenticated user is not an active TuinBooks platform administrator.</p>
+        <button id="deniedSignOutButton" class="secondary-button" type="button">Sign out</button>
+      </section>
+
+      <div id="managementApp" hidden>
+        <header class="topbar">
+          <div>
+            <span class="eyebrow">TUINBOOKS MANAGEMENT</span>
+            <h1 id="viewTitle">Client accounts</h1>
+            <p id="viewSubtitle">Search, review and open controlled support sessions.</p>
+          </div>
+          <div class="topbar-actions">
+            <button id="createAccountButton" class="primary-button" type="button">Create account</button>
+            <button id="refreshButton" class="secondary-button" type="button">Refresh</button>
+          </div>
+        </header>
+
+        <section id="accountsView" class="view active">
+          <div class="toolbar-card">
+            <label class="search-field"><span>Search accounts</span><input id="accountSearch" type="search" placeholder="Business, owner, email, phone or business ID"></label>
+            <label><span>Account</span><select id="accountStatusFilter"><option value="all">All live accounts</option><option value="trial">Trial</option><option value="paying">Paying</option><option value="overdue">Payment overdue</option><option value="mobile_review">Mobile-user review</option><option value="suspended">Suspended</option><option value="demo">Demo</option></select></label>
+            <div class="result-count"><strong id="accountCount">0</strong><span>accounts</span></div>
+          </div>
+
+          <div class="table-card">
+            <div id="accountsLoading" class="inline-loading" hidden>Loading accounts…</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Business</th><th>Main contact</th><th>Account</th><th>Subscription</th><th>Next payment</th><th>Mobile users</th><th>Teams</th><th>Customers</th><th>Last activity</th><th></th></tr></thead>
+                <tbody id="accountsTableBody"></tbody>
+              </table>
+            </div>
+            <div id="accountsEmpty" class="empty-state" hidden>No accounts match this search.</div>
+          </div>
+        </section>
+
+
+        <section id="trashView" class="view">
+          <div class="toolbar-card trash-toolbar">
+            <label class="search-field"><span>Search Trash</span><input id="trashSearch" type="search" placeholder="Business, email or business ID"></label>
+            <div class="trash-retention-note"><strong>30-day recovery</strong><span>Deleted accounts disappear from Accounts immediately and remain recoverable here for 30 days.</span></div>
+            <div class="result-count"><strong id="trashCount">0</strong><span>deleted</span></div>
+          </div>
+          <div class="table-card">
+            <div id="trashLoading" class="inline-loading" hidden>Loading Trash…</div>
+            <div class="table-scroll">
+              <table class="trash-table"><thead><tr><th>Business</th><th>Contact</th><th>Deleted</th><th>Recovery remaining</th><th></th></tr></thead><tbody id="trashTableBody"></tbody></table>
+            </div>
+            <div id="trashEmpty" class="empty-state" hidden>Trash is empty.</div>
+          </div>
+        </section>
+
+        <section id="activityView" class="view">
+          <div class="table-card">
+            <div id="activityLoading" class="inline-loading" hidden>Loading support activity…</div>
+            <div class="table-scroll">
+              <table>
+                <thead><tr><th>Business</th><th>Administrator</th><th>Reason</th><th>Access</th><th>Started</th><th>Ended / expires</th><th>Status</th><th>Events</th></tr></thead>
+                <tbody id="activityTableBody"></tbody>
+              </table>
+            </div>
+            <div id="activityEmpty" class="empty-state" hidden>No support sessions have been recorded.</div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="accountDialog" class="drawer-dialog">
+    <div class="drawer-shell">
+      <header class="drawer-header">
+        <div><span class="eyebrow">CLIENT ACCOUNT</span><h2 id="accountDialogTitle">Account</h2><p id="accountDialogMeta"></p></div>
+        <button class="icon-button" type="button" data-close-dialog="accountDialog" aria-label="Close">×</button>
+      </header>
+      <div id="accountDialogLoading" class="inline-loading">Loading account…</div>
+      <div id="accountDialogContent" hidden>
+        <div id="accountSummaryCards" class="summary-grid"></div>
+        <section id="managementSetupSection" class="drawer-section management-setup-section" hidden>
+          <div class="section-heading">
+            <div>
+              <h3>Business &amp; teams</h3>
+              <p>Edit the business details and teams here. Account lifecycle and subscription are managed separately below.</p>
+            </div>
+          </div>
+          <form id="managementSetupForm" class="management-setup-form">
+            <div class="management-setup-card">
+              <div class="management-setup-card-heading"><div><strong>Business details</strong><span>Used on quotes, invoices and client messages.</span></div></div>
+              <div class="management-setup-grid">
+                <label>Business name<input id="setupBusinessName" maxlength="160" required></label>
+                <label>Phone<input id="setupBusinessPhone" maxlength="60" autocomplete="off"></label>
+                <label>Business email<input id="setupBusinessEmail" type="email" maxlength="254" autocomplete="off"></label>
+                <label>Business address<input id="setupBusinessAddress" maxlength="500" autocomplete="off"></label>
+              </div>
+            </div>
+
+            <div class="management-setup-card">
+              <div class="management-setup-card-heading">
+                <div><strong>Teams</strong><span>Add and prepare the office teams before handover.</span></div>
+                <button id="addSetupTeamButton" class="secondary-button compact-button" type="button">+ Add team</button>
+              </div>
+              <div id="managementSetupTeams" class="management-setup-teams"></div>
+            </div>
+
+            <div class="management-setup-card management-setup-operational">
+              <div>
+                <strong>Clients and schedule</strong>
+                <span id="managementSetupOperationalSummary">Load the client list and working schedule after the core account details are ready.</span>
+              </div>
+              <button id="openSetupWorkspaceButton" class="secondary-button" type="button">Open clients &amp; schedule</button>
+            </div>
+            <div class="management-setup-actions">
+              <p id="managementSetupMessage" class="form-message" role="status"></p>
+              <button id="saveManagementSetupButton" class="primary-button" type="submit">Save business & teams</button>
+            </div>
+          </form>
+        </section>
+
+        <section id="subscriptionSection" class="drawer-section subscription-section">
+          <div class="section-heading">
+            <div><h3>Subscription</h3><p>Manage Trial/Paying status, the monthly charge and chargeable mobile users.</p></div>
+            <span id="subscriptionStageChip" class="chip gold">Trial</span>
+          </div>
+          <div id="subscriptionAlert" class="subscription-alert" hidden></div>
+          <form id="subscriptionForm" class="subscription-form">
+            <div class="subscription-grid">
+              <label>Account<select id="subscriptionStage"><option value="trial">Trial</option><option value="paying">Paying</option><option value="suspended">Suspended</option></select></label>
+              <label>Paying since<input id="subscriptionPayingSince" type="date"></label>
+              <label>Base monthly amount (R)<input id="subscriptionBaseAmount" type="number" min="0" step="0.01" value="0"></label>
+              <label>Mobile users included<input id="subscriptionIncludedMobiles" type="number" min="0" step="1" value="1"></label>
+              <label>Additional mobile user (R/month)<input id="subscriptionExtraMobileRate" type="number" min="0" step="0.01" value="0"></label>
+              <label>Next payment due<input id="subscriptionNextDue" type="date"></label>
+            </div>
+            <div class="subscription-summary-grid">
+              <div><strong id="subscriptionMonthlyTotal">R 0.00</strong><span>Current monthly subscription</span></div>
+              <div><strong id="subscriptionActiveMobiles">0</strong><span>Active mobile users</span></div>
+              <div><strong id="subscriptionApprovedMobiles">1</strong><span>Currently billed allowance</span></div>
+              <div><strong id="subscriptionAge">Trial</strong><span>Time on program</span></div>
+            </div>
+            <label>Management note<textarea id="subscriptionNotes" maxlength="1000" placeholder="Optional subscription note"></textarea></label>
+            <div class="subscription-actions">
+              <p id="subscriptionMessage" class="form-message" role="status"></p>
+              <button id="applyMobileChargeButton" class="secondary-button" type="button" hidden>Apply additional mobile charge</button>
+              <button id="convertPayingButton" class="secondary-button" type="button">Convert to paying</button>
+              <button id="saveSubscriptionButton" class="primary-button" type="submit">Save subscription</button>
+            </div>
+          </form>
+          <div id="subscriptionPaymentPanel" class="subscription-payment-panel" hidden>
+            <div><strong>Record subscription payment</strong><span id="lastSubscriptionPayment">No payment recorded yet.</span></div>
+            <div class="payment-entry">
+              <label>Amount (R)<input id="subscriptionPaymentAmount" type="number" min="0" step="0.01"></label>
+              <label>Paid on<input id="subscriptionPaymentDate" type="date"></label>
+              <button id="recordSubscriptionPaymentButton" class="secondary-button" type="button">Record payment</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="drawer-section office-access-section admin-access-section">
+          <div class="section-heading">
+            <div><h3>Admin access</h3><p>Add or reset full office administrators. Adding one admin never removes another admin or the business owner.</p></div>
+            <span id="officeAccessStatus" class="chip green">Admins</span>
+          </div>
+          <div id="officeAccessDetail" class="office-access-detail admin-access-list"></div>
+          <div class="admin-add-heading"><strong>Add an admin</strong><span>Use a named email address for the person who will sign in.</span></div>
+          <div class="office-access-grid">
+            <label>Name<input id="officeAccessName" maxlength="160" autocomplete="off" placeholder="e.g. Finance Administrator"></label>
+            <label>Email<input id="officeAccessEmail" type="email" maxlength="254" autocomplete="off" placeholder="name@business.co.za"></label>
+          </div>
+          <p id="officeAccessHelp" class="office-access-help"><strong>Setup link</strong> = create/reset the person's password. <strong>Daily login link</strong> = normal sign-in after the password exists. Keep the daily login link for training and future access.</p>
+          <div class="office-access-actions">
+            <button id="copyOfficeLoginButton" class="secondary-button" type="button" hidden>Copy daily login link</button>
+            <button id="copyOfficeSetupLinkButton" class="secondary-button" type="button">Add admin &amp; copy setup link</button>
+            <button id="copyPasswordResetLinkButton" class="secondary-button" type="button" hidden>Copy password link</button>
+            <button id="testOfficeInvitationButton" class="secondary-button" type="button" hidden>Test client link</button>
+            <button id="cancelOfficeInvitationButton" class="secondary-button" type="button" hidden>Cancel pending invitation</button>
+            <button id="sendOfficeInvitationButton" class="primary-button" type="button">Add admin &amp; send setup email</button>
+          </div>
+          <p id="officeAccessMessage" class="form-message" role="status"></p>
+        </section>
+        <section class="drawer-section" hidden><div class="section-heading"><h3>Account members</h3></div><div id="accountMembers" class="member-list"></div></section>
+        <details class="drawer-section management-advanced"><summary>Advanced account actions</summary><section id="accountDeletionSection" class="danger-zone">
+          <div class="section-heading">
+            <div><h3>Account deletion</h3><p>Deleted accounts disappear from the live account list immediately and remain recoverable in Trash for 30 days.</p></div>
+            <span id="accountDeletionStatus" class="chip">Available</span>
+          </div>
+          <div id="accountDeletionDetail" class="deletion-detail">The account is active and has not been scheduled for deletion.</div>
+          <div class="deletion-actions">
+            <button id="restoreAccountButton" class="secondary-button" type="button" hidden>Restore account</button>
+            <button id="deleteAccountButton" class="danger-button" type="button">Move to Trash (30-day recovery)</button>
+          </div>
+        </section>
+        </details>
+        <section class="drawer-section" hidden><div class="section-heading"><h3>Internal support notes</h3></div><form id="supportNoteForm" class="note-form"><textarea id="supportNoteText" maxlength="4000" placeholder="Add a private management note" required></textarea><button class="secondary-button" type="submit">Add note</button></form><p id="supportNoteMessage" class="form-message"></p><div id="supportNotesList" class="notes-list"></div></section>
+        <section class="drawer-section" hidden><div class="section-heading"><h3>Recent activity</h3></div><div id="recentActivityList" class="activity-list"></div></section>
+      </div>
+      <footer class="drawer-footer">
+        <div id="supportGrantSummary" class="grant-summary" hidden></div>
+        <button id="openReadOnlyButton" class="secondary-button" type="button">Open read-only</button>
+        <button id="openFullSupportButton" class="primary-button" type="button">Enter Support Mode</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog id="sessionDialog" class="modal-dialog">
+    <form id="sessionForm" class="modal-card">
+      <header><div><span class="eyebrow">CONTROLLED SUPPORT SESSION</span><h2 id="sessionDialogTitle">Enter Support Mode</h2></div><button class="icon-button" type="button" data-close-dialog="sessionDialog" aria-label="Close">×</button></header>
+      <label>Reason<select id="sessionReason" required><option value="">Choose a reason</option><option>Training</option><option>Troubleshooting</option><option>Data correction</option><option>Account setup</option><option>Client request</option><option>Other</option></select></label>
+      <label>Support note<textarea id="sessionNote" maxlength="500" placeholder="Describe what you are helping with"></textarea></label>
+      <label>Duration<select id="sessionDuration"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="90">90 minutes</option><option value="120">2 hours</option></select></label>
+      <div id="sessionScopeSummary" class="scope-summary"></div>
+      <p id="sessionMessage" class="form-message"></p>
+      <footer><button class="secondary-button" type="button" data-close-dialog="sessionDialog">Cancel</button><button id="startSessionButton" class="primary-button" type="submit">Start Support Session</button></footer>
+    </form>
+  </dialog>
+
+
+
+  <dialog id="createAccountDialog" class="modal-dialog">
+    <form id="createAccountForm" class="modal-card create-account-card">
+      <header>
+        <div><span class="eyebrow">NEW CLIENT ACCOUNT</span><h2>Create client account</h2></div>
+        <button class="icon-button" type="button" data-close-dialog="createAccountDialog" aria-label="Close">×</button>
+      </header>
+      <p class="form-intro">Create the business workspace first. Use the account drawer to prepare the subscription, then open the workspace for business details, teams, clients and schedule. Add office administrators from Admin access when the account is ready. Field staff are connected separately with a four-digit mobile PIN.</p>
+      <div class="form-grid two-column">
+        <label>Business name<input id="newBusinessName" maxlength="160" required></label>
+        <label>Main contact<input id="newContactName" maxlength="160" required></label>
+        <label>Office email<input id="newOfficeEmail" type="email" maxlength="254" autocomplete="off" required></label>
+        <label>Phone<input id="newPhone" maxlength="60" autocomplete="off"></label>
+        <input id="newAccountStatus" type="hidden" value="trial">
+        <label>Initial team name<input id="newTeamName" maxlength="120" value="Team 1" required></label>
+        <label>Trial starts<input id="newTrialStart" type="date"></label>
+        <label>Trial ends<input id="newTrialEnd" type="date"></label>
+      </div>
+      <p id="createAccountMessage" class="form-message" role="status"></p>
+      <footer>
+        <button class="secondary-button" type="button" data-close-dialog="createAccountDialog">Cancel</button>
+        <button id="saveNewAccountButton" class="primary-button" type="submit">Create account</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="createdAccountDialog" class="modal-dialog">
+    <div class="modal-card created-account-card">
+      <header>
+        <div><span class="eyebrow">ACCOUNT CREATED</span><h2 id="createdAccountTitle">Client account ready</h2></div>
+        <button class="icon-button" type="button" data-close-dialog="createdAccountDialog" aria-label="Close">×</button>
+      </header>
+      <div class="success-panel">
+        <strong id="createdAccountBusiness">Business created</strong>
+        <span id="createdAccountMeta"></span>
+      </div>
+      <div class="handover-panel">
+        <strong>Prepare the account before inviting the client</strong>
+        <span>Open the account in Management for the business and teams, then load the clients and working schedule before using Office access.</span>
+      </div>
+      <p class="form-intro">The office user will click the TuinBooks email, create their own password and enter the already-prepared business workspace. Field users still receive a separate four-digit mobile PIN.</p>
+      <footer>
+        <button id="openCreatedAccountButton" class="primary-button" type="button">Set up account now</button>
+        <button class="primary-button" type="button" data-close-dialog="createdAccountDialog">Done</button>
+      </footer>
+    </div>
+  </dialog>
+
+
+  <dialog id="deleteAccountDialog" class="modal-dialog">
+    <form id="deleteAccountForm" class="modal-card delete-account-card">
+      <header>
+        <div><span class="eyebrow">CONFIRM ACCOUNT DELETION</span><h2>Delete this client account?</h2></div>
+        <button class="icon-button" type="button" data-close-dialog="deleteAccountDialog" aria-label="Close">×</button>
+      </header>
+      <div class="delete-warning">
+        <strong id="deleteAccountBusinessName">Client account</strong>
+        <span>Office and field access will be suspended immediately. The account will disappear from the live Management list immediately and remain recoverable in Trash for 30 days.</span>
+      </div>
+      <label>Type the full business name to confirm<input id="deleteAccountConfirmation" autocomplete="off" required></label>
+      <p id="deleteAccountMessage" class="form-message" role="status"></p>
+      <footer>
+        <button class="secondary-button" type="button" data-close-dialog="deleteAccountDialog">Cancel</button>
+        <button id="confirmDeleteAccountButton" class="danger-button" type="submit">Delete account</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+</body>
+</html>
