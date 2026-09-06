@@ -1,4 +1,4 @@
-TUINBOOKS V2 UI-RESTORED RELEASE R2
-Build authority: scripts/build-release-ui-restored.mjs
-Management authority: original-ui/management/
-Office architecture: clean v2 implementation
+TuinBooks UI-restored release R3
+Management session route compatibility restored.
+Original Management links support=1&business=<uuid>&session=<uuid> are verified against the audited support-session RPC before opening the workspace.
+Customer-facing v2 login copy removed.

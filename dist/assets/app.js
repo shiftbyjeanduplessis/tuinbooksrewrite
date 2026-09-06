@@ -10,7 +10,7 @@ import { renderBusinessOverviewPage } from './features/business/businessOverview
 const root = document.getElementById('root');
 if (!root)
     throw new Error('TuinBooks root element is missing.');
-const params = new URLSearchParams(location.search), demo = params.get('demo') === '1', supportBusiness = params.get('support') ?? '';
+const params = new URLSearchParams(location.search), demo = params.get('demo') === '1', supportMode = params.get('support') === '1', supportBusiness = supportMode ? (params.get('business') ?? '') : '', supportSession = supportMode ? (params.get('session') ?? '') : '';
 let identity = null, currentPage = 'schedule';
 const navigation = { go(page) { if (!['schedule', 'clients', 'work', 'quotes', 'money', 'business', 'settings'].includes(page))
         return; currentPage = page; renderCurrent(); }, async logout() { if (demo) {
@@ -43,12 +43,12 @@ async function boot() {
     }
     root.innerHTML = '<main class="boot-screen"><div class="spinner"></div><strong>Opening TuinBooks…</strong></main>';
     try {
-        const context = supportBusiness ? await loadSupportAuthContext(supportBusiness) : await loadAuthContext();
+        const context = supportMode ? await loadSupportAuthContext(supportBusiness, supportSession) : await loadAuthContext();
         if (!context) {
             renderLogin(root, boot);
             return;
         }
-        identity = { businessId: context.business.id, userId: context.userId, businessName: context.business.name, support: !!supportBusiness };
+        identity = { businessId: context.business.id, userId: context.userId, businessName: context.business.name, support: supportMode };
         renderCurrent();
     }
     catch (error) {

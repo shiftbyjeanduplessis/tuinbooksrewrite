@@ -29,4 +29,4 @@ await mkdir('dist/app/vendor', { recursive: true });
 await copyFile('original-ui/app/vendor/supabase.js', 'dist/app/vendor/supabase.js');
 
 await writeFile('dist/index.html', `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=/app/"><title>TuinBooks</title></head><body><p><a href="/app/">Open TuinBooks</a></p></body></html>\n`);
-console.log('TUINBOOKS UI-RESTORED RELEASE R2: original Management + v2 application build published to /management/ + /app/.');
+console.log('TUINBOOKS UI-RESTORED RELEASE R3: original Management + v2 application build published to /management/ + /app/.');

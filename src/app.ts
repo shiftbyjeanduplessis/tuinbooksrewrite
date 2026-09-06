@@ -11,7 +11,7 @@ import type { WorkspaceIdentity, WorkspaceNavigation, WorkspacePage } from './fe
 
 const root=document.getElementById('root');
 if(!root)throw new Error('TuinBooks root element is missing.');
-const params=new URLSearchParams(location.search),demo=params.get('demo')==='1',supportBusiness=params.get('support')??'';
+const params=new URLSearchParams(location.search),demo=params.get('demo')==='1',supportMode=params.get('support')==='1',supportBusiness=supportMode?(params.get('business')??''):'',supportSession=supportMode?(params.get('session')??''):'';
 let identity:WorkspaceIdentity|null=null,currentPage:WorkspacePage='schedule';
 
 const navigation:WorkspaceNavigation={go(page){if(!['schedule','clients','work','quotes','money','business','settings'].includes(page))return;currentPage=page;renderCurrent();},async logout(){if(demo){location.href=location.pathname;return;}if(identity?.support){location.href=new URL('../management/',location.href).href;return;}await supabase.auth.signOut();identity=null;await boot();}};
@@ -19,7 +19,7 @@ function renderCurrent():void{if(!identity)return;if(currentPage==='clients')ren
 async function boot():Promise<void>{
   if(demo){identity={businessId:'demo',userId:'demo',businessName:'TuinBooks Demo',demo:true};renderCurrent();return;}
   root!.innerHTML='<main class="boot-screen"><div class="spinner"></div><strong>Opening TuinBooks…</strong></main>';
-  try{const context=supportBusiness?await loadSupportAuthContext(supportBusiness):await loadAuthContext();if(!context){renderLogin(root!,boot);return;}identity={businessId:context.business.id,userId:context.userId,businessName:context.business.name,support:!!supportBusiness};renderCurrent();}
+  try{const context=supportMode?await loadSupportAuthContext(supportBusiness,supportSession):await loadAuthContext();if(!context){renderLogin(root!,boot);return;}identity={businessId:context.business.id,userId:context.userId,businessName:context.business.name,support:supportMode};renderCurrent();}
   catch(error){renderLogin(root!,boot,error instanceof Error?error.message:String(error));}
 }
 void boot();

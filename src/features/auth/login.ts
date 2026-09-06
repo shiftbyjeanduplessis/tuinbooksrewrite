@@ -5,9 +5,7 @@ export function renderLogin(root: HTMLElement, onSignedIn: () => Promise<void>, 
     <main class="login-page">
       <form class="login-card" id="loginForm">
         <img src="./tuinbooks-logo.png" alt="TuinBooks" class="login-logo" />
-        <p class="eyebrow">TuinBooks v2</p>
         <h1>Sign in</h1>
-        <p class="muted">Same Supabase account. Completely separate calendar frontend.</p>
         <label>Email<input id="loginEmail" type="email" autocomplete="username" required /></label>
         <label>Password<input id="loginPassword" type="password" autocomplete="current-password" required /></label>
         <div id="loginError" class="error-box ${initialError ? '' : 'hidden'}" role="alert"></div>

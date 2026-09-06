@@ -1,49 +1,36 @@
-# TuinBooks v2 — frozen single-codebase release candidate
+# TuinBooks UI-restored release R3 — build report
 
-## Status
+Date: 2026-09-06
 
-Feature implementation: COMPLETE for the agreed v2 rebuild scope.
-Deployment: NOT YET PERFORMED.
-Real deployed browser/Supabase acceptance: PENDING.
+Purpose: restore compatibility between the original TuinBooks Management portal and the rewritten application workspace without changing the Management workflow.
 
-## Exact final gate
+## Fixed
 
-`npm run check` on this exact folder:
+- Original Management opens the app with `?support=1&business=<uuid>&session=<uuid>`.
+- The rewritten app incorrectly treated `support=1` as though `1` were the business UUID, causing `invalid input syntax for type uuid: "1"` and dropping the user onto the sign-in screen.
+- R3 now reads the business UUID from `business`, the audited support-session UUID from `session`, verifies that exact session with `tuinbooks_management_open_context_v5938`, validates business/session/status/expiry/read access, and then opens the requested workspace.
+- Removed customer-facing `TuinBooks v2` and `Completely separate calendar frontend` copy from the sign-in screen.
 
-- Domain: 178/178 assertions PASS
-- Release contract: 43/43 checks PASS
-- Stress: 100-account/110-location v4 model PASS
-- Recurrence stress: 200 clients / 220 locations / 8 weeks = 1,408 visits PASS
-- Billing stress: 10,000 invoices PASS
-- Real binary v4 XLSX import -> export -> re-import: PASS, 0 errors
-- TypeScript build: PASS
-- Production route tree: `/app/` + `/management/` PASS
-- Compiled static integrity: 94 JS module copies / 190 relative imports / 0 missing
-- Forbidden legacy patterns: 0
-- Static HTTP smoke: office + field/owner mobile + management + public documents PASS
+## Automated verification
 
-## SQL installer correction
+- Domain tests: PASS — 178 assertions
+- Stress tests: PASS — 100-account/110-location v4 fixture; 200-client recurrence 1,408 visits; 10,000 invoices
+- Release contract: PASS — 61 checks
+- UI preservation contract: PASS
+- XLSX round-trip: PASS
+- Static module/asset validation: PASS — 96 JS module copies, 206 relative imports, 0 missing
+- HTTP smoke: PASS — `/app`, mobile, `/management`, public document routes and assets HTTP 200
 
-- SQLFIX1: v4 export route query now uses explicit aliases `day_name`, `week_label`, `stop_order`, and `row_json` instead of bare SQL-keyword-like aliases.
-- `supabase/INSTALL-V2-CORE.sql` and `supabase/migration-v2-business-import-management.sql` were corrected together.
-- The regression is now enforced by the release-contract test.
+## Targeted regression guard
 
-## Deployment contents
+The release contract explicitly rejects the broken pattern where `support` is assigned directly as the business ID, and requires the original Management route contract (`support=1`, `business`, `session`) plus exact support-session verification.
 
-- Complete source under `src/`
-- Generated deploy tree under `dist/`
-- Render blueprint: `render.yaml`
-- Combined additive DB installer: `supabase/INSTALL-V2-CORE.sql`
-- Optional legacy recurrence adoption bridge remains separate by design
-- Full automated test suite under `tests/`
+## Deployment
 
-## Honesty gate
+No SQL/database change is required for R3. Deploy the complete release codebase. The Render build log must include:
 
-This report does NOT claim production readiness. The next authority is the deployed real-browser + real-Supabase acceptance run.
+`TUINBOOKS UI-RESTORED RELEASE R3: original Management + v2 application build published to /management/ + /app/.`
 
-## SQLFIX2 — live Management support-grant compatibility
-- Corrected v2 Management SQL to use the deployed grant columns: `allow_operational_read`, `allow_operational_edit`, `allow_financial_read`, `allow_financial_edit`.
-- New grant inserts now include the existing `reason` column.
-- Corrected `is_business_admin` full-support check to use the live grant schema.
-- Added release-contract regression checks for these live column names.
-- Full `npm run check`: PASS (178 domain assertions; stress; 53 release checks; build; binary XLSX round-trip; static; HTTP smoke).
+## Remaining verification
+
+Actual live Management → account workspace opening must still be confirmed after deployment against the existing Supabase support-session RPCs. Automated/local checks do not substitute for that deployed browser test.
