@@ -1,0 +1,7 @@
+import { readdir, readFile, access } from 'node:fs/promises';import { join,dirname,resolve } from 'node:path';
+async function walk(d){let out=[];for(const e of await readdir(d,{withFileTypes:true})){const p=join(d,e.name);if(e.isDirectory())out=out.concat(await walk(p));else out.push(p);}return out;}
+const roots=['dist/app/assets','dist/management/assets'];let files=[];for(const r of roots)files.push(...(await walk(r)).filter(f=>f.endsWith('.js')));
+let imports=0,missing=[];for(const f of files){const s=await readFile(f,'utf8');for(const m of s.matchAll(/(?:from\s*|import\s*)['"](\.[^'"]+)['"]/g)){imports++;let p=resolve(dirname(f),m[1]);try{await access(p);}catch{missing.push(`${f} -> ${m[1]}`);}}}
+if(missing.length)throw new Error(`Missing imports:\n${missing.join('\n')}`);const all=await Promise.all(files.map(f=>readFile(f,'utf8')));const joined=all.join('\n');for(const forbidden of ['serviceSitesV56','schedule-exact-canary','schedule-drag-mode-v6061','schedule-drag-basket-v6066','MutationObserver','scrollIntoView','setInterval('])if(joined.includes(forbidden))throw new Error(`Forbidden legacy/runtime pattern present: ${forbidden}`);
+for(const required of ['dist/app/index.html','dist/app/mobile.html','dist/app/accept.html','dist/app/document.html','dist/management/index.html','dist/index.html'])await access(required);
+console.log(`TUINBOOKS V2 STATIC: PASS · ${files.length} JS module copies · ${imports} relative imports · 0 missing · 0 forbidden legacy patterns · production routes present`);

@@ -1,0 +1,23 @@
+import assert from 'node:assert/strict';
+import { readFile, writeFile, unlink } from 'node:fs/promises';
+import { readXlsx, createXlsx } from '../dist/assets/lib/xlsx.js';
+import { parseV4Sheets, v4RowsForExport, V4_SHEETS } from '../dist/assets/domain/business.js';
+
+const fixtureUrl=new URL('./fixtures/TuinBooks_Stress_Import_100_v4.xlsx',import.meta.url);
+const source=await readFile(fixtureUrl);
+const sheets=await readXlsx(new Blob([source]));
+const parsed=parseV4Sheets(sheets);
+assert.equal(parsed.ok,true,parsed.errors.join('\n'));
+assert.deepEqual(parsed.counts,{accounts:100,locations:110,teams:5,services:1,routes:165});
+assert.ok(parsed.snapshot);
+const exportRows=v4RowsForExport(parsed.snapshot);
+const blob=createXlsx(V4_SHEETS.map(name=>({name,rows:exportRows[name]})));
+const output=new URL('./fixtures/.roundtrip-output.xlsx',import.meta.url);
+await writeFile(output,Buffer.from(await blob.arrayBuffer()));
+const reread=await readXlsx(blob);
+const reparsed=parseV4Sheets(reread);
+assert.equal(reparsed.ok,true,reparsed.errors.join('\n'));
+assert.deepEqual(reparsed.counts,parsed.counts);
+assert.deepEqual(Object.keys(reread),[...V4_SHEETS]);
+await unlink(output).catch(()=>{});
+console.log('TUINBOOKS V2 XLSX ROUNDTRIP: PASS · actual 100-account v4 binary → v2 → generated v4 binary → v2 · 0 errors');
