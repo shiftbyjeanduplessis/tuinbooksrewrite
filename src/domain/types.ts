@@ -58,7 +58,7 @@ export interface Visit {
 
 
 export interface ClientServiceHold { businessId:string; clientId:string; active:boolean; reason:string; note:string; updatedAt:string|null; }
-export interface ScheduleDayAction { id:string; businessId:string; date:IsoDate; teamId:string; kind:'team_note'|'internal_event'; title:string; detail:string; time:string; status:'active'|'cancelled'|string; updatedAt:string|null; }
+export interface ScheduleDayAction { id:string; businessId:string; date:IsoDate; teamId:string; kind:'team_note'|'internal_event'; title:string; detail:string; time:string; status:'active'|'resolved'|'cancelled'|string; response:string; resolvedAt:string|null; updatedAt:string|null; }
 
 export interface ScheduleQueueItem {
   id: string;

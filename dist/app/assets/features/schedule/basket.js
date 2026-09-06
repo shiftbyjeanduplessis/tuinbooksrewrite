@@ -3,13 +3,8 @@ export function renderBasket(host, items, accounts, locations, visits, onPlace) 
     const accountById = new Map(accounts.map(a => [a.id, a]));
     const locationById = new Map(locations.map(s => [s.id, s]));
     host.innerHTML = '';
-    const summary = document.createElement('div');
-    summary.className = 'basket-summary';
-    const routine = items.filter(i => i.visitType === 'routine').length, additional = items.filter(i => i.visitType === 'additional').length, quoted = items.filter(i => i.visitType === 'quoted').length;
-    summary.innerHTML = `<div><strong>${items.length}</strong><span>waiting</span></div><div><strong>${routine}</strong><span>routine</span></div><div><strong>${additional + quoted}</strong><span>extra / quoted</span></div>`;
-    host.append(summary);
     if (!items.length) {
-        host.insertAdjacentHTML('beforeend', '<div class="basket-empty"><strong>Basket empty</strong><p>Move a visit here or add accepted/unscheduled work.</p></div>');
+        host.innerHTML = '<div class="basket-empty"><strong>Basket empty</strong><p>Drag a visit here when you want to move it out of the week.</p></div>';
         return { destroy() { host.innerHTML = ''; } };
     }
     const list = document.createElement('div');
@@ -17,11 +12,11 @@ export function renderBasket(host, items, accounts, locations, visits, onPlace) 
     host.append(list);
     const cleanup = [];
     for (const item of items) {
-        const account = accountById.get(item.accountId), location = item.serviceLocationId ? locationById.get(item.serviceLocationId) : undefined, type = typeLabel(item);
+        const account = accountById.get(item.accountId), location = item.serviceLocationId ? locationById.get(item.serviceLocationId) : undefined;
         const card = document.createElement('article');
-        card.className = `basket-card basket-${item.visitType}`;
+        card.className = 'basket-card basket-card-compact';
         card.dataset.queueItemId = item.id;
-        card.innerHTML = `<span class="basket-marker ${item.visitType}">${marker(item)}</span><div><strong>${esc(account?.name || item.accountId)}</strong><small>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</small><span>${esc(type)} · ${item.estimatedMinutes ? `${item.estimatedMinutes} min` : 'duration unset'}</span><em>${esc(item.reason || 'Unscheduled work')}</em></div><b title="Drag to calendar">⋮⋮</b>`;
+        card.innerHTML = `<div><strong>${esc(account?.name || item.accountId)}</strong><small>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</small></div><b title="Drag to calendar">⋮⋮</b>`;
         list.append(card);
         const down = (event) => beginPointerDrag(event, item, card, onPlace, visits);
         card.addEventListener('pointerdown', down);
@@ -34,8 +29,8 @@ function beginPointerDrag(event, item, card, onPlace, visits) {
         return;
     event.preventDefault();
     const rect = card.getBoundingClientRect(), ghost = document.createElement('div');
-    ghost.className = 'drag-ghost';
-    ghost.textContent = card.querySelector('strong')?.textContent || 'Basket item';
+    ghost.className = 'drag-ghost drag-id-ghost';
+    ghost.innerHTML = `<strong>${esc(card.querySelector('strong')?.textContent || 'Basket item')}</strong><small>ID ${esc(shortId(item.id))}</small>`;
     document.body.append(ghost);
     const ox = event.clientX - rect.left, oy = event.clientY - rect.top;
     let moved = false;
@@ -51,7 +46,6 @@ function beginPointerDrag(event, item, card, onPlace, visits) {
     window.addEventListener('pointerup', end, { once: true });
     window.addEventListener('pointercancel', cancel, { once: true });
 }
-function marker(item) { return item.visitType === 'additional' ? 'A' : item.visitType === 'quoted' ? 'Q' : item.visitType === 'once-off' ? '1×' : 'R'; }
-function typeLabel(item) { return item.visitType === 'additional' ? 'Additional visit' : item.visitType === 'quoted' ? 'Accepted quoted work' : item.visitType === 'once-off' ? 'Once-off work' : 'Recurring visit'; }
+function shortId(value) { const text = String(value || ''); return text.length <= 8 ? text : text.slice(-8); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 //# sourceMappingURL=basket.js.map

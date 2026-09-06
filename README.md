@@ -1,3 +1,7 @@
+## R6 runtime correction
+
+R6 fixes the non-Schedule workspace loaders under audited Management support sessions. Schedule parity from R5 is retained.
+
 # TuinBooks v2 — final single codebase
 
 This is the clean TuinBooks v2 rebuild. It does not load the legacy `app.js` or Schedule hotfix chain.

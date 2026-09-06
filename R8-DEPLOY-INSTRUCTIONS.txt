@@ -1,0 +1,9 @@
+TUINBOOKS UI-RESTORED RELEASE R8
+
+1. Run supabase/APPLY-R8-SCHEDULE-OPERATIONS.sql in Supabase SQL Editor.
+2. Replace the tuinbooksrewrite repo contents with this release.
+3. Commit and push.
+4. Render must print: TUINBOOKS UI-RESTORED RELEASE R8: polished Schedule + visit-specific DO NOT SERVICE + event response dialogs published to /management/ + /app/.
+5. Test Schedule in an isolated/demo business before customer writes.
+
+Do NOT run migration-v2-optional-adopt-legacy-recurrence.sql.

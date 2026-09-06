@@ -3,7 +3,18 @@ import { mountWorkspace } from '../shell/chrome.js';
 import { demoBusinessWorkspace } from './demoBusiness.js';
 import { generateFieldPin, loadBusinessWorkspace, loadFieldPins, revokeFieldPin, saveBusinessService, saveBusinessSettings, saveBusinessTeam } from './businessRepository.js';
 export async function renderBusinessPage(root, identity, navigation) { const page = mountWorkspace(root, identity, 'settings', navigation, 'business-page settings-page'); page.innerHTML = '<div class="loading-state">Loading business settings…</div>'; try {
-    const ws = identity.demo ? structuredClone(demoBusinessWorkspace) : await loadBusinessWorkspace(identity.businessId), pins = identity.demo ? ws.teams.map((t, i) => ({ teamId: t.id, teamName: t.name, pin: String(1234 + i).padStart(4, '0'), active: true, updatedAt: null })) : await loadFieldPins(identity.businessId);
+    const ws = identity.demo ? structuredClone(demoBusinessWorkspace) : await loadBusinessWorkspace(identity.businessId);
+    let pins = [];
+    if (identity.demo)
+        pins = ws.teams.map((t, i) => ({ teamId: t.id, teamName: t.name, pin: String(1234 + i).padStart(4, '0'), active: true, updatedAt: null }));
+    else {
+        try {
+            pins = await loadFieldPins(identity.businessId);
+        }
+        catch (pinError) {
+            console.warn('Field PIN list unavailable in this session', pinError);
+        }
+    }
     paint(page, identity, ws, pins);
 }
 catch (e) {

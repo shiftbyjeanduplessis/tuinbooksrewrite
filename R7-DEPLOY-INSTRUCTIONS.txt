@@ -1,0 +1,11 @@
+TUINBOOKS UI-RESTORED RELEASE R7
+
+1. Copy this complete release into the local tuinbooksrewrite repository and replace matching files.
+2. GitHub Desktop summary: Restore Schedule usability
+3. Commit to main and Push origin.
+4. Render: deploy latest commit if auto-deploy does not start.
+5. Render build log MUST include:
+   TUINBOOKS UI-RESTORED RELEASE R7: Schedule usability restoration + Management-session workspace reads published to /management/ + /app/.
+6. Browser test Schedule first: week cards, Drag mode, Note, Event, + Visit, readable names, street address, drag ID, compact Basket.
+
+No new SQL is required for the R7 Schedule UI changes.
