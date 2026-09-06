@@ -32,7 +32,7 @@ async function boot() { if (demoParam === 'field' || demoParam === 'owner') {
 catch {
     renderMobileGateway();
 } }
-function renderMobileGateway() { root.innerHTML = `<main class="mobile-gateway"><img src="./tuinbooks-logo.png" alt="TuinBooks"><p class="eyebrow">TuinBooks Mobile v2</p><h1>Open your mobile workspace</h1><section class="mobile-auth-card"><h2>Owner</h2><p>Sign in with your TuinBooks owner/admin account.</p><input id="mobileEmail" type="email" placeholder="Email"><input id="mobilePassword" type="password" placeholder="Password"><button id="mobileOwnerSignIn" class="primary-button">Sign in</button></section><div class="mobile-or">or</div><section class="mobile-auth-card"><h2>Field phone</h2><p>Enter the 4-digit PIN created by the office.</p><input id="mobilePin" inputmode="numeric" maxlength="4" placeholder="0000"><button id="mobilePair" class="primary-button">Pair phone</button></section><div id="mobileAuthError" class="error-box hidden"></div></main>`; const error = root.querySelector('#mobileAuthError'); root.querySelector('#mobileOwnerSignIn').onclick = async () => { error.classList.add('hidden'); const email = root.querySelector('#mobileEmail').value, password = root.querySelector('#mobilePassword').value; const result = await supabase.auth.signInWithPassword({ email, password }); if (result.error) {
+function renderMobileGateway() { root.innerHTML = `<main class="mobile-gateway"><img src="./tuinbooks-logo.png" alt="TuinBooks"><p class="eyebrow">TuinBooks Mobile</p><h1>Open your mobile workspace</h1><section class="mobile-auth-card"><h2>Owner</h2><p>Sign in with your TuinBooks owner/admin account.</p><input id="mobileEmail" type="email" placeholder="Email"><input id="mobilePassword" type="password" placeholder="Password"><button id="mobileOwnerSignIn" class="primary-button">Sign in</button></section><div class="mobile-or">or</div><section class="mobile-auth-card"><h2>Field phone</h2><p>Enter the 4-digit PIN created by the office.</p><input id="mobilePin" inputmode="numeric" maxlength="4" placeholder="0000"><button id="mobilePair" class="primary-button">Pair phone</button></section><div id="mobileAuthError" class="error-box hidden"></div></main>`; const error = root.querySelector('#mobileAuthError'); root.querySelector('#mobileOwnerSignIn').onclick = async () => { error.classList.add('hidden'); const email = root.querySelector('#mobileEmail').value, password = root.querySelector('#mobilePassword').value; const result = await supabase.auth.signInWithPassword({ email, password }); if (result.error) {
     show(result.error.message);
     return;
 } context = await loadMobileContext(); if (!context) {
@@ -45,7 +45,7 @@ function renderMobileGateway() { root.innerHTML = `<main class="mobile-gateway">
         return;
     }
     session = anon.data.session;
-} const pin = root.querySelector('#mobilePin').value.trim(); const result = await supabase.rpc('tuinbooks_v2_claim_field_pin', { p_pin: pin, p_device_name: 'TuinBooks v2 field phone' }); if (result.error) {
+} const pin = root.querySelector('#mobilePin').value.trim(); const result = await supabase.rpc('tuinbooks_v2_claim_field_pin', { p_pin: pin, p_device_name: 'TuinBooks field phone' }); if (result.error) {
     show(result.error.message);
     return;
 } if (!result.data?.business_id) {

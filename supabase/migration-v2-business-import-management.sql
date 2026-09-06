@@ -1,4 +1,5 @@
 -- TuinBooks v2 Milestone 8: Business settings, v4 workbook import/export and Management support.
+-- SQLFIX1: explicit non-keyword aliases in v4 route export query.
 -- ADDITIVE. Requires M3-M7 v2 migrations. Does not remove or rewrite legacy tables.
 begin;
 
@@ -107,7 +108,84 @@ begin
  'teams',coalesce((select jsonb_agg(jsonb_build_object('id',t.id,'name',t.name,'capacityHours',t.capacity_hours,'bufferHours',t.buffer_hours,'active',t.active) order by t.name) from public.teams t where t.business_id=p_business_id),'[]'::jsonb),
  'accounts',coalesce((select jsonb_agg(jsonb_build_object('name',c.name,'contactName',c.contact_name,'phone',c.phone,'email',c.email,'invoiceMethod',coalesce(c.payload#>>'{v2Billing,invoiceMethod}','By Account'),'billingBasis',coalesce(c.payload#>>'{v2Billing,billingBasis}','Monthly fixed fee'),'billingAmount',c.payload#>'{v2Billing,billingAmount}','invoiceDay',c.payload#>'{v2Billing,invoiceDay}','billingNotes',coalesce(c.payload#>>'{v2Billing,billingNotes}','')) order by c.name) from public.customers c where c.business_id=p_business_id and c.status<>'archived'),'[]'::jsonb),
  'locations',coalesce((select jsonb_agg(jsonb_build_object('accountName',c.name,'locationName',s.site_name,'address',s.address,'suburb',s.suburb,'team',t.name,'service',coalesce(bs.name,a.service_ids[1],'Garden service'),'frequency',a.frequency,'weekdays',a.weekdays,'fortnightlyCycle',s.payload#>>'{v2Import,fortnightlyCycle}','monthlyOrdinal',a.monthly_ordinal,'startDate',a.start_date,'locationBillingBasis',coalesce(s.payload#>>'{v2Import,locationBillingBasis}',''),'locationBillingAmount',s.payload#>'{v2Import,locationBillingAmount}','routePreference',coalesce(s.payload#>>'{v2Import,routePreference}','Normal'),'routingNotes',a.notes,'accessNotes',s.access_notes) order by c.name,s.site_name) from public.service_sites s join public.customers c on c.business_id=s.business_id and c.id=s.customer_id left join public.client_service_agreements_v2 a on a.business_id=s.business_id and a.service_site_id=s.id and a.status='active' left join public.teams t on t.business_id=s.business_id and t.id=a.default_team_id left join public.business_services_v2 bs on bs.business_id=s.business_id and bs.id=a.service_ids[1] where s.business_id=p_business_id and s.active=true),'[]'::jsonb),
- 'routes',coalesce((select jsonb_agg(q.row order by q.team,q.day_num,q.week,q.stop) from (select distinct on(t.name,extract(isodow from j.visit_date),c.name,s.id,case when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text else case when (v2->>'weekAStartsOn') is not null and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A' else 'Week B' end end) t.name team,extract(isodow from j.visit_date)::integer day_num,case extract(isodow from j.visit_date)::integer when 1 then 'Monday' when 2 then 'Tuesday' when 3 then 'Wednesday' when 4 then 'Thursday' when 5 then 'Friday' when 6 then 'Saturday' else 'Sunday' end day,case when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text else case when (v2->>'weekAStartsOn') is not null and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A' else 'Week B' end end week,j.sort_order stop,jsonb_build_object('team',t.name,'day',case extract(isodow from j.visit_date)::integer when 1 then 'Monday' when 2 then 'Tuesday' when 3 then 'Wednesday' when 4 then 'Thursday' when 5 then 'Friday' when 6 then 'Saturday' else 'Sunday' end,'week',case when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text else case when (v2->>'weekAStartsOn') is not null and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A' else 'Week B' end end,'approvedStop',greatest(1,round(j.sort_order/100.0)),'accountName',c.name,'locationName',s.site_name,'suburb',s.suburb,'address',s.address) row from public.schedule_jobs j join public.teams t on t.business_id=j.business_id and t.id=j.team_id join public.customers c on c.business_id=j.business_id and c.id=j.client_id join public.service_sites s on s.business_id=j.business_id and s.id=j.payload->>'serviceLocationId' left join public.client_service_agreements_v2 a on a.business_id=s.business_id and a.service_site_id=s.id and a.status='active' where j.business_id=p_business_id and j.visit_date between current_date and current_date+55 and lower(j.status)='scheduled' order by t.name,extract(isodow from j.visit_date),c.name,s.id,case when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text else case when (v2->>'weekAStartsOn') is not null and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A' else 'Week B' end end,j.visit_date) q),'[]'::jsonb)
+ 'routes',coalesce((
+  select jsonb_agg(q.row_json order by q.team_name,q.day_num,q.week_label,q.stop_order)
+  from (
+    select distinct on (
+      t.name,
+      extract(isodow from j.visit_date),
+      c.name,
+      s.id,
+      case
+        when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text
+        else case
+          when (v2->>'weekAStartsOn') is not null
+           and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A'
+          else 'Week B'
+        end
+      end
+    )
+      t.name as team_name,
+      extract(isodow from j.visit_date)::integer as day_num,
+      case extract(isodow from j.visit_date)::integer
+        when 1 then 'Monday' when 2 then 'Tuesday' when 3 then 'Wednesday'
+        when 4 then 'Thursday' when 5 then 'Friday' when 6 then 'Saturday'
+        else 'Sunday'
+      end as day_name,
+      case
+        when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text
+        else case
+          when (v2->>'weekAStartsOn') is not null
+           and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A'
+          else 'Week B'
+        end
+      end as week_label,
+      j.sort_order as stop_order,
+      jsonb_build_object(
+        'team',t.name,
+        'day',case extract(isodow from j.visit_date)::integer
+          when 1 then 'Monday' when 2 then 'Tuesday' when 3 then 'Wednesday'
+          when 4 then 'Thursday' when 5 then 'Friday' when 6 then 'Saturday'
+          else 'Sunday'
+        end,
+        'week',case
+          when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text
+          else case
+            when (v2->>'weekAStartsOn') is not null
+             and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A'
+            else 'Week B'
+          end
+        end,
+        'approvedStop',greatest(1,round(j.sort_order/100.0)),
+        'accountName',c.name,
+        'locationName',s.site_name,
+        'suburb',s.suburb,
+        'address',s.address
+      ) as row_json
+    from public.schedule_jobs j
+    join public.teams t on t.business_id=j.business_id and t.id=j.team_id
+    join public.customers c on c.business_id=j.business_id and c.id=j.client_id
+    join public.service_sites s on s.business_id=j.business_id and s.id::text=j.payload->>'serviceLocationId'
+    left join public.client_service_agreements_v2 a on a.business_id=s.business_id and a.service_site_id=s.id and a.status='active'
+    where j.business_id=p_business_id
+      and j.visit_date between current_date and current_date+55
+      and lower(j.status)='scheduled'
+    order by
+      t.name,
+      extract(isodow from j.visit_date),
+      c.name,
+      s.id,
+      case
+        when a.frequency='monthly' then 'Week '||ceil(extract(day from j.visit_date)/7.0)::integer::text
+        else case
+          when (v2->>'weekAStartsOn') is not null
+           and mod(((date_trunc('week',j.visit_date)::date-(v2->>'weekAStartsOn')::date)/7),2)=0 then 'Week A'
+          else 'Week B'
+        end
+      end,
+      j.visit_date
+  ) q
+),'[]'::jsonb)
  );
 end;$$;
 
@@ -118,11 +196,11 @@ declare r record;begin if to_regclass('public.tuinbooks_platform_staff') is null
 
 create or replace function public.tuinbooks_v2_management_list_businesses(p_search text default '')
 returns jsonb language plpgsql security definer set search_path=public as $$
-declare ok boolean;begin select exists(select 1 from public.tuinbooks_platform_staff where user_id=auth.uid() and active=true) into ok;if not ok then raise exception 'Not authorised as platform staff';end if;return coalesce((select jsonb_agg(jsonb_build_object('id',b.id,'name',b.name,'phone',b.phone,'email',b.email,'onboardingComplete',b.onboarding_complete,'createdAt',b.created_at,'support',case when g.business_id is null then null else jsonb_build_object('status',g.status,'expiresAt',g.expires_at,'operationalRead',g.operational_read,'operationalEdit',g.operational_edit,'financialRead',g.financial_read,'financialEdit',g.financial_edit) end,'health',jsonb_build_object('clients',(select count(*) from public.customers c where c.business_id=b.id and c.status<>'archived'),'locations',(select count(*) from public.service_sites s where s.business_id=b.id and s.active),'teams',(select count(*) from public.teams t where t.business_id=b.id and t.active),'futureVisits',(select count(*) from public.schedule_jobs j where j.business_id=b.id and j.visit_date>=current_date and lower(j.status)='scheduled'),'openInvoices',(select count(*) from public.invoices i where i.business_id=b.id and lower(i.status) not in('paid','void','credited')))) order by b.name) from public.businesses b left join lateral(select * from public.tuinbooks_support_grants x where x.business_id=b.id and x.support_user_id=auth.uid() order by x.expires_at desc nulls first limit 1) g on true where coalesce(p_search,'')='' or b.name ilike '%'||p_search||'%' or b.email ilike '%'||p_search||'%'),'[]'::jsonb);end;$$;
+declare ok boolean;begin select exists(select 1 from public.tuinbooks_platform_staff where user_id=auth.uid() and active=true) into ok;if not ok then raise exception 'Not authorised as platform staff';end if;return coalesce((select jsonb_agg(jsonb_build_object('id',b.id,'name',b.name,'phone',b.phone,'email',b.email,'onboardingComplete',b.onboarding_complete,'createdAt',b.created_at,'support',case when g.business_id is null then null else jsonb_build_object('status',g.status,'expiresAt',g.expires_at,'operationalRead',g.allow_operational_read,'operationalEdit',g.allow_operational_edit,'financialRead',g.allow_financial_read,'financialEdit',g.allow_financial_edit) end,'health',jsonb_build_object('clients',(select count(*) from public.customers c where c.business_id=b.id and c.status<>'archived'),'locations',(select count(*) from public.service_sites s where s.business_id=b.id and s.active),'teams',(select count(*) from public.teams t where t.business_id=b.id and t.active),'futureVisits',(select count(*) from public.schedule_jobs j where j.business_id=b.id and j.visit_date>=current_date and lower(j.status)='scheduled'),'openInvoices',(select count(*) from public.invoices i where i.business_id=b.id and lower(i.status) not in('paid','void','credited')))) order by b.name) from public.businesses b left join lateral(select * from public.tuinbooks_support_grants x where x.business_id=b.id and x.support_user_id=auth.uid() order by x.expires_at desc nulls first limit 1) g on true where coalesce(p_search,'')='' or b.name ilike '%'||p_search||'%' or b.email ilike '%'||p_search||'%'),'[]'::jsonb);end;$$;
 
 create or replace function public.tuinbooks_v2_management_set_support_grant(p_business_id uuid,p_status text,p_expires_at timestamptz,p_operational_read boolean,p_operational_edit boolean,p_financial_read boolean,p_financial_edit boolean)
 returns jsonb language plpgsql security definer set search_path=public as $$
-declare role text;begin select staff_role into role from public.tuinbooks_platform_staff where user_id=auth.uid() and active=true;if role is null then raise exception 'Not authorised as platform staff';end if;if p_status not in('active','revoked') then raise exception 'Invalid support status';end if;update public.tuinbooks_support_grants set status=p_status,starts_at=case when p_status='active' then least(coalesce(starts_at,now()),now()) else starts_at end,expires_at=p_expires_at,operational_read=coalesce(p_operational_read,false) or coalesce(p_operational_edit,false),operational_edit=coalesce(p_operational_edit,false),financial_read=coalesce(p_financial_read,false) or coalesce(p_financial_edit,false),financial_edit=coalesce(p_financial_edit,false) where business_id=p_business_id and support_user_id=auth.uid();if not found then insert into public.tuinbooks_support_grants(business_id,support_user_id,status,starts_at,expires_at,operational_read,operational_edit,financial_read,financial_edit) values(p_business_id,auth.uid(),p_status,now(),p_expires_at,coalesce(p_operational_read,false) or coalesce(p_operational_edit,false),coalesce(p_operational_edit,false),coalesce(p_financial_read,false) or coalesce(p_financial_edit,false),coalesce(p_financial_edit,false));end if;return jsonb_build_object('ok',true);end;$$;
+declare role text;begin select staff_role into role from public.tuinbooks_platform_staff where user_id=auth.uid() and active=true;if role is null then raise exception 'Not authorised as platform staff';end if;if p_status not in('active','revoked') then raise exception 'Invalid support status';end if;update public.tuinbooks_support_grants set status=p_status,starts_at=case when p_status='active' then least(coalesce(starts_at,now()),now()) else starts_at end,expires_at=p_expires_at,allow_operational_read=coalesce(p_operational_read,false) or coalesce(p_operational_edit,false),allow_operational_edit=coalesce(p_operational_edit,false),allow_financial_read=coalesce(p_financial_read,false) or coalesce(p_financial_edit,false),allow_financial_edit=coalesce(p_financial_edit,false) where business_id=p_business_id and support_user_id=auth.uid();if not found then insert into public.tuinbooks_support_grants(business_id,support_user_id,status,reason,starts_at,expires_at,allow_operational_read,allow_operational_edit,allow_financial_read,allow_financial_edit) values(p_business_id,auth.uid(),p_status,'TuinBooks v2 support',now(),p_expires_at,coalesce(p_operational_read,false) or coalesce(p_operational_edit,false),coalesce(p_operational_edit,false),coalesce(p_financial_read,false) or coalesce(p_financial_edit,false),coalesce(p_financial_edit,false));end if;return jsonb_build_object('ok',true);end;$$;
 
 revoke all on function public.tuinbooks_v2_load_business_workspace(uuid) from public,anon;
 revoke all on function public.tuinbooks_v2_save_business_settings(uuid,jsonb) from public,anon;

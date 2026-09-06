@@ -6,12 +6,13 @@ import { renderClientsPage } from './features/clients/clientsPage.js';
 import { renderWorkPage } from './features/work/workPage.js';
 import { renderMoneyPage } from './features/billing/moneyPage.js';
 import { renderBusinessPage } from './features/business/businessPage.js';
+import { renderBusinessOverviewPage } from './features/business/businessOverviewPage.js';
 const root = document.getElementById('root');
 if (!root)
     throw new Error('TuinBooks root element is missing.');
 const params = new URLSearchParams(location.search), demo = params.get('demo') === '1', supportBusiness = params.get('support') ?? '';
 let identity = null, currentPage = 'schedule';
-const navigation = { go(page) { if (!['schedule', 'clients', 'work', 'quotes', 'money', 'business'].includes(page))
+const navigation = { go(page) { if (!['schedule', 'clients', 'work', 'quotes', 'money', 'business', 'settings'].includes(page))
         return; currentPage = page; renderCurrent(); }, async logout() { if (demo) {
         location.href = location.pathname;
         return;
@@ -29,6 +30,8 @@ else if (currentPage === 'quotes')
 else if (currentPage === 'money')
     renderMoneyPage(root, identity, navigation, 'money');
 else if (currentPage === 'business')
+    renderBusinessOverviewPage(root, identity, navigation);
+else if (currentPage === 'settings')
     void renderBusinessPage(root, identity, navigation);
 else
     renderSchedulePage(root, identity, navigation); }
