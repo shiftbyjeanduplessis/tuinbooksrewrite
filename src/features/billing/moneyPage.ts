@@ -34,4 +34,4 @@ export function renderMoneyPage(root:HTMLElement,identity:WorkspaceIdentity,navi
 
   void load();
 }
-function esc(v:string):string{return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]??ch));}function attr(v:string):string{return esc(v);}function msg(e:unknown):string{return e instanceof Error?e.message:String(e);}
+function esc(v:string):string{return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]??ch));}function attr(v:string):string{return esc(v);}function msg(e:unknown):string{return e instanceof Error?e.message:(e&&typeof e==='object'&&'message' in e?String((e as any).message):String(e));}

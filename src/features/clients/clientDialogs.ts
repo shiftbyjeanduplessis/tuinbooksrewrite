@@ -24,6 +24,6 @@ function makeDialog(className:string):HTMLDialogElement{const d=document.createE
 function wireClose(dialog:HTMLDialogElement):void{dialog.querySelectorAll<HTMLElement>('[data-close]').forEach(button=>button.onclick=()=>dialog.close());}
 function s(fd:FormData,key:string):string{return String(fd.get(key)??'').trim();}
 function idPart():string{return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID().replaceAll('-',''):Math.random().toString(36).slice(2);}
-function message(error:unknown):string{return error instanceof Error?error.message:String(error);}
+function message(error:unknown):string{return error instanceof Error?error.message:(error&&typeof error==='object'&&'message' in error?String((error as any).message):String(error));}
 function esc(v:string):string{return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]??ch));}
 function attr(v:string):string{return esc(v);}

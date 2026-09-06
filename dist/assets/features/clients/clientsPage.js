@@ -93,6 +93,6 @@ export function renderClientsPage(root, identity, navigation) {
     page.querySelector('#newAccount').onclick = () => openAccountDialog(null, saveAccountFromDialog);
     void fetchData();
 }
-function msg(error) { return error instanceof Error ? error.message : String(error); }
+function msg(error) { return error instanceof Error ? error.message : (error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 //# sourceMappingURL=clientsPage.js.map

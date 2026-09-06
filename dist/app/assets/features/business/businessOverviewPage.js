@@ -37,5 +37,5 @@ function previousMonth(month) { const [y, m] = month.split('-').map(Number), d =
 function monthLabel(month) { const [y, m] = month.split('-').map(Number); return new Intl.DateTimeFormat('en-ZA', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(Date.UTC(y, m - 1, 1))); }
 function moneyFmt(v) { return Number(v || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
-function msg(e) { return e instanceof Error ? e.message : String(e); }
+function msg(e) { return e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e)); }
 //# sourceMappingURL=businessOverviewPage.js.map

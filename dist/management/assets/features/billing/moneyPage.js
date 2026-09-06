@@ -136,5 +136,5 @@ export function renderMoneyPage(root, identity, navigation, mode = 'money') {
 }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 function attr(v) { return esc(v); }
-function msg(e) { return e instanceof Error ? e.message : String(e); }
+function msg(e) { return e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e)); }
 //# sourceMappingURL=moneyPage.js.map

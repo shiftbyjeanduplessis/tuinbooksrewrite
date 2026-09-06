@@ -1,0 +1,14 @@
+TUINBOOKS UI-RESTORED RELEASE R4
+
+1. In Supabase SQL Editor, run:
+   supabase/APPLY-R4-MANAGEMENT-SESSION-BRIDGE.sql
+
+   This only replaces the v2 authorization helper. It does not modify customer, schedule, billing, quote, invoice or client data.
+
+2. Copy this complete release into the local tuinbooksrewrite Git repository.
+3. Commit and push.
+4. Render must print:
+   TUINBOOKS UI-RESTORED RELEASE R4: original Management + v2 application build published to /management/ + /app/.
+5. Re-open the same account from Management and verify Schedule, Clients, Quotes, Billing, Business and Settings.
+
+Do not run the optional legacy recurrence adoption migration.

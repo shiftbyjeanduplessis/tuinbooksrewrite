@@ -14,7 +14,7 @@ export function renderWorkPage(root, identity, navigation) {
         render();
     }
     catch (e) {
-        error.textContent = e instanceof Error ? e.message : String(e);
+        error.textContent = e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e));
         error.classList.remove('hidden');
         teamsHost.innerHTML = '<div class="basket-empty">Work could not be loaded.</div>';
     } }
@@ -89,5 +89,5 @@ function renderVisit(day, visit) { const account = accountForWork(day, visit.acc
 function formatDate(date) { return new Intl.DateTimeFormat('en-ZA', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${date}T00:00:00Z`)); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 function safe(v) { return v.replace(/[^a-z0-9-]/gi, '-').toLowerCase(); }
-function msg(e) { return e instanceof Error ? e.message : String(e); }
+function msg(e) { return e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e)); }
 //# sourceMappingURL=workPage.js.map

@@ -1,4 +1,2 @@
-TuinBooks UI-restored release R3
-Management session route compatibility restored.
-Original Management links support=1&business=<uuid>&session=<uuid> are verified against the audited support-session RPC before opening the workspace.
-Customer-facing v2 login copy removed.
+TUINBOOKS UI-RESTORED RELEASE R4
+Management session authorization bridge + readable runtime errors.

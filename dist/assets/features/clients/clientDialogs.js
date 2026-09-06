@@ -74,7 +74,7 @@ function makeDialog(className) { const d = document.createElement('dialog'); d.c
 function wireClose(dialog) { dialog.querySelectorAll('[data-close]').forEach(button => button.onclick = () => dialog.close()); }
 function s(fd, key) { return String(fd.get(key) ?? '').trim(); }
 function idPart() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().replaceAll('-', '') : Math.random().toString(36).slice(2); }
-function message(error) { return error instanceof Error ? error.message : String(error); }
+function message(error) { return error instanceof Error ? error.message : (error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 function attr(v) { return esc(v); }
 //# sourceMappingURL=clientDialogs.js.map

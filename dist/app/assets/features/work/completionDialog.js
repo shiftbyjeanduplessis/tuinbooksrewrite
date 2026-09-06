@@ -24,6 +24,6 @@ export function openCompletionDialog(day, visit, onSubmit) {
         button.textContent = 'Complete visit';
     } };
 }
-function msg(e) { return e instanceof Error ? e.message : String(e); }
+function msg(e) { return e instanceof Error ? e.message : (e && typeof e === 'object' && 'message' in e ? String(e.message) : String(e)); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 //# sourceMappingURL=completionDialog.js.map

@@ -106,6 +106,6 @@ export function renderSchedulePage(root, identity, navigation) {
     launcher.onclick = () => { basket.classList.remove('hidden'); launcher.classList.add('hidden'); layout.classList.remove('basket-closed'); };
     void fetchWeek();
 }
-function msg(error) { return error instanceof Error ? error.message : String(error); }
+function msg(error) { return error instanceof Error ? error.message : (error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)); }
 function esc(v) { return v.replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 //# sourceMappingURL=schedulePage.js.map
