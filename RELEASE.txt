@@ -1,3 +1,3 @@
-TUINBOOKS UI-RESTORED RELEASE R9
-Full-width Schedule layout + dense busy-day cards.
-Preserves street address, suburb, visible drag ID, R8 visit-specific DO NOT SERVICE and event dialogs.
+TUINBOOKS UI-RESTORED RELEASE R10
+Floating movable/minimizable/tuck-away Basket + reliable Additional Visit dialog close.
+Preserves full-width dense Schedule, street address, suburb, visible drag ID and R8 visit operations.

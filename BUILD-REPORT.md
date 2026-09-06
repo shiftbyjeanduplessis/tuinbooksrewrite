@@ -1,29 +1,18 @@
-# TuinBooks UI-Restored Release R9 — Build Report
+# TuinBooks UI-Restored Release R10 — Build Report
 
-Scope: Schedule layout/density only. Scheduler behavior and R8 operations are unchanged.
+Status: IMPLEMENTED + LOCALLY VERIFIED
 
-Changes:
-- Desktop calendar fills the available page width.
-- Removed desktop nested calendar max-height/vertical scrolling.
-- Basket no longer has its own vertical scroll; the page scrolls naturally.
-- Calendar only uses a horizontal scroller on smaller screens (<1080px).
-- Normal visit cards compact to name + street/suburb.
-- Busy cells compact automatically above 8 visits and again above 14 visits.
-- Drag mode keeps visible visit ID and modest duration-resize height feedback.
-- Visit-specific Do Not Service, Note/Event dialogs, Additional Visit, week cards, Drag Mode and R8 operations remain unchanged.
-
-Verification:
-- Domain: PASS (178 assertions)
-- Stress: PASS
-- Release contract: PASS (61 checks)
-- R6 workspace display contract: PASS
-- UI preservation contract: PASS
-- Schedule usability contract: PASS
-- R8 Schedule cleanup contract: PASS
-- R9 Schedule layout contract: PASS
-- XLSX roundtrip: PASS
+- Domain tests: PASS — 178 assertions
+- Stress: PASS — 100-account v4, 200-client recurrence (1,408 visits), 10,000 invoices
+- Release contract: PASS — 61 core checks + UI/Schedule R6/R8/R9/R10 contracts
+- XLSX round-trip: PASS
 - TypeScript/build: PASS
-- Static assets/imports: PASS
-- HTTP smoke: PASS
+- Static route/import audit: PASS — 96 JS module copies, 212 relative imports, 0 missing
+- HTTP smoke: PASS — app/mobile/management/public documents/assets HTTP 200
+
+R10-specific checks:
+- Additional Visit: X, Cancel, Escape and backdrop close paths present.
+- Basket: floating, movable, minimizable, tuck-away edge strip, persistent local position/state.
+- R9 full-width/dense calendar retained.
 
 Deployed browser verification: NOT YET VERIFIED.

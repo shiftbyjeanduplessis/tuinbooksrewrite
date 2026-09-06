@@ -49,14 +49,17 @@ export function renderSchedulePage(root, identity, navigation) {
       <p id="scheduleModeHelp">Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.</p>
     </section>
     <div class="schedule-layout" id="scheduleLayout">
-      <aside class="basket-panel" data-basket-drop="1">
-        <div class="basket-header">
+      <aside class="basket-panel floating-basket" id="floatingBasket" data-basket-drop="1" aria-label="Unscheduled work Basket">
+        <div class="basket-header basket-drag-handle" id="basketDragHandle">
           <div><p class="eyebrow">Basket</p><strong>Unscheduled work</strong></div>
-          <button id="closeBasket" aria-label="Close basket">×</button>
+          <div class="basket-window-actions">
+            <button type="button" id="minimizeBasket" aria-label="Minimize basket" title="Minimize Basket">−</button>
+            <button type="button" id="closeBasket" aria-label="Tuck basket away" title="Tuck Basket away">×</button>
+          </div>
         </div>
-        <div id="basketHost"></div>
+        <div id="basketHost" class="basket-body"></div>
       </aside>
-      <button id="openBasket" class="basket-launcher hidden">Basket</button>
+      <button id="openBasket" class="basket-launcher hidden" aria-label="Open Basket"><span>Basket</span><b id="basketStripCount">0</b></button>
       <section class="calendar-panel"><div id="calendarHost" class="loading-state">Loading this week…</div></section>
     </div>`;
     let weekStart = startOfWeek(todayIso());
@@ -128,6 +131,7 @@ export function renderSchedulePage(root, identity, navigation) {
         renderWeekCards();
         renderDragChrome();
         root.querySelector('#basketCount').textContent = String(data.queueItems.length);
+        root.querySelector('#basketStripCount').textContent = String(data.queueItems.length);
         calendar = renderCalendar(host, data, {
             dragEnabled: dragMode,
             dragScope,
@@ -247,18 +251,67 @@ export function renderSchedulePage(root, identity, navigation) {
     page.querySelector('#refreshWeek').onclick = () => void fetchWeek();
     dragToggle.onclick = () => { dragMode = !dragMode; render(); };
     dragScopeControls.querySelectorAll('[data-drag-scope]').forEach(button => button.onclick = () => { dragScope = button.dataset.dragScope === 'future' ? 'future' : 'one'; render(); });
-    const layout = page.querySelector('#scheduleLayout');
-    const basket = page.querySelector('.basket-panel');
+    const basket = page.querySelector('#floatingBasket');
     const launcher = page.querySelector('#openBasket');
     const basketToggle = page.querySelector('#basketToggle');
-    const closeBasket = () => { basket.classList.add('hidden'); launcher.classList.remove('hidden'); layout.classList.add('basket-closed'); basketToggle.classList.remove('active'); };
-    const openBasket = () => { basket.classList.remove('hidden'); launcher.classList.add('hidden'); layout.classList.remove('basket-closed'); basketToggle.classList.add('active'); };
-    page.querySelector('#closeBasket').onclick = closeBasket;
+    const minimizeButton = page.querySelector('#minimizeBasket');
+    const dragHandle = page.querySelector('#basketDragHandle');
+    const basketStateKey = 'tuinbooks.schedule.basket.state';
+    const basketPositionKey = 'tuinbooks.schedule.basket.position';
+    let basketWindowState = localStorage.getItem(basketStateKey) || 'open';
+    const setBasketState = (state) => {
+        basketWindowState = state;
+        localStorage.setItem(basketStateKey, state);
+        basket.classList.toggle('hidden', state === 'tucked');
+        basket.classList.toggle('minimized', state === 'minimized');
+        launcher.classList.toggle('hidden', state !== 'tucked');
+        basketToggle.classList.toggle('active', state !== 'tucked');
+        minimizeButton.textContent = state === 'minimized' ? '□' : '−';
+        minimizeButton.title = state === 'minimized' ? 'Restore Basket' : 'Minimize Basket';
+        minimizeButton.setAttribute('aria-label', minimizeButton.title);
+    };
+    const restoreBasketPosition = () => {
+        try {
+            const raw = localStorage.getItem(basketPositionKey);
+            if (!raw)
+                return;
+            const pos = JSON.parse(raw);
+            if (Number.isFinite(pos.left))
+                basket.style.left = `${Math.max(0, Math.min(Number(pos.left), window.innerWidth - Math.min(320, window.innerWidth - 20)))}px`;
+            if (Number.isFinite(pos.top))
+                basket.style.top = `${Math.max(68, Math.min(Number(pos.top), window.innerHeight - 54))}px`;
+        }
+        catch (_) { }
+    };
+    const storeBasketPosition = () => { const rect = basket.getBoundingClientRect(); localStorage.setItem(basketPositionKey, JSON.stringify({ left: Math.round(rect.left), top: Math.round(rect.top) })); };
+    const tuckBasket = () => setBasketState('tucked');
+    const openBasket = () => setBasketState('open');
+    const toggleMinimizeBasket = () => setBasketState(basketWindowState === 'minimized' ? 'open' : 'minimized');
+    page.querySelector('#closeBasket').onclick = tuckBasket;
+    minimizeButton.onclick = toggleMinimizeBasket;
     launcher.onclick = openBasket;
-    basketToggle.onclick = () => basket.classList.contains('hidden') ? openBasket() : closeBasket();
+    basketToggle.onclick = () => basketWindowState === 'tucked' ? openBasket() : tuckBasket();
+    dragHandle.addEventListener('pointerdown', event => {
+        if (event.button !== 0 || event.target.closest('button'))
+            return;
+        event.preventDefault();
+        if (basketWindowState === 'tucked')
+            return;
+        const rect = basket.getBoundingClientRect(), offsetX = event.clientX - rect.left, offsetY = event.clientY - rect.top;
+        basket.classList.add('basket-moving');
+        const move = (e) => { const width = basket.getBoundingClientRect().width; const maxLeft = Math.max(0, window.innerWidth - width); const maxTop = Math.max(68, window.innerHeight - 48); basket.style.left = `${Math.max(0, Math.min(e.clientX - offsetX, maxLeft))}px`; basket.style.top = `${Math.max(68, Math.min(e.clientY - offsetY, maxTop))}px`; };
+        const end = () => { basket.classList.remove('basket-moving'); storeBasketPosition(); window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); window.removeEventListener('pointercancel', end); };
+        window.addEventListener('pointermove', move);
+        window.addEventListener('pointerup', end, { once: true });
+        window.addEventListener('pointercancel', end, { once: true });
+    });
+    window.addEventListener('resize', () => { const rect = basket.getBoundingClientRect(); if (rect.right > window.innerWidth)
+        basket.style.left = `${Math.max(0, window.innerWidth - rect.width - 8)}px`; if (rect.bottom > window.innerHeight && basketWindowState === 'minimized')
+        basket.style.top = `${Math.max(68, window.innerHeight - 54)}px`; storeBasketPosition(); });
+    restoreBasketPosition();
+    setBasketState(basketWindowState);
     renderWeekCards();
     renderDragChrome();
-    openBasket();
     void fetchWeek();
 }
 function msg(error) { return error instanceof Error ? error.message : (error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)); }

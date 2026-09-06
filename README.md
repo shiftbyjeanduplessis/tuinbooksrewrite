@@ -1,3 +1,7 @@
+# R10 Schedule interaction correction
+
+R10 keeps the fast/full-width Schedule engine but restores the floating Basket interaction and fixes the Additional Visit dialog close regression. The Basket is movable, minimizable, tuckable into an edge strip, and remembers its local position/state.
+
 ## R6 runtime correction
 
 R6 fixes the non-Schedule workspace loaders under audited Management support sessions. Schedule parity from R5 is retained.

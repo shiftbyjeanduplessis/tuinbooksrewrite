@@ -152,3 +152,25 @@ console.log('TUINBOOKS R8 SCHEDULE CLEANUP CONTRACT: PASS');
   has(styles,'.calendar-grid.drag-mode-active .visit-card{min-height:var(--visit-height,48px)!important}','Drag mode must retain modest resize feedback');
 }
 console.log('TUINBOOKS R9 SCHEDULE LAYOUT CONTRACT: PASS');
+
+
+// R10 Schedule floating Basket + Additional Visit dialog-close contract.
+{
+  const schedulePage=await read('src/features/schedule/schedulePage.ts');
+  const additional=await read('src/features/schedule/additionalVisitDialog.ts');
+  const styles=await read('src/styles.css');
+  has(styles,'floating Basket + reliable Additional Visit dialog close','R10 floating Basket styles must be active');
+  has(schedulePage,'floating-basket','Basket must be a floating utility window');
+  has(schedulePage,'basket-drag-handle','Floating Basket must have a drag handle');
+  has(schedulePage,"type BasketWindowState='open'|'minimized'|'tucked'",'Basket must support open, minimized and tucked states');
+  has(schedulePage,"tuinbooks.schedule.basket.position",'Basket position must persist locally');
+  has(schedulePage,"tuinbooks.schedule.basket.state",'Basket state must persist locally');
+  has(schedulePage,'basket-moving','Basket must expose active move state');
+  has(styles,'.basket-launcher{position:fixed!important','Tucked Basket must reopen from a fixed edge strip');
+  has(styles,'.floating-basket.minimized .basket-body{display:none!important}','Minimized Basket must collapse to its header');
+  has(additional,'data-close','Additional Visit dialog must expose explicit close controls');
+  has(additional,"dialog.addEventListener('cancel'",'Escape must close Additional Visit dialog');
+  has(additional,"dialog.addEventListener('pointerdown'",'Backdrop click must close Additional Visit dialog');
+  has(additional,"dialog.close('cancel')",'Cancel and close controls must close without submitting');
+}
+console.log('TUINBOOKS R10 FLOATING BASKET CONTRACT: PASS');

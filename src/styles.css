@@ -336,3 +336,32 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   .calendar-scroll{overflow-x:auto!important;overflow-y:visible!important}
   .calendar-grid{min-width:1040px!important;grid-template-columns:92px repeat(7,minmax(128px,1fr))!important}
 }
+
+
+/* R10 — floating Basket + reliable Additional Visit dialog close. Scheduler engine unchanged. */
+.schedule-layout{display:block!important;position:relative!important}
+.calendar-panel{width:100%!important;max-width:none!important}
+.floating-basket{position:fixed!important;left:18px;top:178px;z-index:80;width:min(300px,calc(100vw - 24px));min-height:0!important;max-height:min(72vh,720px);overflow:hidden!important;background:rgba(251,253,252,.98)!important;box-shadow:0 18px 46px rgba(19,58,40,.18)!important;backdrop-filter:blur(8px)}
+.floating-basket .basket-header{cursor:move;user-select:none;padding:10px 11px!important;background:linear-gradient(180deg,#fff,#f7faf8);border-bottom:1px solid #e5ece8}
+.floating-basket .basket-header .eyebrow{margin:0 0 1px;font-size:9px}
+.floating-basket .basket-header strong{font-size:12px}
+.basket-window-actions{display:flex;align-items:center;gap:2px}
+.basket-window-actions button{width:27px;height:27px;display:grid;place-items:center;border-radius:7px!important;font-size:17px!important;color:#53655b!important}
+.basket-window-actions button:hover{background:#eaf3ed!important;color:#174f37!important}
+.floating-basket .basket-body{min-height:0}
+.floating-basket .basket-list{max-height:calc(min(72vh,720px) - 50px)!important;overflow:auto!important;padding:8px!important;overscroll-behavior:contain}
+.floating-basket.minimized{width:min(260px,calc(100vw - 24px));max-height:none!important}
+.floating-basket.minimized .basket-body{display:none!important}
+.floating-basket.minimized .basket-header{border-bottom:0!important}
+.floating-basket.basket-moving{transition:none!important;box-shadow:0 22px 56px rgba(19,58,40,.28)!important}
+.basket-launcher{position:fixed!important;left:0!important;top:42%!important;z-index:85!important;writing-mode:vertical-rl!important;transform:rotate(180deg)!important;min-height:78px!important;width:30px!important;padding:8px 5px!important;border-radius:0 9px 9px 0!important;background:#176747!important;color:#fff!important;border:0!important;box-shadow:0 8px 24px rgba(17,69,44,.22)!important;display:flex;align-items:center;justify-content:center;gap:5px;font-size:10px!important}
+.basket-launcher b{display:grid;place-items:center;min-width:17px;height:17px;padding:0 3px;border-radius:999px;background:#fff;color:#176747;font-size:8px;writing-mode:horizontal-tb;transform:rotate(180deg)}
+.basket-launcher.hidden{display:none!important}
+.additional-dialog .icon-button[data-close]{font-size:20px;width:32px;height:32px;border-radius:9px;background:#f4f7f5;color:#365045}
+.additional-dialog .icon-button[data-close]:hover{background:#e8f1ec}
+.additional-dialog footer .secondary-button[data-close]{border:1px solid #d4ded8;background:#fff;color:#3b5146;border-radius:9px;padding:9px 12px;font-weight:750}
+@media(max-width:760px){
+  .floating-basket{left:8px!important;right:8px!important;top:auto!important;bottom:8px!important;width:auto!important;max-height:58vh}
+  .floating-basket .basket-list{max-height:calc(58vh - 50px)!important}
+  .basket-launcher{top:auto!important;bottom:120px!important}
+}
