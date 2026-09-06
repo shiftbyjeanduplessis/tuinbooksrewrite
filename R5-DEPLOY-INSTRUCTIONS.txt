@@ -1,0 +1,23 @@
+TUINBOOKS UI-RESTORED RELEASE R5 — SCHEDULE PARITY
+==================================================
+
+Purpose:
+Restore TuinBooks Schedule information density and operational controls while keeping the fast v2 scheduler engine introduced by the rewrite.
+
+NO SQL CHANGES ARE REQUIRED FOR R5.
+
+Deploy:
+1. Copy the CONTENTS of this release folder into the local tuinbooksrewrite repository.
+2. Replace existing files when asked.
+3. Commit to main with summary: Restore Schedule feature parity
+4. Push origin.
+5. Deploy the latest commit on Render.
+
+Render build proof:
+TUINBOOKS UI-RESTORED RELEASE R5: original Management + Schedule parity v2 application build published to /management/ + /app/.
+
+First browser test:
+Management -> safe account -> Schedule.
+Check cards, route order, address/suburb, i information, Basket, capacity summaries, Additional Visit, drag/drop and resize.
+
+Do not run migration-v2-optional-adopt-legacy-recurrence.sql.

@@ -56,3 +56,26 @@ console.log(`TUINBOOKS V2 RELEASE CONTRACT: PASS · ${checks} checks`);
 }
 
 console.log(`TUINBOOKS UI PRESERVATION CONTRACT: PASS`);
+
+// Schedule parity contract: preserve the fast v2 engine while restoring TuinBooks operational density.
+{
+  const schedulePage=await read('src/features/schedule/schedulePage.ts');
+  const calendar=await read('src/features/schedule/calendar.ts');
+  const basket=await read('src/features/schedule/basket.ts');
+  const styles=await read('src/styles.css');
+  for(const marker of ['Visits this week','Planned hours','Needs attention','Do not service'])has(schedulePage,marker,`Schedule week summary missing: ${marker}`);
+  has(schedulePage,'schedule-legend','Schedule legend must remain visible');
+  has(schedulePage,'schedule-basket-toggle','Schedule must expose the Basket directly');
+  has(calendar,'visit-route','Schedule cards must show route order');
+  has(calendar,'visit-info-button','Schedule cards must expose the original information affordance');
+  has(calendar,'visit-location','Schedule cards must show the street address before opening details');
+  has(calendar,'visit-suburb','Schedule cards must show suburb before opening details');
+  has(calendar,'schedule-cell-summary','Each team/day lane must show job and capacity context');
+  has(calendar,'Access notes','Visit information must include access notes');
+  has(calendar,'Site instructions','Visit information must include site instructions');
+  has(calendar,'DO NOT SERVICE','Visit information must surface client service holds');
+  has(basket,'basket-summary','Basket must show real work-intake summary');
+  has(basket,'Accepted quoted work','Basket must distinguish accepted quoted work');
+  has(styles,'Schedule parity pass','Schedule parity styles must be active');
+}
+console.log(`TUINBOOKS SCHEDULE PARITY CONTRACT: PASS`);

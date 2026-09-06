@@ -1,2 +1,2 @@
-TUINBOOKS UI-RESTORED RELEASE R4
-Management session authorization bridge + readable runtime errors.
+TuinBooks UI-Restored Release R5 — Schedule parity pass
+Preserves v2 scheduler engine; restores original TuinBooks schedule information density and controls.
