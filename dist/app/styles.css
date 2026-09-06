@@ -399,3 +399,17 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .basket-card.basket-draggable{cursor:grab!important;border-color:#c8d9cf!important}
 .basket-card.basket-draggable:hover{background:#eef7f1!important;border-color:#8fb69f!important}
 .basket-card.basket-draggable b{color:#397657!important}
+
+/* R12 — actionable visit controls + restored missed-visit resolution */
+.legend-caption{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#7a887f;margin-right:2px}
+.compact-schedule-legend>div{cursor:default}
+.calendar-grid:not(.drag-mode-active) .visit-card{cursor:pointer}
+.calendar-grid:not(.drag-mode-active) .visit-card:hover{box-shadow:0 3px 10px rgba(28,67,49,.12)!important;transform:translateY(-1px)}
+.dns-primary-action{border-color:#e2aaa4!important;background:#fff4f2!important;color:#8f2923!important}
+.missed-resolution-section{background:#fffaf0;border:1px solid #ead7aa;border-radius:12px;padding:12px}
+.missed-resolution-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.resolution-choice{display:grid;gap:4px;border:1px solid #dce5df;border-radius:10px;padding:12px;background:#fff;text-align:left;color:#304238;cursor:pointer}
+.resolution-choice b{font-size:13px}.resolution-choice span{font-size:10px;line-height:1.35;color:#6a786f}
+.resolution-choice.completed{border-color:#add6bd;background:#f2faf5}.resolution-choice.catchup{border-color:#b9cde4;background:#f5f8fc}.resolution-choice.no-return{border-color:#e4c4be;background:#fff6f4}
+.client-dns-section{border-top:1px solid #edf1ee;padding-top:11px}
+@media(max-width:700px){.missed-resolution-grid{grid-template-columns:1fr}}

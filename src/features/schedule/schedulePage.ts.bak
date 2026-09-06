@@ -1,4 +1,4 @@
-import type { AdditionalVisitInput, ClientServiceHold, MoveVisitInput, PlaceQueueItemInput, ResizeVisitInput, ScheduleDayAction, IsoDate, ScheduleSeries, ScheduleWeek, Visit } from '../../domain/types.js';
+import type { AdditionalVisitInput, ClientServiceHold, MoveVisitInput, PlaceQueueItemInput, ResizeVisitInput, ScheduleDayAction, IsoDate, ScheduleSeries, ScheduleWeek, Visit, VisitMoveScope } from '../../domain/types.js';
 import { addDays, startOfWeek, todayIso } from '../../domain/dates.js';
 import { buildAdditionalVisit, moveVisitOptimistically, placeQueueItemOptimistically, queueVisitOptimistically, resizeVisitOptimistically } from '../../domain/schedule.js';
 import { cancelVisitOptimistically, markMissedOptimistically, removeDayActionOptimistically, rescheduleMissedOptimistically, setClientHoldOptimistically, setSuspendedOptimistically, setVisitDoNotServiceOptimistically, undoCancelOptimistically, upsertDayActionOptimistically, type CancelMode, type DayActionInput, type RescheduleMissedInput } from '../../domain/operations.js';
@@ -10,7 +10,7 @@ import { chooseMoveScope } from './recurrenceScopeDialog.js';
 import { openVisitActionDialog } from './visitActionDialog.js';
 import { openDayActionDialog } from './dayActionDialog.js';
 import { demoWeek } from './demoData.js';
-import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitResize, persistVisitToBasket } from './scheduleRepository.js';
+import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitResize, persistVisitToBasket } from './scheduleRepository.js';
 import { mountWorkspace, type WorkspaceIdentity, type WorkspaceNavigation } from '../shell/chrome.js';
 
 export type ScheduleIdentity=WorkspaceIdentity;
@@ -35,19 +35,21 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     <section class="schedule-week-navigation" aria-label="Rolling schedule weeks">
       <div id="rollingWeekCards" class="rolling-week-strip-v2"></div>
       <div class="schedule-drag-controls">
-        <span class="rearrange-mode-label hidden" id="rearrangeModeLabel">REARRANGE WEEK</span>
+        <span id="dragScopeControls" class="drag-scope-controls hidden">
+          <button type="button" data-drag-scope="one" class="active">THIS VISIT</button>
+          <button type="button" data-drag-scope="future">THIS + FUTURE</button>
+        </span>
         <button type="button" class="button secondary compact schedule-drag-toggle" id="dragModeToggle">↔ Drag mode</button>
       </div>
     </section>
     <div id="pageError" class="error-box hidden" role="alert"></div>
     <div id="saveIndicator" class="save-indicator hidden">Saving…</div>
-    <section class="schedule-legend compact-schedule-legend" aria-label="Schedule status key">
-      <span class="legend-caption">Key</span>
-      <div title="Recurring routine visit"><span class="legend-marker recurring">R</span>Recurring</div>
-      <div title="Direct additional visit"><span class="legend-marker additional">A</span>Additional visit</div>
-      <div title="Accepted quoted work"><span class="legend-marker quoted">Q</span>Quoted work</div>
-      <div title="Visit needs an office outcome"><span class="legend-status missed"></span>Missed / attention</div>
-      <div title="Visit or client is marked Do not service"><span class="legend-status dns"></span>Do not service</div>
+    <section class="schedule-legend compact-schedule-legend">
+      <div><span class="legend-marker recurring">R</span>Recurring</div>
+      <div><span class="legend-marker additional">A</span>Additional visit</div>
+      <div><span class="legend-marker quoted">Q</span>Quoted work</div>
+      <div><span class="legend-status missed"></span>Missed / attention</div>
+      <div><span class="legend-status dns"></span>Do not service</div>
       <p id="scheduleModeHelp">Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.</p>
     </section>
     <div class="schedule-layout" id="scheduleLayout">
@@ -71,13 +73,14 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   let basketController:BasketController|null=null;
   let saves=0;
   let dragMode=false;
+  let dragScope:VisitMoveScope='one';
 
   const host=root.querySelector<HTMLElement>('#calendarHost')!;
   const basketHost=root.querySelector<HTMLElement>('#basketHost')!;
   const errorBox=root.querySelector<HTMLElement>('#pageError')!;
   const saveIndicator=root.querySelector<HTMLElement>('#saveIndicator')!;
   const dragToggle=root.querySelector<HTMLButtonElement>('#dragModeToggle')!;
-  const rearrangeModeLabel=root.querySelector<HTMLElement>('#rearrangeModeLabel')!;
+  const dragScopeControls=root.querySelector<HTMLElement>('#dragScopeControls')!;
   const modeHelp=root.querySelector<HTMLElement>('#scheduleModeHelp')!;
 
   const updateTitle=()=>{
@@ -90,14 +93,14 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   const showSaving=()=>saveIndicator.classList.toggle('hidden',saves===0);
 
   const renderDragChrome=()=>{
-    page.classList.toggle('rearrange-mode',dragMode);
     dragToggle.classList.toggle('active',dragMode);
     dragToggle.classList.toggle('secondary',!dragMode);
-    dragToggle.textContent=dragMode?'✓ Done rearranging':'↔ Drag mode';
-    rearrangeModeLabel.classList.toggle('hidden',!dragMode);
+    dragToggle.textContent=dragMode?'✓ Done dragging':'↔ Drag mode';
+    dragScopeControls.classList.toggle('hidden',!dragMode);
+    dragScopeControls.querySelectorAll<HTMLButtonElement>('[data-drag-scope]').forEach(button=>button.classList.toggle('active',button.dataset.dragScope===dragScope));
     modeHelp.innerHTML=dragMode
-      ? `Rearrange mode is on. Drag visits between days/teams or to and from the Basket. Recurring visits ask <strong>This visit</strong> or <strong>This + future</strong> when you drop them.`
-      : `Normal mode is for day-to-day operations. Turn on <strong>Drag mode</strong> only when you want to rearrange the week.`;
+      ? `Drag mode is on · <strong>${dragScope==='future'?'this + future':'this visit'}</strong>. Street addresses and drag IDs stay visible while you rearrange.`
+      : `Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.`;
   };
 
   const rollingStarts=():IsoDate[]=>{
@@ -134,6 +137,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     root.querySelector<HTMLElement>('#basketCount')!.textContent=String(data.queueItems.length);root.querySelector<HTMLElement>('#basketStripCount')!.textContent=String(data.queueItems.length);
     calendar=renderCalendar(host,data,{
       dragEnabled:dragMode,
+      dragScope,
       onMove:moveVisit,
       onQueue:queueVisit,
       onResize:resizeVisit,
@@ -141,7 +145,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       onVisitAction:openVisitActions,
       onDayAction:openDayAction,
     });
-    basketController=renderBasket(basketHost,data.queueItems,data.accounts,data.locations,data.visits,dragMode,placeQueueItem);
+    basketController=renderBasket(basketHost,data.queueItems,data.accounts,data.locations,data.visits,placeQueueItem);
   };
 
   async function fetchWeek(){
@@ -184,11 +188,10 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   async function placeQueueItem(input:PlaceQueueItemInput){if(!data)return;const before=data,next=placeQueueItemOptimistically(data.visits,data.queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);data={...data,...next};render();await saveOptimistic(before,()=>persistQueuePlacement(identity.businessId,input));}
   async function openAdditional(date:AdditionalVisitInput['date'],teamId:string,_index:number,sortOrder:number){if(!data)return;openAdditionalVisitDialog({businessId:identity.businessId,date,teamId,sortOrder,accounts:data.accounts,locations:data.locations},createAdditional);}
   async function createAdditional(input:AdditionalVisitInput){if(!data)return;const before=data,visit=buildAdditionalVisit(input,identity.businessId);data={...data,visits:[...data.visits,visit]};render();const saved=await saveOptimistic(before,()=>persistAdditionalVisit(identity.businessId,input));if(saved&&!data.accounts.some(a=>a.id===input.accountId)&&!identity.demo)await fetchWeek();}
-  function openVisitActions(visit:Visit,account:any,hold:ClientServiceHold|null){if(!data)return;openVisitActionDialog(visit,account,data.teams,hold,{onCancel:cancelVisit,onUndoCancel:undoCancel,onMissed:markMissed,onResolveMissed:resolveMissed,onReschedule:rescheduleMissed,onSuspend:setSuspension,onVisitDoNotService:setVisitDoNotService,onClientHold:setClientHold});}
+  function openVisitActions(visit:Visit,account:any,hold:ClientServiceHold|null){if(!data)return;openVisitActionDialog(visit,account,data.teams,hold,{onCancel:cancelVisit,onUndoCancel:undoCancel,onMissed:markMissed,onReschedule:rescheduleMissed,onSuspend:setSuspension,onVisitDoNotService:setVisitDoNotService,onClientHold:setClientHold});}
   async function cancelVisit(visitId:string,mode:CancelMode,reason:string){if(!data)return;const before=data;data={...data,visits:cancelVisitOptimistically(data.visits,visitId,mode,reason)};render();await saveOptimistic(before,()=>persistCancelVisit(identity.businessId,visitId,mode,reason));}
   async function undoCancel(visitId:string){if(!data)return;const before=data;data={...data,visits:undoCancelOptimistically(data.visits,visitId)};render();await saveOptimistic(before,()=>persistUndoCancel(identity.businessId,visitId));}
   async function markMissed(visitId:string,reason:string){if(!data)return;const before=data;data={...data,visits:markMissedOptimistically(data.visits,visitId,reason)};render();await saveOptimistic(before,()=>persistMarkMissed(identity.businessId,visitId,reason));}
-  async function resolveMissed(visitId:string,decision:'complete'|'no-return',note:string){if(!data)return;const before=data;data={...data,visits:data.visits.map(v=>v.id!==visitId?v:{...v,status:decision==='complete'?'completed':'cancelled',billingDisposition:decision==='no-return'?'no-charge':v.billingDisposition,payload:{...v.payload,resolvedMissedV2:true,missedResolutionV2:decision,missedResolutionNoteV2:note}})};render();const saved=await saveOptimistic(before,()=>persistResolveMissed(identity.businessId,visitId,decision,note));if(saved&&!identity.demo)await fetchWeek();}
   async function rescheduleMissed(input:RescheduleMissedInput){if(!data)return;const before=data;data={...data,visits:rescheduleMissedOptimistically(data.visits,input)};render();const saved=await saveOptimistic(before,()=>persistRescheduleMissed(identity.businessId,input));if(saved&&!identity.demo&&(input.date<weekStart||input.date>addDays(weekStart,6)))await fetchWeek();}
   async function setSuspension(visitIds:string[],suspended:boolean,reason:string){if(!data)return;const before=data;data={...data,visits:setSuspendedOptimistically(data.visits,visitIds,suspended,reason)};render();await saveOptimistic(before,()=>persistSuspension(identity.businessId,visitIds,suspended,reason));}
   async function setVisitDoNotService(visitId:string,active:boolean,reason:string,note:string){if(!data)return;const before=data;data={...data,visits:setVisitDoNotServiceOptimistically(data.visits,visitId,active,reason,note)};render();await saveOptimistic(before,()=>persistVisitDoNotService(identity.businessId,visitId,active,reason,note));}
@@ -201,7 +204,8 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   page.querySelector<HTMLButtonElement>('#todayWeek')!.onclick=()=>{weekStart=startOfWeek(todayIso());void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#nextWeek')!.onclick=()=>{weekStart=addDays(weekStart,7);void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#refreshWeek')!.onclick=()=>void fetchWeek();
-  dragToggle.onclick=()=>{dragMode=!dragMode;if(dragMode)setBasketState('open');render();};
+  dragToggle.onclick=()=>{dragMode=!dragMode;render();};
+  dragScopeControls.querySelectorAll<HTMLButtonElement>('[data-drag-scope]').forEach(button=>button.onclick=()=>{dragScope=button.dataset.dragScope==='future'?'future':'one';render();});
 
   const basket=page.querySelector<HTMLElement>('#floatingBasket')!;
   const launcher=page.querySelector<HTMLButtonElement>('#openBasket')!;

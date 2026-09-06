@@ -9,7 +9,7 @@ import { chooseMoveScope } from './recurrenceScopeDialog.js';
 import { openVisitActionDialog } from './visitActionDialog.js';
 import { openDayActionDialog } from './dayActionDialog.js';
 import { demoWeek } from './demoData.js';
-import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitResize, persistVisitToBasket } from './scheduleRepository.js';
+import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitResize, persistVisitToBasket } from './scheduleRepository.js';
 import { mountWorkspace } from '../shell/chrome.js';
 export function renderSchedulePage(root, identity, navigation) {
     const page = mountWorkspace(root, identity, 'schedule', navigation, 'schedule-page');
@@ -37,12 +37,13 @@ export function renderSchedulePage(root, identity, navigation) {
     </section>
     <div id="pageError" class="error-box hidden" role="alert"></div>
     <div id="saveIndicator" class="save-indicator hidden">Saving…</div>
-    <section class="schedule-legend compact-schedule-legend">
-      <div><span class="legend-marker recurring">R</span>Recurring</div>
-      <div><span class="legend-marker additional">A</span>Additional visit</div>
-      <div><span class="legend-marker quoted">Q</span>Quoted work</div>
-      <div><span class="legend-status missed"></span>Missed / attention</div>
-      <div><span class="legend-status dns"></span>Do not service</div>
+    <section class="schedule-legend compact-schedule-legend" aria-label="Schedule status key">
+      <span class="legend-caption">Key</span>
+      <div title="Recurring routine visit"><span class="legend-marker recurring">R</span>Recurring</div>
+      <div title="Direct additional visit"><span class="legend-marker additional">A</span>Additional visit</div>
+      <div title="Accepted quoted work"><span class="legend-marker quoted">Q</span>Quoted work</div>
+      <div title="Visit needs an office outcome"><span class="legend-status missed"></span>Missed / attention</div>
+      <div title="Visit or client is marked Do not service"><span class="legend-status dns"></span>Do not service</div>
       <p id="scheduleModeHelp">Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.</p>
     </section>
     <div class="schedule-layout" id="scheduleLayout">
@@ -218,13 +219,16 @@ export function renderSchedulePage(root, identity, navigation) {
         return; const before = data, visit = buildAdditionalVisit(input, identity.businessId); data = { ...data, visits: [...data.visits, visit] }; render(); const saved = await saveOptimistic(before, () => persistAdditionalVisit(identity.businessId, input)); if (saved && !data.accounts.some(a => a.id === input.accountId) && !identity.demo)
         await fetchWeek(); }
     function openVisitActions(visit, account, hold) { if (!data)
-        return; openVisitActionDialog(visit, account, data.teams, hold, { onCancel: cancelVisit, onUndoCancel: undoCancel, onMissed: markMissed, onReschedule: rescheduleMissed, onSuspend: setSuspension, onVisitDoNotService: setVisitDoNotService, onClientHold: setClientHold }); }
+        return; openVisitActionDialog(visit, account, data.teams, hold, { onCancel: cancelVisit, onUndoCancel: undoCancel, onMissed: markMissed, onResolveMissed: resolveMissed, onReschedule: rescheduleMissed, onSuspend: setSuspension, onVisitDoNotService: setVisitDoNotService, onClientHold: setClientHold }); }
     async function cancelVisit(visitId, mode, reason) { if (!data)
         return; const before = data; data = { ...data, visits: cancelVisitOptimistically(data.visits, visitId, mode, reason) }; render(); await saveOptimistic(before, () => persistCancelVisit(identity.businessId, visitId, mode, reason)); }
     async function undoCancel(visitId) { if (!data)
         return; const before = data; data = { ...data, visits: undoCancelOptimistically(data.visits, visitId) }; render(); await saveOptimistic(before, () => persistUndoCancel(identity.businessId, visitId)); }
     async function markMissed(visitId, reason) { if (!data)
         return; const before = data; data = { ...data, visits: markMissedOptimistically(data.visits, visitId, reason) }; render(); await saveOptimistic(before, () => persistMarkMissed(identity.businessId, visitId, reason)); }
+    async function resolveMissed(visitId, decision, note) { if (!data)
+        return; const before = data; data = { ...data, visits: data.visits.map(v => v.id !== visitId ? v : { ...v, status: decision === 'complete' ? 'completed' : 'cancelled', billingDisposition: decision === 'no-return' ? 'no-charge' : v.billingDisposition, payload: { ...v.payload, resolvedMissedV2: true, missedResolutionV2: decision, missedResolutionNoteV2: note } }) }; render(); const saved = await saveOptimistic(before, () => persistResolveMissed(identity.businessId, visitId, decision, note)); if (saved && !identity.demo)
+        await fetchWeek(); }
     async function rescheduleMissed(input) { if (!data)
         return; const before = data; data = { ...data, visits: rescheduleMissedOptimistically(data.visits, input) }; render(); const saved = await saveOptimistic(before, () => persistRescheduleMissed(identity.businessId, input)); if (saved && !identity.demo && (input.date < weekStart || input.date > addDays(weekStart, 6)))
         await fetchWeek(); }

@@ -1,4 +1,1 @@
-TUINBOOKS UI-RESTORED RELEASE R11
-Distinct team colours + dedicated rearrange mode + reliable Basket placement.
-Normal mode remains operational. Drag mode is now only for planning/rearranging; recurring moves prompt for This visit / This + future on drop.
-Preserves floating Basket, full-width dense Schedule, street address, visible drag ID and visit operations.
+TUINBOOKS UI-RESTORED RELEASE R12 — actionable visit controls + restored three-way missed-visit resolution

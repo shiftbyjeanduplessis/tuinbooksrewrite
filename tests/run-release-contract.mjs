@@ -194,3 +194,25 @@ console.log('TUINBOOKS R10 FLOATING BASKET CONTRACT: PASS');
   has(calendar,"location?.address||'Address not linked'",'Street address must remain on schedule cards');
 }
 console.log('TUINBOOKS R11 REARRANGE/BASKET CONTRACT: PASS');
+
+// R12 Schedule: status key is informative, while visit actions are discoverable and missed visits regain the three-way resolution flow.
+{
+  const [schedulePage,calendar,visitDialog,repository,sql,styles]=await Promise.all([
+    read('src/features/schedule/schedulePage.ts'),read('src/features/schedule/calendar.ts'),read('src/features/schedule/visitActionDialog.ts'),read('src/features/schedule/scheduleRepository.ts'),read('supabase/APPLY-R12-MISSED-VISIT-RESOLUTION.sql'),read('src/styles.css')
+  ]);
+  has(schedulePage,'Schedule status key','R12 must identify the legend as a status key');
+  has(calendar,"onAction();});",'Normal-mode card click must open visit actions');
+  has(calendar,'data-visit-info','Information button must remain separate from actions');
+  has(visitDialog,'Do not service this visit','Visit-specific DNS must be prominent in the visit dialog');
+  has(visitDialog,'It was completed','Missed resolution must restore completed-by-office choice');
+  has(visitDialog,'Reschedule / catch-up','Missed resolution must restore catch-up choice');
+  has(visitDialog,'No catch-up / no charge','Missed resolution must restore no-return/no-charge choice');
+  has(visitDialog,'missed-resolution-grid','Missed resolution must be a dedicated three-choice UI');
+  has(repository,'tuinbooks_v2_resolve_missed_visit_r12','Missed final outcomes must persist through the R12 RPC');
+  has(sql,"p_decision not in ('complete','no-return')",'R12 RPC must constrain final missed outcomes');
+  has(sql,"'v2_missed_resolved_complete'",'Completed missed resolution must be audited');
+  has(sql,"'v2_missed_resolved_no_return'",'No-return missed resolution must be audited');
+  has(calendar,"visit.visitType==='quoted'?'<span class=\"visit-badge quoted\">Q</span>'",'Quoted work marker Q must remain state-driven');
+  has(styles,'R12 — actionable visit controls + restored missed-visit resolution','R12 styles must be active');
+}
+console.log('TUINBOOKS R12 MISSED-VISIT/ACTION CONTRACT: PASS');

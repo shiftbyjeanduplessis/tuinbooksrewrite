@@ -133,7 +133,7 @@ function makeVisitCard(visit, route, team, account, location, series, hold, drag
     card.querySelector('[data-visit-action]').onclick = e => { e.stopPropagation(); onAction(); };
     card.querySelector('[data-visit-info]').onclick = e => { e.stopPropagation(); openVisitInfo(visit, route, team, account, location, series, hold, task, notes); };
     card.addEventListener('click', e => { if (dragEnabled || e.target.closest('button,[data-resize-handle]'))
-        return; openVisitInfo(visit, route, team, account, location, series, hold, task, notes); });
+        return; onAction(); });
     const handle = card.querySelector('[data-resize-handle]');
     if (handle)
         handle.addEventListener('pointerdown', event => {
