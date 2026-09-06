@@ -1,0 +1,19 @@
+TUINBOOKS V2 — DEFAULT ADDITIVE INSTALL ORDER
+
+Run against QA/staging Supabase first. Stop immediately on any SQL error.
+
+1. migration-v2-schedule-mutations.sql
+2. migration-v2-recurrence-authority.sql
+3. migration-v2-operational-states.sql
+4. migration-v2-client-authority.sql
+5. migration-v2-work-mobile.sql
+6. migration-v2-money-quotes.sql
+7. migration-v2-business-import-management.sql
+8. migration-v2-release-completion.sql
+
+For convenience, INSTALL-V2-CORE.sql contains these eight files concatenated in this exact order.
+
+NOT AUTOMATIC / REVIEW BEFORE RUNNING:
+- migration-v2-optional-adopt-legacy-recurrence.sql
+  This is the conservative bridge for adopting simple legacy recurrence into the v2 series model.
+  Keep it separate from the default installer so a deployment cannot silently rewrite legacy recurrence.
