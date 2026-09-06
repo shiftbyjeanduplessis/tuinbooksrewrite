@@ -1,31 +1,28 @@
-# TuinBooks UI-Restored Release R11 — Build Report
+# TuinBooks UI-Restored Release R13 — Build Report
 
-Scope: Schedule team colours, Basket placement reliability, and a meaningful Normal-vs-Drag mode split. Scheduler engine remains the v2 engine.
+Status: IMPLEMENTED / LOCAL AUTOMATED GATE PASS / DEPLOYED BROWSER NOT YET VERIFIED
 
-Changes:
-- Teams now receive distinct, restrained colour accents across team labels, cell headers and route markers.
-- Normal mode is explicitly operational/read mode.
-- Drag mode is now a dedicated rearrangement workspace: operational day actions are suppressed, Basket opens automatically, and planning affordances are emphasised.
-- Recurring moves no longer use a global scope selector. On drop, the existing recurrence dialog asks **This visit** or **This + future** only when needed.
-- Basket cards are draggable only while Drag mode is active.
-- Basket placement RPC is idempotent: if the original `schedule_jobs` row still exists, it is updated/reused rather than inserted again. This directly addresses `duplicate key value violates unique constraint "schedule_jobs_pkey"`.
-- Street address on cards and the visible drag ghost ID are retained.
-- Floating/minimizable/tuck-away Basket, visit-specific Do Not Service, Note/Event dialogs, Additional Visit and dense full-width Schedule are retained.
+R13 Schedule changes:
+- Normal mode has one click surface: the visit card opens Visit Actions.
+- The three-dot card action button is removed.
+- The `i` affordance is hover/focus information only and includes address, team/route, status/type, recurrence, task, access notes, site instructions and DNS warnings where present.
+- Rearrange mode adds per-card checkboxes for movable visits.
+- Multiple selected visits can be dragged together to one team/day or into Basket.
+- Group moves are occurrence-only by design; future recurrence is not silently changed.
+- A single recurring visit still uses the existing This visit / This + future decision.
+- Group calendar and Basket moves use R13 atomic server RPCs.
+- Street address, team colours, visible drag ID, floating Basket, Additional Visit and missed/DNS flows remain.
 
-Verification:
-- Domain: PASS (178 assertions)
-- Stress: PASS
-- Release contract: PASS (61 checks)
-- R6 workspace display contract: PASS
-- UI preservation contract: PASS
-- Schedule usability contract: PASS
-- R8 Schedule cleanup contract: PASS
-- R9 Schedule layout contract: PASS
-- R10 floating Basket contract: PASS
-- R11 rearrange/Basket contract: PASS
-- XLSX roundtrip: PASS
-- TypeScript/build: PASS
-- Static assets/imports: PASS
-- HTTP smoke: PASS
+Automated verification:
+- Domain: PASS — 178 assertions
+- Stress: PASS — v4 100 accounts / 110 locations; 200-client recurrence 1,408 visits; 10,000 invoices
+- Release contract: PASS — base + R6 + UI preservation + R7/R8/R9/R10/R11/R12/R13 Schedule contracts
+- XLSX round-trip: PASS — 0 errors
+- TypeScript production build: PASS
+- Static module integrity: PASS — 96 JS module copies, 212 relative imports, 0 missing, 0 forbidden legacy patterns
+- HTTP smoke: PASS — /app, mobile, /management, public documents and assets HTTP 200
 
-Deployed browser verification: NOT YET VERIFIED.
+Required SQL before browser-testing multi-select group drag:
+- supabase/APPLY-R13-GROUP-DRAG.sql
+
+Do not run migration-v2-optional-adopt-legacy-recurrence.sql as part of this release.

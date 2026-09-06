@@ -44,8 +44,12 @@ export async function persistVisitMove(businessId:string,move:MoveVisitInput):Pr
   if(move.scope==='future')await rpc('tuinbooks_v2_move_series_future',{p_business_id:businessId,p_visit_id:move.visitId,p_date:move.date,p_team_id:move.teamId,p_sort_order:move.sortOrder});
   else await rpc('tuinbooks_v2_move_visit',{p_business_id:businessId,p_visit_id:move.visitId,p_date:move.date,p_team_id:move.teamId,p_sort_order:move.sortOrder});
 }
+export async function persistVisitGroupMove(businessId:string,moves:MoveVisitInput[]):Promise<void>{
+  await rpc('tuinbooks_v2_move_visits_group_r13',{p_business_id:businessId,p_moves:moves.map(move=>({visit_id:move.visitId,date:move.date,team_id:move.teamId,sort_order:move.sortOrder}))});
+}
 export async function persistVisitResize(businessId:string,input:ResizeVisitInput):Promise<void>{await rpc('tuinbooks_v2_resize_visit',{p_business_id:businessId,p_visit_id:input.visitId,p_estimated_minutes:input.estimatedMinutes});}
 export async function persistVisitToBasket(businessId:string,visitId:string):Promise<void>{await rpc('tuinbooks_v2_move_visit_to_basket',{p_business_id:businessId,p_visit_id:visitId});}
+export async function persistVisitGroupToBasket(businessId:string,visitIds:string[]):Promise<void>{await rpc('tuinbooks_v2_move_visits_to_basket_r13',{p_business_id:businessId,p_visit_ids:visitIds});}
 export async function persistQueuePlacement(businessId:string,input:PlaceQueueItemInput):Promise<void>{await rpc('tuinbooks_v2_schedule_queue_item',{p_business_id:businessId,p_queue_item_id:input.queueItemId,p_date:input.date,p_team_id:input.teamId,p_sort_order:input.sortOrder});}
 export async function persistAdditionalVisit(businessId:string,input:AdditionalVisitInput):Promise<void>{await rpc('tuinbooks_v2_create_additional_visit',{p_business_id:businessId,p_visit_id:input.id,p_date:input.date,p_team_id:input.teamId,p_sort_order:input.sortOrder,p_client_id:input.accountId,p_service_site_id:input.serviceLocationId,p_task:input.task,p_notes:input.notes});}
 

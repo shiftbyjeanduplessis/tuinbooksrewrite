@@ -10,7 +10,7 @@ import { chooseMoveScope } from './recurrenceScopeDialog.js';
 import { openVisitActionDialog } from './visitActionDialog.js';
 import { openDayActionDialog } from './dayActionDialog.js';
 import { demoWeek } from './demoData.js';
-import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitResize, persistVisitToBasket } from './scheduleRepository.js';
+import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitGroupMove, persistVisitResize, persistVisitToBasket, persistVisitGroupToBasket } from './scheduleRepository.js';
 import { mountWorkspace, type WorkspaceIdentity, type WorkspaceNavigation } from '../shell/chrome.js';
 
 export type ScheduleIdentity=WorkspaceIdentity;
@@ -36,6 +36,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       <div id="rollingWeekCards" class="rolling-week-strip-v2"></div>
       <div class="schedule-drag-controls">
         <span class="rearrange-mode-label hidden" id="rearrangeModeLabel">REARRANGE WEEK</span>
+        <span class="drag-selection-count hidden" id="dragSelectionCount">0 selected</span>
         <button type="button" class="button secondary compact schedule-drag-toggle" id="dragModeToggle">↔ Drag mode</button>
       </div>
     </section>
@@ -71,6 +72,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   let basketController:BasketController|null=null;
   let saves=0;
   let dragMode=false;
+  let selectedVisitIds=new Set<string>();
 
   const host=root.querySelector<HTMLElement>('#calendarHost')!;
   const basketHost=root.querySelector<HTMLElement>('#basketHost')!;
@@ -79,6 +81,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   const dragToggle=root.querySelector<HTMLButtonElement>('#dragModeToggle')!;
   const rearrangeModeLabel=root.querySelector<HTMLElement>('#rearrangeModeLabel')!;
   const modeHelp=root.querySelector<HTMLElement>('#scheduleModeHelp')!;
+  const selectionCount=root.querySelector<HTMLElement>('#dragSelectionCount')!;
 
   const updateTitle=()=>{
     const end=addDays(weekStart,6);
@@ -89,15 +92,22 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   const showError=(message='')=>{errorBox.textContent=message;errorBox.classList.toggle('hidden',!message);};
   const showSaving=()=>saveIndicator.classList.toggle('hidden',saves===0);
 
+  const updateSelectionChrome=()=>{
+    const count=selectedVisitIds.size;
+    selectionCount.textContent=`${count} selected`;
+    selectionCount.classList.toggle('hidden',!dragMode||count===0);
+    if(dragMode)modeHelp.innerHTML=count>1
+      ? `<strong>${count} visits selected.</strong> Drag any selected card to move them together. Group moves change these visits only, not future recurrence.`
+      : `Rearrange mode is on. Tick cards to move several visits together, or drag one card normally. A single recurring visit still asks <strong>This visit</strong> or <strong>This + future</strong>.`;
+  };
   const renderDragChrome=()=>{
     page.classList.toggle('rearrange-mode',dragMode);
     dragToggle.classList.toggle('active',dragMode);
     dragToggle.classList.toggle('secondary',!dragMode);
     dragToggle.textContent=dragMode?'✓ Done rearranging':'↔ Drag mode';
     rearrangeModeLabel.classList.toggle('hidden',!dragMode);
-    modeHelp.innerHTML=dragMode
-      ? `Rearrange mode is on. Drag visits between days/teams or to and from the Basket. Recurring visits ask <strong>This visit</strong> or <strong>This + future</strong> when you drop them.`
-      : `Normal mode is for day-to-day operations. Turn on <strong>Drag mode</strong> only when you want to rearrange the week.`;
+    if(!dragMode)modeHelp.innerHTML=`Normal mode is simple: click a visit card for its actions; hover the <strong>i</strong> for quick information. Turn on <strong>Drag mode</strong> only when you want to rearrange the week.`;
+    updateSelectionChrome();
   };
 
   const rollingStarts=():IsoDate[]=>{
@@ -134,8 +144,12 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     root.querySelector<HTMLElement>('#basketCount')!.textContent=String(data.queueItems.length);root.querySelector<HTMLElement>('#basketStripCount')!.textContent=String(data.queueItems.length);
     calendar=renderCalendar(host,data,{
       dragEnabled:dragMode,
+      selectedVisitIds,
+      onSelectionChange:ids=>{selectedVisitIds=ids;updateSelectionChrome();},
       onMove:moveVisit,
+      onMoveGroup:moveVisitGroup,
       onQueue:queueVisit,
+      onQueueGroup:queueVisitGroup,
       onResize:resizeVisit,
       onAdd:openAdditional,
       onVisitAction:openVisitActions,
@@ -179,8 +193,27 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     const saved=await saveOptimistic(before,()=>persistVisitMove(identity.businessId,move));
     if(saved&&move.scope==='future'&&!identity.demo)await fetchWeek();
   }
+  async function moveVisitGroup(moves:MoveVisitInput[]){
+    if(!data||!moves.length)return;
+    const before=data;
+    try{
+      let visits=data.visits;
+      for(const move of moves)visits=moveVisitOptimistically(visits,{...move,scope:'one'});
+      data={...data,visits};selectedVisitIds.clear();render();
+    }catch(error){showError(msg(error));return;}
+    const saved=await saveOptimistic(before,()=>persistVisitGroupMove(identity.businessId,moves.map(move=>({...move,scope:'one'}))));
+    if(saved&&!identity.demo)await fetchWeek();
+  }
   async function resizeVisit(input:ResizeVisitInput){if(!data)return;const before=data;data={...data,visits:resizeVisitOptimistically(data.visits,input)};render();await saveOptimistic(before,()=>persistVisitResize(identity.businessId,input));}
   async function queueVisit(visitId:string){if(!data)return;const before=data,next=queueVisitOptimistically(data.visits,data.queueItems,visitId);data={...data,...next};render();await saveOptimistic(before,()=>persistVisitToBasket(identity.businessId,visitId));}
+  async function queueVisitGroup(visitIds:string[]){
+    if(!data||!visitIds.length)return;
+    const before=data;let visits=data.visits,queueItems=data.queueItems;
+    for(const visitId of visitIds){const next=queueVisitOptimistically(visits,queueItems,visitId);visits=next.visits;queueItems=next.queueItems;}
+    data={...data,visits,queueItems};selectedVisitIds.clear();render();
+    const saved=await saveOptimistic(before,()=>persistVisitGroupToBasket(identity.businessId,visitIds));
+    if(saved&&!identity.demo)await fetchWeek();
+  }
   async function placeQueueItem(input:PlaceQueueItemInput){if(!data)return;const before=data,next=placeQueueItemOptimistically(data.visits,data.queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);data={...data,...next};render();await saveOptimistic(before,()=>persistQueuePlacement(identity.businessId,input));}
   async function openAdditional(date:AdditionalVisitInput['date'],teamId:string,_index:number,sortOrder:number){if(!data)return;openAdditionalVisitDialog({businessId:identity.businessId,date,teamId,sortOrder,accounts:data.accounts,locations:data.locations},createAdditional);}
   async function createAdditional(input:AdditionalVisitInput){if(!data)return;const before=data,visit=buildAdditionalVisit(input,identity.businessId);data={...data,visits:[...data.visits,visit]};render();const saved=await saveOptimistic(before,()=>persistAdditionalVisit(identity.businessId,input));if(saved&&!data.accounts.some(a=>a.id===input.accountId)&&!identity.demo)await fetchWeek();}
@@ -201,7 +234,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   page.querySelector<HTMLButtonElement>('#todayWeek')!.onclick=()=>{weekStart=startOfWeek(todayIso());void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#nextWeek')!.onclick=()=>{weekStart=addDays(weekStart,7);void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#refreshWeek')!.onclick=()=>void fetchWeek();
-  dragToggle.onclick=()=>{dragMode=!dragMode;if(dragMode)setBasketState('open');render();};
+  dragToggle.onclick=()=>{dragMode=!dragMode;selectedVisitIds.clear();if(dragMode)setBasketState('open');render();};
 
   const basket=page.querySelector<HTMLElement>('#floatingBasket')!;
   const launcher=page.querySelector<HTMLButtonElement>('#openBasket')!;

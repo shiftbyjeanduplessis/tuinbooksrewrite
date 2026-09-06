@@ -76,7 +76,7 @@ console.log(`TUINBOOKS UI PRESERVATION CONTRACT: PASS`);
   not(schedulePage,'data-drag-scope="one"','Drag scope must not remain as a confusing global mode');
   has(schedulePage,'schedule-basket-toggle','Schedule must expose the Basket directly');
   has(calendar,'visit-route','Schedule cards must show route order');
-  has(calendar,'visit-info-button','Schedule cards must expose the information affordance');
+  has(calendar,'visit-info-hover','Schedule cards must expose the information affordance');
   has(calendar,'visit-location','Schedule cards must show street address before opening details');
   has(calendar,'visit-suburb','Schedule cards must show suburb before opening details');
   has(calendar,'data-new-note','Each team/day must retain the compact Note action');
@@ -202,7 +202,7 @@ console.log('TUINBOOKS R11 REARRANGE/BASKET CONTRACT: PASS');
   ]);
   has(schedulePage,'Schedule status key','R12 must identify the legend as a status key');
   has(calendar,"onAction();});",'Normal-mode card click must open visit actions');
-  has(calendar,'data-visit-info','Information button must remain separate from actions');
+  has(calendar,'data-visit-info-hover','Information affordance must remain hover/focus only while the card is the action surface');
   has(visitDialog,'Do not service this visit','Visit-specific DNS must be prominent in the visit dialog');
   has(visitDialog,'It was completed','Missed resolution must restore completed-by-office choice');
   has(visitDialog,'Reschedule / catch-up','Missed resolution must restore catch-up choice');
@@ -216,3 +216,27 @@ console.log('TUINBOOKS R11 REARRANGE/BASKET CONTRACT: PASS');
   has(styles,'R12 — actionable visit controls + restored missed-visit resolution','R12 styles must be active');
 }
 console.log('TUINBOOKS R12 MISSED-VISIT/ACTION CONTRACT: PASS');
+
+// R13 Schedule: one card action surface + hover info + atomic multi-select group rearrangement.
+{
+  const [schedulePage,calendar,repository,sql,styles]=await Promise.all([
+    read('src/features/schedule/schedulePage.ts'),read('src/features/schedule/calendar.ts'),read('src/features/schedule/scheduleRepository.ts'),read('supabase/APPLY-R13-GROUP-DRAG.sql'),read('src/styles.css')
+  ]);
+  has(calendar,'data-select-visit','R13 Drag mode must put selection checkboxes on movable visit cards');
+  has(calendar,'multi-selected','Selected cards must receive a clear selected state');
+  has(calendar,'visits selected','Group drag ghost must show how many visits are moving');
+  has(schedulePage,'dragSelectionCount','Rearrange mode must show the current selection count');
+  has(schedulePage,'onMoveGroup:moveVisitGroup','Calendar must route multi-card drops through the group move path');
+  has(schedulePage,'onQueueGroup:queueVisitGroup','Calendar must route multi-card Basket drops through the group queue path');
+  has(schedulePage,"scope:'one'",'Multi-selected group moves must be occurrence-only and never silently rewrite recurrence');
+  has(repository,'tuinbooks_v2_move_visits_group_r13','Group calendar moves must use the atomic R13 RPC');
+  has(repository,'tuinbooks_v2_move_visits_to_basket_r13','Group Basket moves must use the atomic R13 RPC');
+  has(sql,'tuinbooks_v2_move_visits_group_r13','R13 SQL must define atomic group calendar moves');
+  has(sql,'tuinbooks_v2_move_visits_to_basket_r13','R13 SQL must define atomic group Basket moves');
+  has(calendar,'visit-info-hover','Visit information must be hover/focus information instead of a second action button');
+  has(calendar,'visit-hover-card','Hover info must expose the quick-information card');
+  not(calendar,'data-visit-action','The confusing separate three-dot visit action control must be removed');
+  not(calendar,'>•••<','The three-dot action affordance must be removed from Schedule cards');
+  has(styles,'R13 — one card action surface + hover-only info + multi-select rearrange','R13 interaction styles must be active');
+}
+console.log('TUINBOOKS R13 MULTI-SELECT/ONE-ACTION CONTRACT: PASS');

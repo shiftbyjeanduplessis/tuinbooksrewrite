@@ -18,3 +18,5 @@ NOT AUTOMATIC / REVIEW BEFORE RUNNING:
   This is the conservative bridge for adopting simple legacy recurrence into the v2 series model.
   Keep it separate from the default installer so a deployment cannot silently rewrite legacy recurrence.
 R12: APPLY-R12-MISSED-VISIT-RESOLUTION.sql — restores three-way missed-visit resolution in Schedule.
+
+R13: APPLY-R13-GROUP-DRAG.sql — atomic multi-select calendar moves and group moves to Basket.

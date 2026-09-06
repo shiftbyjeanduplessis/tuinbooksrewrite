@@ -1,3 +1,7 @@
+# TuinBooks UI-Restored Release R13
+
+R13 simplifies Schedule interaction: one clickable visit card, hover-only `i` information, and checkbox multi-select group drag in Rearrange mode.
+
 # R11 Schedule update
 
 R11 keeps the fast v2 scheduler but makes **Drag mode** a dedicated rearrangement workspace. Teams have distinct restrained colours, Basket items are draggable only in Drag mode, recurring moves ask scope at drop time, and Basket placement is hardened against duplicate `schedule_jobs_pkey` failures. Street address and drag ID remain protected improvements.

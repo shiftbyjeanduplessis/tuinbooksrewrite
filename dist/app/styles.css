@@ -413,3 +413,36 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .resolution-choice.completed{border-color:#add6bd;background:#f2faf5}.resolution-choice.catchup{border-color:#b9cde4;background:#f5f8fc}.resolution-choice.no-return{border-color:#e4c4be;background:#fff6f4}
 .client-dns-section{border-top:1px solid #edf1ee;padding-top:11px}
 @media(max-width:700px){.missed-resolution-grid{grid-template-columns:1fr}}
+
+/* R13 — one card action surface + hover-only info + multi-select rearrange. */
+.drag-selection-count{display:inline-flex;align-items:center;height:27px;padding:0 10px;border:1px solid #a8c8b7;border-radius:999px;background:#fff;color:#285e45;font-size:9px;font-weight:900;letter-spacing:.04em}
+.drag-selection-count.hidden{display:none!important}
+
+/* The whole card is the single click target in normal mode. Info is hover/focus only; no separate menu button. */
+.visit-info-button,.visit-action-button{display:none!important}
+.visit-info-hover{position:relative;display:grid;place-items:center;width:17px;height:17px;flex:0 0 auto;border:1px solid #bfcfc6;border-radius:50%;background:rgba(255,255,255,.94);color:#456155;font:800 10px/1 Georgia,serif;cursor:help;outline:none;z-index:6}
+.visit-info-hover:hover,.visit-info-hover:focus{background:#eaf4ee;border-color:#88ae99;color:#214e38}
+.visit-hover-card{display:none;position:absolute;right:-6px;top:calc(100% + 7px);width:260px;padding:10px 11px;border:1px solid #cbd9d1;border-radius:10px;background:#fff;color:#263d31;box-shadow:0 14px 35px rgba(14,52,33,.18);z-index:140;text-align:left;font:500 10px/1.35 system-ui,sans-serif;pointer-events:none}
+.visit-hover-card:before{content:'';position:absolute;right:10px;top:-5px;width:9px;height:9px;background:#fff;border-left:1px solid #cbd9d1;border-top:1px solid #cbd9d1;transform:rotate(45deg)}
+.visit-info-hover:hover .visit-hover-card,.visit-info-hover:focus .visit-hover-card{display:grid;gap:4px}
+.visit-hover-card strong{font-size:12px!important;line-height:1.2!important;color:#153c2a!important;white-space:normal!important;display:block!important;overflow:visible!important}
+.visit-hover-card span{font-size:10px;color:#42584c}
+.visit-hover-card small{display:block;font-size:9px;line-height:1.35;color:#64756c;white-space:normal}
+.visit-hover-card small b{color:#314a3c}.visit-hover-card .warning{color:#8a5b00}.visit-hover-card .danger{color:#9a2d26}
+.calendar-grid:not(.drag-mode-active) .visit-card{cursor:pointer}
+.calendar-grid:not(.drag-mode-active) .visit-card:focus-within{box-shadow:0 0 0 2px rgba(39,118,82,.16),0 4px 10px rgba(24,78,52,.09)!important}
+
+/* Rearrange mode: checkboxes make bulk selection explicit. */
+.calendar-grid.drag-mode-active .visit-card{position:relative}
+.visit-select-control{position:absolute;left:5px;top:5px;z-index:8;width:16px;height:16px;display:grid;place-items:center;cursor:pointer}
+.visit-select-control input{position:absolute;opacity:0;width:16px;height:16px;margin:0;cursor:pointer}
+.visit-select-control span{width:14px;height:14px;border:1.5px solid #7fa68f;border-radius:4px;background:#fff;box-shadow:0 1px 2px rgba(19,68,44,.07)}
+.visit-select-control input:checked+span{background:#176747;border-color:#176747;box-shadow:inset 0 0 0 2px #fff}
+.visit-select-control input:checked+span:after{content:'✓';display:grid;place-items:center;color:#fff;font-size:10px;font-weight:900;line-height:12px;margin-top:-1px}
+.calendar-grid.drag-mode-active .visit-card.drag-enabled .visit-card-topline{padding-left:20px!important}
+.calendar-grid.drag-mode-active .visit-card.multi-selected{border-color:#176747!important;background:#eef8f2!important;box-shadow:0 0 0 2px rgba(23,103,71,.2),0 5px 13px rgba(18,72,46,.11)!important}
+.calendar-grid.drag-mode-active .visit-card.multi-selected:before{color:#176747!important;opacity:.85!important}
+.calendar-grid.drag-mode-active .visit-info-hover{opacity:.58}
+.calendar-grid.drag-mode-active .visit-info-hover:hover,.calendar-grid.drag-mode-active .visit-info-hover:focus{opacity:1}
+.drag-ghost.drag-id-ghost strong+small{max-width:270px}
+@media(max-width:700px){.visit-hover-card{width:220px;right:-24px}}

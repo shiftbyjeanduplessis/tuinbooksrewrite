@@ -47,8 +47,12 @@ export async function persistVisitMove(businessId, move) {
     else
         await rpc('tuinbooks_v2_move_visit', { p_business_id: businessId, p_visit_id: move.visitId, p_date: move.date, p_team_id: move.teamId, p_sort_order: move.sortOrder });
 }
+export async function persistVisitGroupMove(businessId, moves) {
+    await rpc('tuinbooks_v2_move_visits_group_r13', { p_business_id: businessId, p_moves: moves.map(move => ({ visit_id: move.visitId, date: move.date, team_id: move.teamId, sort_order: move.sortOrder })) });
+}
 export async function persistVisitResize(businessId, input) { await rpc('tuinbooks_v2_resize_visit', { p_business_id: businessId, p_visit_id: input.visitId, p_estimated_minutes: input.estimatedMinutes }); }
 export async function persistVisitToBasket(businessId, visitId) { await rpc('tuinbooks_v2_move_visit_to_basket', { p_business_id: businessId, p_visit_id: visitId }); }
+export async function persistVisitGroupToBasket(businessId, visitIds) { await rpc('tuinbooks_v2_move_visits_to_basket_r13', { p_business_id: businessId, p_visit_ids: visitIds }); }
 export async function persistQueuePlacement(businessId, input) { await rpc('tuinbooks_v2_schedule_queue_item', { p_business_id: businessId, p_queue_item_id: input.queueItemId, p_date: input.date, p_team_id: input.teamId, p_sort_order: input.sortOrder }); }
 export async function persistAdditionalVisit(businessId, input) { await rpc('tuinbooks_v2_create_additional_visit', { p_business_id: businessId, p_visit_id: input.id, p_date: input.date, p_team_id: input.teamId, p_sort_order: input.sortOrder, p_client_id: input.accountId, p_service_site_id: input.serviceLocationId, p_task: input.task, p_notes: input.notes }); }
 export async function persistCancelVisit(businessId, visitId, mode, reason) { await rpc('tuinbooks_v2_cancel_visit', { p_business_id: businessId, p_visit_id: visitId, p_charge: mode === 'charge', p_reason: reason }); }

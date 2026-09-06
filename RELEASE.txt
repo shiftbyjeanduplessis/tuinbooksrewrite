@@ -1,1 +1,1 @@
-TUINBOOKS UI-RESTORED RELEASE R12 — actionable visit controls + restored three-way missed-visit resolution
+TUINBOOKS UI-RESTORED RELEASE R13 — one-click visit cards + hover information + multi-select group rearrangement

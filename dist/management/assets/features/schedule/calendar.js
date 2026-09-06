@@ -13,6 +13,11 @@ export function renderCalendar(container, data, callbacks) {
     const accountById = new Map(data.accounts.map(a => [a.id, a]));
     const seriesById = new Map(data.series.map(s => [s.id, s]));
     const days = weekDays(data.weekStart), today = todayIso(), cleanup = [];
+    const selected = new Set(callbacks.selectedVisitIds);
+    const movable = (visit) => !['completed', 'cancelled', 'rescheduled', 'suspended'].includes(String(visit.status).toLowerCase());
+    for (const id of [...selected])
+        if (!data.visits.some(v => v.id === id && movable(v)))
+            selected.delete(id);
     const corner = document.createElement('div');
     corner.className = 'calendar-corner';
     corner.innerHTML = '<strong>Teams</strong><small>Route order</small>';
@@ -64,22 +69,31 @@ export function renderCalendar(container, data, callbacks) {
             }
             rows.forEach((visit, index) => {
                 const account = accountById.get(visit.accountId), hold = activeHold(data.clientHolds, visit.accountId);
-                cell.append(makeVisitCard(visit, index + 1, team, account, locationForVisit(visit, data.locations), visit.seriesId ? seriesById.get(visit.seriesId) : undefined, hold, callbacks.dragEnabled, beginDrag, callbacks.onResize, () => callbacks.onVisitAction(visit, account, hold)));
+                cell.append(makeVisitCard(visit, index + 1, team, account, locationForVisit(visit, data.locations), visit.seriesId ? seriesById.get(visit.seriesId) : undefined, hold, callbacks.dragEnabled, selected.has(visit.id), beginDrag, callbacks.onResize, () => callbacks.onVisitAction(visit, account, hold), checked => { if (checked)
+                    selected.add(visit.id);
+                else
+                    selected.delete(visit.id); callbacks.onSelectionChange(new Set(selected)); }));
             });
             grid.append(cell);
         }
     }
     let drag = null;
     function beginDrag(event, visit, route, card) {
-        if (!callbacks.dragEnabled || event.button !== 0 || event.target.closest('[data-resize-handle],[data-visit-action],[data-visit-info]') || ['completed', 'cancelled', 'rescheduled', 'suspended'].includes(String(visit.status).toLowerCase()))
+        if (!callbacks.dragEnabled || event.button !== 0 || event.target.closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]') || !movable(visit))
             return;
         event.preventDefault();
+        const selectedGroup = selected.has(visit.id) && selected.size > 1
+            ? data.visits.filter(v => selected.has(v.id) && movable(v)).sort(groupSort)
+            : [visit];
+        const visitIds = selectedGroup.map(v => v.id);
         const r = card.getBoundingClientRect(), ghost = document.createElement('div');
         ghost.className = 'drag-ghost drag-id-ghost';
         const name = accountById.get(visit.accountId)?.name ?? visit.accountId;
-        ghost.innerHTML = `<strong>#${route} · ${esc(name)}</strong><small>ID ${esc(shortId(visit.id))}</small>`;
+        ghost.innerHTML = visitIds.length > 1
+            ? `<strong>${visitIds.length} visits selected</strong><small>Move together · anchor #${route} · ID ${esc(shortId(visit.id))}</small>`
+            : `<strong>#${route} · ${esc(name)}</strong><small>ID ${esc(shortId(visit.id))}</small>`;
         document.body.append(ghost);
-        drag = { visit, route, ghost, offsetX: event.clientX - r.left, offsetY: event.clientY - r.top, moved: false };
+        drag = { visit, route, visitIds, ghost, offsetX: event.clientX - r.left, offsetY: event.clientY - r.top, moved: false };
         place(event.clientX, event.clientY);
         const move = (e) => { if (!drag)
             return; e.preventDefault(); drag.moved = true; place(e.clientX, e.clientY); };
@@ -94,13 +108,23 @@ export function renderCalendar(container, data, callbacks) {
                 return;
             const el = document.elementFromPoint(e.clientX, e.clientY);
             if (el?.closest('[data-basket-drop]')) {
-                void callbacks.onQueue(current.visit.id);
+                if (current.visitIds.length > 1)
+                    void callbacks.onQueueGroup(current.visitIds);
+                else
+                    void callbacks.onQueue(current.visit.id);
                 return;
             }
             const target = el?.closest('[data-schedule-cell]');
             const date = target?.dataset.date, teamId = target?.dataset.teamId;
-            if (date && teamId)
-                void callbacks.onMove({ visitId: current.visit.id, date: date, teamId, sortOrder: nextSortOrder(data.visits, date, teamId) });
+            if (date && teamId) {
+                const base = nextSortOrder(data.visits.filter(v => !current.visitIds.includes(v.id)), date, teamId);
+                if (current.visitIds.length > 1) {
+                    const group = data.visits.filter(v => current.visitIds.includes(v.id)).sort(groupSort);
+                    void callbacks.onMoveGroup(group.map((v, index) => ({ visitId: v.id, date: date, teamId, sortOrder: base + index * 100, scope: 'one' })));
+                }
+                else
+                    void callbacks.onMove({ visitId: current.visit.id, date: date, teamId, sortOrder: base });
+            }
         };
         const cancel = () => { if (drag) {
             drag.ghost.remove();
@@ -112,15 +136,19 @@ export function renderCalendar(container, data, callbacks) {
         window.addEventListener('pointercancel', cancel, { once: true });
         cleanup.push(unwire);
     }
+    function groupSort(a, b) {
+        const teamA = data.teams.findIndex(t => t.id === a.teamId), teamB = data.teams.findIndex(t => t.id === b.teamId);
+        return String(a.date).localeCompare(String(b.date)) || teamA - teamB || a.sortOrder - b.sortOrder || a.id.localeCompare(b.id);
+    }
     function place(x, y) { if (!drag)
         return; drag.ghost.style.left = `${x - drag.offsetX}px`; drag.ghost.style.top = `${y - drag.offsetY}px`; }
     return { destroy() { cleanup.forEach(fn => fn()); if (drag?.ghost)
             drag.ghost.remove(); container.innerHTML = ''; } };
 }
-function makeVisitCard(visit, route, team, account, location, series, hold, dragEnabled, begin, onResize, onAction) {
+function makeVisitCard(visit, route, team, account, location, series, hold, dragEnabled, isSelected, begin, onResize, onAction, onSelect) {
     const status = String(visit.status).toLowerCase(), locked = ['completed', 'cancelled', 'rescheduled', 'suspended'].includes(status), card = document.createElement('article');
     const visitDns = visitDoNotService(visit), dnsActive = visitDns.active || !!hold;
-    card.className = `visit-card visit-${visit.visitType} status-${status}${visit.recurrenceManualOverride ? ' recurrence-exception' : ''}${dnsActive ? ' do-not-service' : ''}${visitDns.active ? ' visit-do-not-service' : ''}${hold ? ' client-do-not-service' : ''}${dragEnabled && !locked ? ' drag-enabled' : ''}`;
+    card.className = `visit-card visit-${visit.visitType} status-${status}${visit.recurrenceManualOverride ? ' recurrence-exception' : ''}${dnsActive ? ' do-not-service' : ''}${visitDns.active ? ' visit-do-not-service' : ''}${hold ? ' client-do-not-service' : ''}${dragEnabled && !locked ? ' drag-enabled' : ''}${isSelected ? ' multi-selected' : ''}`;
     card.dataset.visitId = visit.id;
     card.style.setProperty('--visit-height', `${Math.max(48, Math.min(110, 48 + Math.max(0, visit.estimatedMinutes - 60) / 15 * 3))}px`);
     const duration = visit.estimatedMinutes ? `${visit.estimatedMinutes} min` : 'Duration unset', type = visitTypeLabel(visit), statusInfo = statusLabel(status);
@@ -128,11 +156,16 @@ function makeVisitCard(visit, route, team, account, location, series, hold, drag
     const task = taskSummary(visit.payload), notes = notesSummary(visit.payload);
     const badges = [visit.visitType === 'additional' ? '<span class="visit-badge">A</span>' : '', visit.visitType === 'quoted' ? '<span class="visit-badge quoted">Q</span>' : '', series ? `<span class="recurrence-badge" title="${esc(recurrence)}${visit.recurrenceManualOverride ? ' · this visit is a manual exception' : ''}">↻</span>` : '', visitDns.active ? '<span class="dns-badge visit-dns-badge" title="Do not service this visit">DNS</span>' : hold ? '<span class="dns-badge" title="Client do not service">DNS</span>' : '', status !== 'scheduled' ? `<span class="status-badge-v2 ${esc(statusInfo.key)}">${esc(statusInfo.label.toUpperCase())}</span>` : ''].join('');
     const taskLine = task ? `<div class="visit-task" title="${esc(task)}">${esc(task)}</div>` : '';
-    card.innerHTML = `<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name ?? visit.accountId)}">${esc(account?.name ?? visit.accountId)}</strong><span class="visit-badges">${badges}<button type="button" data-visit-info class="visit-info-button" aria-label="Visit information" title="Visit information">i</button><button type="button" data-visit-action class="visit-action-button" aria-label="Visit actions" title="Visit actions">•••</button></span></div><div class="visit-location" title="${esc([location?.address, location?.suburb].filter(Boolean).join(' · ') || 'Address not linked')}">${esc(location?.address || 'Address not linked')}${location?.suburb ? `<span class="visit-suburb-inline"> · ${esc(location.suburb)}</span>` : ''}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div>${!locked && dragEnabled ? '<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>' : ''}`;
+    const selectControl = dragEnabled && !locked ? `<label class="visit-select-control" title="Select this visit for a group move"><input type="checkbox" data-select-visit ${isSelected ? 'checked' : ''} aria-label="Select ${esc(account?.name ?? visit.accountId)} for group move"><span></span></label>` : '';
+    const hover = visitHoverInfo(visit, route, team, account, location, series, hold, task, notes);
+    card.innerHTML = `${selectControl}<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name ?? visit.accountId)}">${esc(account?.name ?? visit.accountId)}</strong><span class="visit-badges">${badges}<span data-visit-info-hover class="visit-info-hover" tabindex="0" aria-label="Hover for visit information">i<span class="visit-hover-card" role="tooltip">${hover}</span></span></span></div><div class="visit-location" title="${esc([location?.address, location?.suburb].filter(Boolean).join(' · ') || 'Address not linked')}">${esc(location?.address || 'Address not linked')}${location?.suburb ? `<span class="visit-suburb-inline"> · ${esc(location.suburb)}</span>` : ''}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div>${!locked && dragEnabled ? '<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>' : ''}`;
     card.addEventListener('pointerdown', e => begin(e, visit, route, card));
-    card.querySelector('[data-visit-action]').onclick = e => { e.stopPropagation(); onAction(); };
-    card.querySelector('[data-visit-info]').onclick = e => { e.stopPropagation(); openVisitInfo(visit, route, team, account, location, series, hold, task, notes); };
-    card.addEventListener('click', e => { if (dragEnabled || e.target.closest('button,[data-resize-handle]'))
+    const checkbox = card.querySelector('[data-select-visit]');
+    if (checkbox) {
+        checkbox.onclick = e => e.stopPropagation();
+        checkbox.onchange = () => { card.classList.toggle('multi-selected', checkbox.checked); onSelect(checkbox.checked); };
+    }
+    card.addEventListener('click', e => { if (dragEnabled || e.target.closest('[data-resize-handle],[data-select-visit]'))
         return; onAction(); });
     const handle = card.querySelector('[data-resize-handle]');
     if (handle)
@@ -150,18 +183,23 @@ function makeVisitCard(visit, route, team, account, location, series, hold, drag
         });
     return card;
 }
-function openVisitInfo(visit, route, team, account, location, series, hold, task, notes) {
-    document.getElementById('scheduleVisitInfoDialog')?.remove();
-    const dialog = document.createElement('dialog');
-    dialog.id = 'scheduleVisitInfoDialog';
-    dialog.className = 'schedule-info-dialog';
-    const recurrence = series ? recurrenceLabel(series) : 'Not linked to a recurring series';
+function visitHoverInfo(visit, route, team, account, location, series, hold, task, notes) {
+    const recurrence = series ? recurrenceLabel(series) : 'One-off / no recurring series';
     const status = statusLabel(String(visit.status).toLowerCase()).label;
-    dialog.innerHTML = `<div class="dialog-shell schedule-info-shell"><header><div><p class="eyebrow">Visit information</p><h2>${esc(account?.name ?? 'Client')}</h2><p>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</p></div><button type="button" class="icon-button" data-close aria-label="Close">×</button></header><div class="schedule-info-grid"><div><span>Route</span><strong>${route}</strong></div><div><span>Team</span><strong>${esc(team.name)}</strong></div><div><span>Status</span><strong>${esc(status)}</strong></div><div><span>Duration</span><strong>${visit.estimatedMinutes ? `${visit.estimatedMinutes} min` : 'Not set'}</strong></div><div><span>Visit type</span><strong>${esc(visitTypeLabel(visit))}</strong></div><div><span>Recurrence</span><strong>${esc(recurrence)}</strong></div></div>${task ? `<section class="schedule-info-block"><span>Work / task</span><p>${esc(task)}</p></section>` : ''}${notes ? `<section class="schedule-info-block"><span>Office notes</span><p>${esc(notes)}</p></section>` : ''}${location?.accessNotes ? `<section class="schedule-info-block warning"><span>Access notes</span><p>${esc(location.accessNotes)}</p></section>` : ''}${location?.instructions ? `<section class="schedule-info-block"><span>Site instructions</span><p>${esc(location.instructions)}</p></section>` : ''}${visitDoNotService(visit).active ? `<section class="schedule-info-block danger"><span>DO NOT SERVICE — THIS VISIT</span><p>${esc([visitDoNotService(visit).reason, visitDoNotService(visit).note].filter(Boolean).join(' · '))}</p></section>` : ''}${hold ? `<section class="schedule-info-block danger"><span>DO NOT SERVICE — CLIENT</span><p>${esc([hold.reason, hold.note].filter(Boolean).join(' · '))}</p></section>` : ''}<section class="schedule-info-block contact"><span>Client contact</span><p>${esc([account?.contactName, account?.phone, account?.email].filter(Boolean).join(' · ') || 'No contact details recorded')}</p></section></div>`;
-    document.body.append(dialog);
-    dialog.querySelector('[data-close]').onclick = () => dialog.close();
-    dialog.addEventListener('close', () => dialog.remove(), { once: true });
-    dialog.showModal();
+    const dns = visitDoNotService(visit);
+    const rows = [
+        `<strong>${esc(account?.name ?? 'Client')}</strong>`,
+        `<span>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</span>`,
+        `<small>${esc(team.name)} · route ${route} · ${esc(status)} · ${esc(visitTypeLabel(visit))}</small>`,
+        `<small>${esc(recurrence)}${visit.estimatedMinutes ? ` · ${visit.estimatedMinutes} min` : ''}</small>`,
+        task ? `<small><b>Task:</b> ${esc(task)}</small>` : '',
+        location?.accessNotes ? `<small class="warning"><b>Access notes:</b> ${esc(location.accessNotes)}</small>` : '',
+        location?.instructions ? `<small><b>Site instructions:</b> ${esc(location.instructions)}</small>` : '',
+        notes ? `<small><b>Notes:</b> ${esc(notes)}</small>` : '',
+        dns.active ? `<small class="danger"><b>DO NOT SERVICE THIS VISIT:</b> ${esc([dns.reason, dns.note].filter(Boolean).join(' · '))}</small>` : '',
+        hold ? `<small class="danger"><b>DO NOT SERVICE CLIENT:</b> ${esc([hold.reason, hold.note].filter(Boolean).join(' · '))}</small>` : '',
+    ];
+    return rows.filter(Boolean).join('');
 }
 function visitTypeLabel(visit) { if (visit.visitType === 'additional')
     return 'Additional visit'; if (visit.visitType === 'quoted')
