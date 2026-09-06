@@ -365,3 +365,37 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   .floating-basket .basket-list{max-height:calc(58vh - 50px)!important}
   .basket-launcher{top:auto!important;bottom:120px!important}
 }
+
+/* R11 — teams are visually distinct; Drag mode is a dedicated rearrangement workspace. */
+.team-label{border-left:4px solid var(--team-accent,#247a57)!important;background:linear-gradient(90deg,var(--team-soft,#eef6f1),#fbfdfc 72%)!important}
+.team-dot{background:var(--team-accent,#247a57)!important;box-shadow:0 0 0 3px var(--team-soft,#eaf5ef)!important}
+.team-label-name strong{color:var(--team-accent,#247a57)!important}
+.schedule-cell{background:linear-gradient(180deg,var(--team-soft,#f5faf7) 0,rgba(255,255,255,.98) 18px,#fff 42px)!important;border-top:2px solid var(--team-accent,#dfe8e2)!important}
+.schedule-cell.today{background:linear-gradient(180deg,var(--team-soft,#eef8f2) 0,#fbfffc 22px,#fff 44px)!important}
+.schedule-cell-summary strong{color:var(--team-accent,#247a57)!important}
+.visit-route{background:var(--team-soft,#e0eee6)!important;color:var(--team-accent,#205f43)!important}
+
+/* Normal mode is operational. Rearrange mode intentionally strips actions and feels different. */
+.rearrange-mode .schedule-week-navigation{border-color:#8fb9a2!important;background:linear-gradient(180deg,#edf7f1,#e5f2ea)!important;box-shadow:0 8px 22px rgba(22,91,59,.11)!important}
+.rearrange-mode-label{display:inline-flex;align-items:center;height:27px;padding:0 10px;border-radius:999px;background:#165f41;color:#fff;font-size:9px;font-weight:900;letter-spacing:.08em}
+.rearrange-mode-label.hidden{display:none!important}
+.rearrange-mode .compact-schedule-legend{background:#edf6f0!important;border:1px solid #c6decf!important;border-radius:10px!important;padding:6px 8px!important}
+.rearrange-mode .compact-schedule-legend p{font-weight:750;color:#315c48!important}
+.calendar-grid.drag-mode-active .day-action-bar,.calendar-grid.drag-mode-active .day-action{display:none!important}
+.calendar-grid.drag-mode-active .visit-badges button{display:none!important}
+.calendar-grid.drag-mode-active .visit-badges .recurrence-badge{display:none!important}
+.calendar-grid.drag-mode-active .visit-card{cursor:grab!important;touch-action:none!important;border-style:dashed!important;background:#fff!important;box-shadow:0 2px 6px rgba(19,68,44,.08)!important;min-height:42px!important;padding:4px 6px 6px!important}
+.calendar-grid.drag-mode-active .visit-card.drag-enabled{border-style:solid!important;border-color:#b4cfc0!important;border-left-color:var(--team-accent,#247a57)!important;box-shadow:0 0 0 2px var(--team-soft,#eaf5ef),0 4px 11px rgba(18,72,46,.09)!important}
+.calendar-grid.drag-mode-active .visit-card.drag-enabled:before{content:'⋮⋮';position:absolute;right:4px;top:50%;transform:translateY(-50%);font-size:12px;letter-spacing:-2px;color:var(--team-accent,#247a57);opacity:.58;pointer-events:none}
+.calendar-grid.drag-mode-active .visit-card-topline{padding-right:12px}
+.calendar-grid.drag-mode-active .visit-location{font-size:9px!important;color:#5c6d64!important}
+.calendar-grid.drag-mode-active .resize-handle{opacity:.72}
+.calendar-grid.drag-mode-active .schedule-cell{outline:1px dashed rgba(55,112,82,.14);outline-offset:-2px}
+.calendar-grid.drag-mode-active .schedule-cell-summary:after{content:'DROP ZONE';margin-left:auto;font-size:7px;letter-spacing:.08em;font-weight:900;color:var(--team-accent,#769b88)}
+
+/* Basket is a planning tool: readable in normal mode, movable only in Drag mode. */
+.basket-card.basket-locked{cursor:default!important;opacity:.78}
+.basket-card.basket-locked b{font-size:12px!important;color:#b4beb8!important}
+.basket-card.basket-draggable{cursor:grab!important;border-color:#c8d9cf!important}
+.basket-card.basket-draggable:hover{background:#eef7f1!important;border-color:#8fb69f!important}
+.basket-card.basket-draggable b{color:#397657!important}

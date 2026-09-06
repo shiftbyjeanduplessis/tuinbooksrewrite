@@ -1,0 +1,22 @@
+TUINBOOKS R11 DEPLOY
+
+1. Run in Supabase SQL Editor:
+   supabase/APPLY-R11-BASKET-IDEMPOTENT-PLACEMENT.sql
+   This only replaces the Basket placement RPC; it does not bulk-modify customer schedule data.
+
+2. Copy the complete R11 release contents into the local tuinbooksrewrite repo and replace files.
+
+3. GitHub Desktop summary:
+   Make Drag mode a real rearrange mode
+
+4. Commit + Push origin.
+
+5. Render must show:
+   TUINBOOKS UI-RESTORED RELEASE R11: distinct team colours + dedicated Drag/rearrange mode + idempotent Basket placement published to /management/ + /app/.
+
+6. Browser acceptance order:
+   - Enter Drag mode: Basket should open automatically and board should visibly switch to rearrange mode.
+   - Drag one Basket item onto a team/day: it must stay there after save, with no schedule_jobs_pkey error.
+   - Drag a recurring visit: drop should ask This visit / This + future.
+   - Exit Drag mode: Note/Event/+Visit and normal visit dialogs should be available again.
+   - Confirm teams have distinct but restrained row colours.

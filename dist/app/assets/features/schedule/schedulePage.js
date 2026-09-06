@@ -31,10 +31,7 @@ export function renderSchedulePage(root, identity, navigation) {
     <section class="schedule-week-navigation" aria-label="Rolling schedule weeks">
       <div id="rollingWeekCards" class="rolling-week-strip-v2"></div>
       <div class="schedule-drag-controls">
-        <span id="dragScopeControls" class="drag-scope-controls hidden">
-          <button type="button" data-drag-scope="one" class="active">THIS VISIT</button>
-          <button type="button" data-drag-scope="future">THIS + FUTURE</button>
-        </span>
+        <span class="rearrange-mode-label hidden" id="rearrangeModeLabel">REARRANGE WEEK</span>
         <button type="button" class="button secondary compact schedule-drag-toggle" id="dragModeToggle">↔ Drag mode</button>
       </div>
     </section>
@@ -68,13 +65,12 @@ export function renderSchedulePage(root, identity, navigation) {
     let basketController = null;
     let saves = 0;
     let dragMode = false;
-    let dragScope = 'one';
     const host = root.querySelector('#calendarHost');
     const basketHost = root.querySelector('#basketHost');
     const errorBox = root.querySelector('#pageError');
     const saveIndicator = root.querySelector('#saveIndicator');
     const dragToggle = root.querySelector('#dragModeToggle');
-    const dragScopeControls = root.querySelector('#dragScopeControls');
+    const rearrangeModeLabel = root.querySelector('#rearrangeModeLabel');
     const modeHelp = root.querySelector('#scheduleModeHelp');
     const updateTitle = () => {
         const end = addDays(weekStart, 6);
@@ -85,14 +81,14 @@ export function renderSchedulePage(root, identity, navigation) {
     const showError = (message = '') => { errorBox.textContent = message; errorBox.classList.toggle('hidden', !message); };
     const showSaving = () => saveIndicator.classList.toggle('hidden', saves === 0);
     const renderDragChrome = () => {
+        page.classList.toggle('rearrange-mode', dragMode);
         dragToggle.classList.toggle('active', dragMode);
         dragToggle.classList.toggle('secondary', !dragMode);
-        dragToggle.textContent = dragMode ? '✓ Done dragging' : '↔ Drag mode';
-        dragScopeControls.classList.toggle('hidden', !dragMode);
-        dragScopeControls.querySelectorAll('[data-drag-scope]').forEach(button => button.classList.toggle('active', button.dataset.dragScope === dragScope));
+        dragToggle.textContent = dragMode ? '✓ Done rearranging' : '↔ Drag mode';
+        rearrangeModeLabel.classList.toggle('hidden', !dragMode);
         modeHelp.innerHTML = dragMode
-            ? `Drag mode is on · <strong>${dragScope === 'future' ? 'this + future' : 'this visit'}</strong>. Street addresses and drag IDs stay visible while you rearrange.`
-            : `Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.`;
+            ? `Rearrange mode is on. Drag visits between days/teams or to and from the Basket. Recurring visits ask <strong>This visit</strong> or <strong>This + future</strong> when you drop them.`
+            : `Normal mode is for day-to-day operations. Turn on <strong>Drag mode</strong> only when you want to rearrange the week.`;
     };
     const rollingStarts = () => {
         const current = startOfWeek(todayIso());
@@ -134,7 +130,6 @@ export function renderSchedulePage(root, identity, navigation) {
         root.querySelector('#basketStripCount').textContent = String(data.queueItems.length);
         calendar = renderCalendar(host, data, {
             dragEnabled: dragMode,
-            dragScope,
             onMove: moveVisit,
             onQueue: queueVisit,
             onResize: resizeVisit,
@@ -142,7 +137,7 @@ export function renderSchedulePage(root, identity, navigation) {
             onVisitAction: openVisitActions,
             onDayAction: openDayAction,
         });
-        basketController = renderBasket(basketHost, data.queueItems, data.accounts, data.locations, data.visits, placeQueueItem);
+        basketController = renderBasket(basketHost, data.queueItems, data.accounts, data.locations, data.visits, dragMode, placeQueueItem);
     };
     async function fetchWeek() {
         updateTitle();
@@ -249,8 +244,8 @@ export function renderSchedulePage(root, identity, navigation) {
     page.querySelector('#todayWeek').onclick = () => { weekStart = startOfWeek(todayIso()); void fetchWeek(); };
     page.querySelector('#nextWeek').onclick = () => { weekStart = addDays(weekStart, 7); void fetchWeek(); };
     page.querySelector('#refreshWeek').onclick = () => void fetchWeek();
-    dragToggle.onclick = () => { dragMode = !dragMode; render(); };
-    dragScopeControls.querySelectorAll('[data-drag-scope]').forEach(button => button.onclick = () => { dragScope = button.dataset.dragScope === 'future' ? 'future' : 'one'; render(); });
+    dragToggle.onclick = () => { dragMode = !dragMode; if (dragMode)
+        setBasketState('open'); render(); };
     const basket = page.querySelector('#floatingBasket');
     const launcher = page.querySelector('#openBasket');
     const basketToggle = page.querySelector('#basketToggle');

@@ -1,18 +1,31 @@
-# TuinBooks UI-Restored Release R10 — Build Report
+# TuinBooks UI-Restored Release R11 — Build Report
 
-Status: IMPLEMENTED + LOCALLY VERIFIED
+Scope: Schedule team colours, Basket placement reliability, and a meaningful Normal-vs-Drag mode split. Scheduler engine remains the v2 engine.
 
-- Domain tests: PASS — 178 assertions
-- Stress: PASS — 100-account v4, 200-client recurrence (1,408 visits), 10,000 invoices
-- Release contract: PASS — 61 core checks + UI/Schedule R6/R8/R9/R10 contracts
-- XLSX round-trip: PASS
+Changes:
+- Teams now receive distinct, restrained colour accents across team labels, cell headers and route markers.
+- Normal mode is explicitly operational/read mode.
+- Drag mode is now a dedicated rearrangement workspace: operational day actions are suppressed, Basket opens automatically, and planning affordances are emphasised.
+- Recurring moves no longer use a global scope selector. On drop, the existing recurrence dialog asks **This visit** or **This + future** only when needed.
+- Basket cards are draggable only while Drag mode is active.
+- Basket placement RPC is idempotent: if the original `schedule_jobs` row still exists, it is updated/reused rather than inserted again. This directly addresses `duplicate key value violates unique constraint "schedule_jobs_pkey"`.
+- Street address on cards and the visible drag ghost ID are retained.
+- Floating/minimizable/tuck-away Basket, visit-specific Do Not Service, Note/Event dialogs, Additional Visit and dense full-width Schedule are retained.
+
+Verification:
+- Domain: PASS (178 assertions)
+- Stress: PASS
+- Release contract: PASS (61 checks)
+- R6 workspace display contract: PASS
+- UI preservation contract: PASS
+- Schedule usability contract: PASS
+- R8 Schedule cleanup contract: PASS
+- R9 Schedule layout contract: PASS
+- R10 floating Basket contract: PASS
+- R11 rearrange/Basket contract: PASS
+- XLSX roundtrip: PASS
 - TypeScript/build: PASS
-- Static route/import audit: PASS — 96 JS module copies, 212 relative imports, 0 missing
-- HTTP smoke: PASS — app/mobile/management/public documents/assets HTTP 200
-
-R10-specific checks:
-- Additional Visit: X, Cancel, Escape and backdrop close paths present.
-- Basket: floating, movable, minimizable, tuck-away edge strip, persistent local position/state.
-- R9 full-width/dense calendar retained.
+- Static assets/imports: PASS
+- HTTP smoke: PASS
 
 Deployed browser verification: NOT YET VERIFIED.

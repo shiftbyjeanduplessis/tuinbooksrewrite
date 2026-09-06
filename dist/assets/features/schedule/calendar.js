@@ -24,11 +24,13 @@ export function renderCalendar(container, data, callbacks) {
         h.innerHTML = `<div class="day-heading-main"><span>${d.toLocaleDateString(undefined, { weekday: 'short' })}</span><strong>${d.getDate()}</strong></div><div class="day-heading-meta"><small>${rows.length} visit${rows.length === 1 ? '' : 's'}</small></div>`;
         grid.append(h);
     }
-    for (const team of data.teams) {
+    for (const [teamIndex, team] of data.teams.entries()) {
+        const teamTheme = teamColour(teamIndex);
         const teamWeek = data.visits.filter(v => v.teamId === team.id && String(v.status).toLowerCase() !== 'cancelled');
         const completed = teamWeek.filter(v => String(v.status).toLowerCase() === 'completed').length;
         const label = document.createElement('div');
         label.className = 'team-label';
+        applyTeamColour(label, teamTheme);
         label.innerHTML = `<div class="team-label-name"><span class="team-dot"></span><strong>${esc(team.name)}</strong></div><small>${teamWeek.length} scheduled${completed ? ` · ${completed} done` : ''}</small>`;
         grid.append(label);
         for (const day of days) {
@@ -37,6 +39,7 @@ export function renderCalendar(container, data, callbacks) {
             const visibleRows = rows.filter(v => String(v.status).toLowerCase() !== 'cancelled');
             const completedToday = visibleRows.filter(v => String(v.status).toLowerCase() === 'completed').length;
             cell.className = `schedule-cell${day === today ? ' today' : ''}${visibleRows.length > 14 ? ' very-dense' : visibleRows.length > 8 ? ' dense' : ''}`;
+            applyTeamColour(cell, teamTheme);
             cell.dataset.scheduleCell = '1';
             cell.dataset.date = day;
             cell.dataset.teamId = team.id;
@@ -97,7 +100,7 @@ export function renderCalendar(container, data, callbacks) {
             const target = el?.closest('[data-schedule-cell]');
             const date = target?.dataset.date, teamId = target?.dataset.teamId;
             if (date && teamId)
-                void callbacks.onMove({ visitId: current.visit.id, date: date, teamId, sortOrder: nextSortOrder(data.visits, date, teamId), scope: callbacks.dragScope });
+                void callbacks.onMove({ visitId: current.visit.id, date: date, teamId, sortOrder: nextSortOrder(data.visits, date, teamId) });
         };
         const cancel = () => { if (drag) {
             drag.ghost.remove();
@@ -185,6 +188,18 @@ function notesSummary(payload) { for (const key of ['officeNotes', 'notes', 'int
     if (typeof value === 'string' && value.trim())
         return value.trim();
 } return ''; }
+const TEAM_COLOURS = [
+    { accent: '#247a57', soft: '#eaf5ef' },
+    { accent: '#3f6fa7', soft: '#edf3fa' },
+    { accent: '#9a6a2b', soft: '#faf3e8' },
+    { accent: '#795ba3', soft: '#f4effa' },
+    { accent: '#ad5b63', soft: '#fbefef' },
+    { accent: '#2f7d82', soft: '#eaf6f6' },
+    { accent: '#8a6d36', soft: '#f8f3e8' },
+    { accent: '#577c45', soft: '#eef6ea' },
+];
+function teamColour(index) { return TEAM_COLOURS[index % TEAM_COLOURS.length]; }
+function applyTeamColour(el, theme) { el.style.setProperty('--team-accent', theme.accent); el.style.setProperty('--team-soft', theme.soft); }
 function shortId(value) { const text = String(value || ''); return text.length <= 8 ? text : text.slice(-8); }
 function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
 //# sourceMappingURL=calendar.js.map

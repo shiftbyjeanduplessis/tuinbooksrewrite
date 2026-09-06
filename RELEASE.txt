@@ -1,3 +1,4 @@
-TUINBOOKS UI-RESTORED RELEASE R10
-Floating movable/minimizable/tuck-away Basket + reliable Additional Visit dialog close.
-Preserves full-width dense Schedule, street address, suburb, visible drag ID and R8 visit operations.
+TUINBOOKS UI-RESTORED RELEASE R11
+Distinct team colours + dedicated rearrange mode + reliable Basket placement.
+Normal mode remains operational. Drag mode is now only for planning/rearranging; recurring moves prompt for This visit / This + future on drop.
+Preserves floating Basket, full-width dense Schedule, street address, visible drag ID and visit operations.

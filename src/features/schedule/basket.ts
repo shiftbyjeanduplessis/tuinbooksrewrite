@@ -2,7 +2,7 @@ import type { Account, PlaceQueueItemInput, ScheduleQueueItem, ServiceLocation, 
 import { nextSortOrder } from '../../domain/schedule.js';
 
 export interface BasketController { destroy():void; }
-export function renderBasket(host:HTMLElement,items:ScheduleQueueItem[],accounts:Account[],locations:ServiceLocation[],visits:Visit[],onPlace:(input:PlaceQueueItemInput)=>Promise<void>):BasketController{
+export function renderBasket(host:HTMLElement,items:ScheduleQueueItem[],accounts:Account[],locations:ServiceLocation[],visits:Visit[],dragEnabled:boolean,onPlace:(input:PlaceQueueItemInput)=>Promise<void>):BasketController{
   const accountById=new Map(accounts.map(a=>[a.id,a]));
   const locationById=new Map(locations.map(s=>[s.id,s]));
   host.innerHTML='';
@@ -13,10 +13,11 @@ export function renderBasket(host:HTMLElement,items:ScheduleQueueItem[],accounts
   const list=document.createElement('div');list.className='basket-list';host.append(list);const cleanup:Array<()=>void>=[];
   for(const item of items){
     const account=accountById.get(item.accountId),location=item.serviceLocationId?locationById.get(item.serviceLocationId):undefined;
-    const card=document.createElement('article');card.className='basket-card basket-card-compact';card.dataset.queueItemId=item.id;
-    card.innerHTML=`<div><strong>${esc(account?.name||item.accountId)}</strong><small>${esc(location?.address||'Address not linked')}${location?.suburb?` · ${esc(location.suburb)}`:''}</small></div><b title="Drag to calendar">⋮⋮</b>`;
+    const card=document.createElement('article');card.className=`basket-card basket-card-compact${dragEnabled?' basket-draggable':' basket-locked'}`;card.dataset.queueItemId=item.id;
+    card.innerHTML=`<div><strong>${esc(account?.name||item.accountId)}</strong><small>${esc(location?.address||'Address not linked')}${location?.suburb?` · ${esc(location.suburb)}`:''}</small></div><b title="${dragEnabled?'Drag to calendar':'Turn on Drag mode to place this visit'}">${dragEnabled?'⋮⋮':'•'}</b>`;
+    card.title=dragEnabled?'Drag onto a team/day':'Turn on Drag mode to place Basket visits';
     list.append(card);
-    const down=(event:PointerEvent)=>beginPointerDrag(event,item,card,onPlace,visits);card.addEventListener('pointerdown',down);cleanup.push(()=>card.removeEventListener('pointerdown',down));
+    if(dragEnabled){const down=(event:PointerEvent)=>beginPointerDrag(event,item,card,onPlace,visits);card.addEventListener('pointerdown',down);cleanup.push(()=>card.removeEventListener('pointerdown',down));}
   }
   return{destroy(){cleanup.forEach(fn=>fn());host.innerHTML='';}};
 }

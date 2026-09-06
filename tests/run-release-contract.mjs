@@ -72,8 +72,8 @@ console.log(`TUINBOOKS UI PRESERVATION CONTRACT: PASS`);
   const styles=await read('src/styles.css');
   has(schedulePage,'rolling-week-strip-v2','Schedule must restore rolling week cards at the top');
   has(schedulePage,'↔ Drag mode','Schedule must restore explicit Drag Mode');
-  has(schedulePage,'THIS VISIT','Drag Mode must expose this-visit scope');
-  has(schedulePage,'THIS + FUTURE','Drag Mode must expose this + future scope');
+  has(schedulePage,'chooseMoveScope(visit,series)','Recurring drag moves must ask This visit / This + future at drop time');
+  not(schedulePage,'data-drag-scope="one"','Drag scope must not remain as a confusing global mode');
   has(schedulePage,'schedule-basket-toggle','Schedule must expose the Basket directly');
   has(calendar,'visit-route','Schedule cards must show route order');
   has(calendar,'visit-info-button','Schedule cards must expose the information affordance');
@@ -174,3 +174,23 @@ console.log('TUINBOOKS R9 SCHEDULE LAYOUT CONTRACT: PASS');
   has(additional,"dialog.close('cancel')",'Cancel and close controls must close without submitting');
 }
 console.log('TUINBOOKS R10 FLOATING BASKET CONTRACT: PASS');
+
+// R11 Schedule: team colours + dedicated rearrange mode + Basket idempotency.
+{
+  const [styles,calendar,schedulePage,basket,sql]=await Promise.all([
+    read('src/styles.css'),read('src/features/schedule/calendar.ts'),read('src/features/schedule/schedulePage.ts'),read('src/features/schedule/basket.ts'),read('supabase/APPLY-R11-BASKET-IDEMPOTENT-PLACEMENT.sql')
+  ]);
+  has(calendar,'TEAM_COLOURS','R11 must provide distinct team colours');
+  has(calendar,'applyTeamColour(cell,teamTheme)','Team colour must flow through each team/day row');
+  has(schedulePage,'REARRANGE WEEK','Drag mode must become an explicit rearrangement workspace');
+  not(schedulePage,'data-drag-scope="one"','Global drag scope controls must be removed');
+  has(schedulePage,'chooseMoveScope(visit,series)','Recurring moves must ask scope at drop time');
+  has(basket,'basket-locked','Basket must be non-draggable in normal mode');
+  has(basket,'basket-draggable','Basket must be draggable in rearrange mode');
+  has(styles,'.rearrange-mode .schedule-week-navigation','Rearrange mode must be visually distinct');
+  has(sql,'reused_existing_job','Basket placement must be idempotent when source job still exists');
+  has(sql,'update public.schedule_jobs','R11 must reuse/update an existing schedule job instead of duplicate insert failure');
+  has(calendar,'ID ${esc(shortId(visit.id))}','Visible drag ID must remain protected');
+  has(calendar,"location?.address||'Address not linked'",'Street address must remain on schedule cards');
+}
+console.log('TUINBOOKS R11 REARRANGE/BASKET CONTRACT: PASS');

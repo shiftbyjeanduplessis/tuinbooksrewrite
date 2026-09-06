@@ -1,10 +1,8 @@
-# R10 Schedule interaction correction
+# R11 Schedule update
 
-R10 keeps the fast/full-width Schedule engine but restores the floating Basket interaction and fixes the Additional Visit dialog close regression. The Basket is movable, minimizable, tuckable into an edge strip, and remembers its local position/state.
+R11 keeps the fast v2 scheduler but makes **Drag mode** a dedicated rearrangement workspace. Teams have distinct restrained colours, Basket items are draggable only in Drag mode, recurring moves ask scope at drop time, and Basket placement is hardened against duplicate `schedule_jobs_pkey` failures. Street address and drag ID remain protected improvements.
 
-## R6 runtime correction
-
-R6 fixes the non-Schedule workspace loaders under audited Management support sessions. Schedule parity from R5 is retained.
+Run `supabase/APPLY-R11-BASKET-IDEMPOTENT-PLACEMENT.sql` before testing Basket placement on the deployed build.
 
 # TuinBooks v2 — final single codebase
 

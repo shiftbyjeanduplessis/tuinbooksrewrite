@@ -1,5 +1,5 @@
 import { nextSortOrder } from '../../domain/schedule.js';
-export function renderBasket(host, items, accounts, locations, visits, onPlace) {
+export function renderBasket(host, items, accounts, locations, visits, dragEnabled, onPlace) {
     const accountById = new Map(accounts.map(a => [a.id, a]));
     const locationById = new Map(locations.map(s => [s.id, s]));
     host.innerHTML = '';
@@ -14,13 +14,16 @@ export function renderBasket(host, items, accounts, locations, visits, onPlace) 
     for (const item of items) {
         const account = accountById.get(item.accountId), location = item.serviceLocationId ? locationById.get(item.serviceLocationId) : undefined;
         const card = document.createElement('article');
-        card.className = 'basket-card basket-card-compact';
+        card.className = `basket-card basket-card-compact${dragEnabled ? ' basket-draggable' : ' basket-locked'}`;
         card.dataset.queueItemId = item.id;
-        card.innerHTML = `<div><strong>${esc(account?.name || item.accountId)}</strong><small>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</small></div><b title="Drag to calendar">⋮⋮</b>`;
+        card.innerHTML = `<div><strong>${esc(account?.name || item.accountId)}</strong><small>${esc(location?.address || 'Address not linked')}${location?.suburb ? ` · ${esc(location.suburb)}` : ''}</small></div><b title="${dragEnabled ? 'Drag to calendar' : 'Turn on Drag mode to place this visit'}">${dragEnabled ? '⋮⋮' : '•'}</b>`;
+        card.title = dragEnabled ? 'Drag onto a team/day' : 'Turn on Drag mode to place Basket visits';
         list.append(card);
-        const down = (event) => beginPointerDrag(event, item, card, onPlace, visits);
-        card.addEventListener('pointerdown', down);
-        cleanup.push(() => card.removeEventListener('pointerdown', down));
+        if (dragEnabled) {
+            const down = (event) => beginPointerDrag(event, item, card, onPlace, visits);
+            card.addEventListener('pointerdown', down);
+            cleanup.push(() => card.removeEventListener('pointerdown', down));
+        }
     }
     return { destroy() { cleanup.forEach(fn => fn()); host.innerHTML = ''; } };
 }
