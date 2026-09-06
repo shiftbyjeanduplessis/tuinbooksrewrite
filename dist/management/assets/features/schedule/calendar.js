@@ -36,7 +36,7 @@ export function renderCalendar(container, data, callbacks) {
             const rows = visitsForCell(data.visits, day, team.id);
             const visibleRows = rows.filter(v => String(v.status).toLowerCase() !== 'cancelled');
             const completedToday = visibleRows.filter(v => String(v.status).toLowerCase() === 'completed').length;
-            cell.className = `schedule-cell${day === today ? ' today' : ''}`;
+            cell.className = `schedule-cell${day === today ? ' today' : ''}${visibleRows.length > 14 ? ' very-dense' : visibleRows.length > 8 ? ' dense' : ''}`;
             cell.dataset.scheduleCell = '1';
             cell.dataset.date = day;
             cell.dataset.teamId = team.id;
@@ -119,13 +119,13 @@ function makeVisitCard(visit, route, team, account, location, series, hold, drag
     const visitDns = visitDoNotService(visit), dnsActive = visitDns.active || !!hold;
     card.className = `visit-card visit-${visit.visitType} status-${status}${visit.recurrenceManualOverride ? ' recurrence-exception' : ''}${dnsActive ? ' do-not-service' : ''}${visitDns.active ? ' visit-do-not-service' : ''}${hold ? ' client-do-not-service' : ''}${dragEnabled && !locked ? ' drag-enabled' : ''}`;
     card.dataset.visitId = visit.id;
-    card.style.setProperty('--visit-height', `${Math.max(76, Math.min(176, 76 + Math.max(0, visit.estimatedMinutes - 60) / 15 * 4))}px`);
+    card.style.setProperty('--visit-height', `${Math.max(48, Math.min(110, 48 + Math.max(0, visit.estimatedMinutes - 60) / 15 * 3))}px`);
     const duration = visit.estimatedMinutes ? `${visit.estimatedMinutes} min` : 'Duration unset', type = visitTypeLabel(visit), statusInfo = statusLabel(status);
     const recurrence = series ? recurrenceLabel(series) : '';
     const task = taskSummary(visit.payload), notes = notesSummary(visit.payload);
     const badges = [visit.visitType === 'additional' ? '<span class="visit-badge">A</span>' : '', visit.visitType === 'quoted' ? '<span class="visit-badge quoted">Q</span>' : '', series ? `<span class="recurrence-badge" title="${esc(recurrence)}${visit.recurrenceManualOverride ? ' · this visit is a manual exception' : ''}">↻</span>` : '', visitDns.active ? '<span class="dns-badge visit-dns-badge" title="Do not service this visit">DNS</span>' : hold ? '<span class="dns-badge" title="Client do not service">DNS</span>' : '', status !== 'scheduled' ? `<span class="status-badge-v2 ${esc(statusInfo.key)}">${esc(statusInfo.label.toUpperCase())}</span>` : ''].join('');
     const taskLine = task ? `<div class="visit-task" title="${esc(task)}">${esc(task)}</div>` : '';
-    card.innerHTML = `<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name ?? visit.accountId)}">${esc(account?.name ?? visit.accountId)}</strong><span class="visit-badges">${badges}<button type="button" data-visit-info class="visit-info-button" aria-label="Visit information" title="Visit information">i</button><button type="button" data-visit-action class="visit-action-button" aria-label="Visit actions" title="Visit actions">•••</button></span></div><div class="visit-location" title="${esc(location?.address || 'Address not linked')}">${esc(location?.address || 'Address not linked')}</div><div class="visit-suburb">${esc(location?.suburb || '')}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div>${!locked && dragEnabled ? '<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>' : ''}`;
+    card.innerHTML = `<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name ?? visit.accountId)}">${esc(account?.name ?? visit.accountId)}</strong><span class="visit-badges">${badges}<button type="button" data-visit-info class="visit-info-button" aria-label="Visit information" title="Visit information">i</button><button type="button" data-visit-action class="visit-action-button" aria-label="Visit actions" title="Visit actions">•••</button></span></div><div class="visit-location" title="${esc([location?.address, location?.suburb].filter(Boolean).join(' · ') || 'Address not linked')}">${esc(location?.address || 'Address not linked')}${location?.suburb ? `<span class="visit-suburb-inline"> · ${esc(location.suburb)}</span>` : ''}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div>${!locked && dragEnabled ? '<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>' : ''}`;
     card.addEventListener('pointerdown', e => begin(e, visit, route, card));
     card.querySelector('[data-visit-action]').onclick = e => { e.stopPropagation(); onAction(); };
     card.querySelector('[data-visit-info]').onclick = e => { e.stopPropagation(); openVisitInfo(visit, route, team, account, location, series, hold, task, notes); };
@@ -138,7 +138,7 @@ function makeVisitCard(visit, route, team, account, location, series, hold, drag
             event.stopPropagation();
             const startY = event.clientY, start = visit.estimatedMinutes || 60;
             let current = start;
-            const move = (e) => { e.preventDefault(); current = normaliseDuration(start + Math.round((e.clientY - startY) / 10) * 15); card.querySelector('.visit-card-footer b').textContent = `${current} min`; card.style.setProperty('--visit-height', `${Math.max(76, Math.min(176, 76 + Math.max(0, current - 60) / 15 * 4))}px`); };
+            const move = (e) => { e.preventDefault(); current = normaliseDuration(start + Math.round((e.clientY - startY) / 10) * 15); card.querySelector('.visit-card-footer b').textContent = `${current} min`; card.style.setProperty('--visit-height', `${Math.max(48, Math.min(110, 48 + Math.max(0, current - 60) / 15 * 3))}px`); };
             const end = () => { off(); if (current !== visit.estimatedMinutes)
                 void onResize({ visitId: visit.id, estimatedMinutes: current }); };
             const off = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end); };

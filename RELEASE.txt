@@ -1,3 +1,3 @@
-TUINBOOKS UI-RESTORED RELEASE R8
-Schedule polish + visit-specific DO NOT SERVICE + event response dialogs.
-Preserves street address on cards and visible drag ID.
+TUINBOOKS UI-RESTORED RELEASE R9
+Full-width Schedule layout + dense busy-day cards.
+Preserves street address, suburb, visible drag ID, R8 visit-specific DO NOT SERVICE and event dialogs.

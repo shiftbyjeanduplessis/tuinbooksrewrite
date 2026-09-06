@@ -134,3 +134,21 @@ console.log(`TUINBOOKS SCHEDULE USABILITY CONTRACT: PASS`);
   not(calendar,'capacity-meter','R8 Schedule must not reintroduce capacity meters');
 }
 console.log('TUINBOOKS R8 SCHEDULE CLEANUP CONTRACT: PASS');
+
+
+// R9 Schedule layout contract: desktop uses page scroll and dense cards instead of nested scrollers / towers.
+{
+  const calendar=await read('src/features/schedule/calendar.ts');
+  const styles=await read('src/styles.css');
+  has(styles,'R9 — full-viewport Schedule layout + dense busy-day cards','R9 Schedule layout styles must be active');
+  has(styles,'.calendar-scroll{max-height:none!important;overflow:visible!important','Desktop Schedule must not use a nested calendar scroller');
+  has(styles,'.calendar-grid{width:100%!important;min-width:0!important','Desktop calendar must fill available width');
+  has(styles,'.basket-list{max-height:none!important;overflow:visible!important','Basket must use page scroll rather than an internal vertical scroller');
+  has(styles,'.schedule-cell.dense .visit-card','Busy days must auto-compact');
+  has(styles,'.schedule-cell.very-dense .visit-card','Very busy days must auto-compact further');
+  has(calendar,"visibleRows.length>14?' very-dense':visibleRows.length>8?' dense':''",'Calendar must classify busy cells by visit count');
+  has(calendar,'visit-suburb-inline','Compact cards must retain suburb beside street address');
+  has(calendar,'ID ${esc(shortId(visit.id))}','R9 must preserve the visible drag ID');
+  has(styles,'.calendar-grid.drag-mode-active .visit-card{min-height:var(--visit-height,48px)!important}','Drag mode must retain modest resize feedback');
+}
+console.log('TUINBOOKS R9 SCHEDULE LAYOUT CONTRACT: PASS');
