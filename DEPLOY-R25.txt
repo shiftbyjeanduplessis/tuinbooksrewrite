@@ -1,0 +1,81 @@
+TUINBOOKS R25 — SCHEDULE BASKET RELEASE FIX
+=============================================
+
+BASE
+----
+Apply this MINIMAL overlay to the CURRENT R24 rewrite repository
+(R24 bundled with the R23 Schedule-card UI). Do not apply it to an older R19/R20
+full package as a replacement release.
+
+WHAT R25 CHANGES
+----------------
+1. NORMAL SCHEDULE MODE
+   - Removes the Basket control from normal Schedule mode.
+   - Floating Basket and Basket launcher are hard-hidden outside Rearrange/Drag mode.
+
+2. BASKET -> CALENDAR PERSISTENCE
+   - Basket placement now uses the R24 audited operational-edit Support authority.
+   - A successful Basket drop is immediately re-read from the authoritative week data.
+   - Repeated pointer-up/network retries are idempotent via v2QueueItemId.
+   - A successfully scheduled Basket item must not jump back into the Basket.
+
+3. MULTI-SELECT BASKET PLACEMENT
+   - Rearrange mode Basket cards have selection checkboxes.
+   - "Select all" is available.
+   - Select 2+ Basket cards, then drag any selected card onto one team/day.
+   - All selected cards are placed together on that day/team in sequential order.
+   - The group placement is one atomic database RPC: all succeed or all roll back.
+
+4. SUPPORT-MODE SCHEDULE MUTATIONS
+   - Calendar -> Basket and existing R13 multi-card Calendar -> Basket now accept
+     the same audited operational-edit Support authority as R24.
+
+DEPLOY ORDER
+------------
+IMPORTANT: Apply the SQL BEFORE deploying the new frontend so the new group RPC
+already exists when the browser receives R25.
+
+A. In Supabase SQL Editor run:
+   supabase/APPLY-R25-SCHEDULE-BASKET.sql
+
+   This assumes APPLY-R24-MINI-STRESS-BLOCKERS.sql has already been applied.
+
+B. Overlay this package onto the current R24 repository root.
+
+C. Run:
+   npm run check
+
+D. Commit / push and let Render deploy.
+
+EXPECTED BUILD PROOF
+--------------------
+TUINBOOKS RELEASE R25: Schedule Basket is Rearrange-only; Basket placement persists under Support authority; multi-select Basket placement added; R24 blockers and R23 Schedule polish preserved; legacy app engine inactive.
+
+MANUAL RELEASE CHECK
+--------------------
+1. Open Schedule in normal mode.
+   PASS: no Basket button, strip, launcher or drawer is usable/visible.
+
+2. Turn on Drag mode.
+   PASS: Basket opens and Basket cards are draggable.
+
+3. Drag ONE Basket card onto a team/day.
+   PASS: it leaves Basket, appears on calendar, stays after "Done rearranging",
+         refresh, week change away and back.
+
+4. Select THREE Basket cards using their checkboxes.
+   Drag any selected card onto one team/day.
+   PASS: all 3 move together, disappear from Basket, preserve separate cards,
+         and remain after refresh.
+
+5. In Full Support, drag a calendar visit into Basket, then place it back.
+   PASS: both directions persist.
+
+6. Drop on an invalid area.
+   PASS: no visit is lost; Basket state remains authoritative.
+
+ROLLBACK
+--------
+If R25 causes a Schedule regression, revert this frontend overlay and restore the
+previous R24 function definitions. Do not leave the R25 frontend deployed without
+the R25 SQL group RPC.

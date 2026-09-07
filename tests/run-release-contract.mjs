@@ -74,7 +74,8 @@ console.log(`TUINBOOKS UI PRESERVATION CONTRACT: PASS`);
   has(schedulePage,'↔ Drag mode','Schedule must restore explicit Drag Mode');
   has(schedulePage,'chooseMoveScope(visit,series)','Recurring drag moves must ask This visit / This + future at drop time');
   not(schedulePage,'data-drag-scope="one"','Drag scope must not remain as a confusing global mode');
-  has(schedulePage,'schedule-basket-toggle','Schedule must expose the Basket directly');
+  not(schedulePage,'schedule-basket-toggle','R25 normal Schedule mode must not expose a Basket toolbar control');
+  has(schedulePage,'if(dragMode){\n      basketController=renderBasket','R25 must expose the Basket only inside Rearrange mode');
   has(calendar,'visit-route','Schedule cards must show route order');
   has(calendar,'visit-hover-card','Schedule cards must retain quick information without a repeated visible i affordance');
   has(calendar,'visit-location','Schedule cards must show street address before opening details');
@@ -335,7 +336,7 @@ console.log('TUINBOOKS R22 TYPOGRAPHY CONTRACT: PASS');
   has(styles,'transition-delay:.28s','R23 quick info must wait briefly so moving across cards does not create popup flicker');
   has(styles,'.calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}','R23 quick info must stay out of rearrange mode');
   has(buildScript,'R23 Schedule polish preserved','R24 build must explicitly preserve the R23 card-hover cleanup');
-  has(pkg,'2.0.0-parity-r24','R24 package must carry the preserved R23 Schedule behavior');
+  has(pkg,'2.0.0-parity-r25','R25 package must carry the preserved R23 Schedule behavior');
 }
 console.log('TUINBOOKS R23 CARD-HOVER INFO CONTRACT: PASS');
 
@@ -382,7 +383,39 @@ console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');
   has(sql,'tuinbooks_v2_list_audit_log_r17','R24 SQL must install the Recent activity bridge');
   has(sql,'tuinbooks_v2_financials_enabled','R24 SQL must install the Planning-only financial write guard');
   has(sql,"Billing is disabled in Planning-only mode",'R24 SQL must reject financial writes when the business is Planning-only');
-  has(buildScript,'TUINBOOKS RELEASE R24','Render build proof must identify R24');
-  has(pkg,'2.0.0-parity-r24','Package version must identify R24');
+  has(buildScript,'TUINBOOKS RELEASE R25','Render build proof must identify R25');
+  has(pkg,'2.0.0-parity-r25','Package version must identify R25');
 }
 console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');
+
+
+// R25 Schedule Basket: Rearrange-only Basket, durable Support-mode placement, and multi-select Basket -> day placement.
+{
+  const [schedulePage,basket,repository,sql,styles,buildScript,pkg]=await Promise.all([
+    read('src/features/schedule/schedulePage.ts'),
+    read('src/features/schedule/basket.ts'),
+    read('src/features/schedule/scheduleRepository.ts'),
+    read('supabase/APPLY-R25-SCHEDULE-BASKET.sql'),
+    read('src/styles.css'),
+    read('scripts/build-release-ui-restored.mjs'),
+    read('package.json')
+  ]);
+  not(schedulePage,'id="basketToggle"','R25 must remove the normal-mode Basket toolbar button');
+  has(schedulePage,'if(dragMode){\n      basketController=renderBasket','R25 must render Basket content only in Rearrange mode');
+  has(styles,'.schedule-page:not(.rearrange-mode) .floating-basket','R25 must hard-hide Basket outside Rearrange mode');
+  has(schedulePage,'selectedQueueItemIds','R25 must retain Basket multi-selection state');
+  has(basket,'data-select-queue','R25 Basket cards must expose individual selection checkboxes');
+  has(basket,'data-select-all-queue','R25 Basket must offer Select all for group placement');
+  has(basket,'Basket items selected','R25 group drag ghost must show selected Basket count');
+  has(basket,'onPlaceGroup','R25 Basket drag must route multi-card placement through a group callback');
+  has(schedulePage,'placeQueueItemGroup','R25 Schedule page must optimistically place Basket groups');
+  has(repository,'tuinbooks_v2_schedule_queue_items_group_r25','R25 repository must use the atomic Basket group placement RPC');
+  has(sql,'tuinbooks_v2_can_operational_edit(p_business_id)','R25 Basket mutations must accept audited operational-edit Support authority');
+  has(sql,'tuinbooks_v2_schedule_queue_items_group_r25','R25 SQL must define atomic multi-Basket placement');
+  has(sql,"'v2QueueItemId',p_queue_item_id",'R25 queue placement must tag restored visits for retry idempotence');
+  has(sql,"lower(coalesce(v_item.status,'open'))<>'open'",'R25 must guard duplicate Basket placement retries');
+  has(schedulePage,'if(saved&&!identity.demo)await fetchWeek();','R25 Basket placement must immediately verify authoritative persisted state');
+  has(buildScript,'TUINBOOKS RELEASE R25','R25 build proof must identify the Schedule Basket release');
+  has(pkg,'2.0.0-parity-r25','Package version must identify R25');
+}
+console.log('TUINBOOKS R25 SCHEDULE-BASKET CONTRACT: PASS');

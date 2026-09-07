@@ -524,3 +524,14 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 .visit-card>.visit-hover-card{display:grid;gap:4px;right:4px;top:calc(100% + 5px);z-index:160;opacity:0;visibility:hidden;transform:translateY(-2px);transition:opacity .1s ease,transform .1s ease,visibility 0s linear .1s;transition-delay:0s;pointer-events:none}
 .calendar-grid:not(.drag-mode-active) .visit-card:hover>.visit-hover-card{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.28s}
 .calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}
+
+/* R25 — Basket is a Rearrange-only workspace + Basket multi-select group placement. */
+.schedule-page:not(.rearrange-mode) .floating-basket,
+.schedule-page:not(.rearrange-mode) .basket-launcher{display:none!important}
+.basket-selection-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 9px;border-bottom:1px solid #e5ece8;background:#f7faf8;color:#52665b;font-size:9px;font-weight:800}
+.basket-select-all{display:inline-flex;align-items:center;gap:6px;cursor:pointer;user-select:none}
+.basket-select-all input,.basket-select-control input{accent-color:#176747}
+.basket-select-control{display:grid;place-items:center;flex:0 0 22px;width:22px;height:28px;cursor:pointer}
+.basket-select-control span{display:none!important}
+.basket-card.basket-multi-selected{border-color:#4f9270!important;background:#edf7f1!important;box-shadow:0 0 0 2px rgba(23,103,71,.10)!important}
+.basket-card.basket-multi-selected b{color:#176747!important}

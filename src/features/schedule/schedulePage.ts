@@ -10,7 +10,7 @@ import { chooseMoveScope } from './recurrenceScopeDialog.js';
 import { openVisitActionDialog } from './visitActionDialog.js';
 import { openDayActionDialog } from './dayActionDialog.js';
 import { demoWeek } from './demoData.js';
-import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitGroupMove, persistVisitResize, persistVisitToBasket, persistVisitGroupToBasket } from './scheduleRepository.js';
+import { loadWeek, persistAdditionalVisit, persistCancelVisit, persistClientHold, persistDayAction, persistMarkMissed, persistResolveMissed, persistQueuePlacement, persistQueuePlacementGroup, persistRemoveDayAction, persistRescheduleMissed, persistSuspension, persistUndoCancel, persistVisitDoNotService, persistVisitMove, persistVisitGroupMove, persistVisitResize, persistVisitToBasket, persistVisitGroupToBasket } from './scheduleRepository.js';
 import { mountWorkspace, type WorkspaceIdentity, type WorkspaceNavigation } from '../shell/chrome.js';
 
 export type ScheduleIdentity=WorkspaceIdentity;
@@ -29,7 +29,6 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
         <button class="button secondary" id="todayWeek">Today</button>
         <button class="button secondary compact" id="nextWeek">Next →</button>
         <button class="button secondary" id="refreshWeek">Refresh</button>
-        <button class="button secondary schedule-basket-toggle" id="basketToggle">Basket <span id="basketCount">0</span></button>
       </div>
     </section>
     <section class="schedule-week-navigation" aria-label="Rolling schedule weeks">
@@ -52,7 +51,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       <p id="scheduleModeHelp">Schedule is locked. Turn on <strong>Drag mode</strong> when you want to rearrange visits.</p>
     </section>
     <div class="schedule-layout" id="scheduleLayout">
-      <aside class="basket-panel floating-basket" id="floatingBasket" data-basket-drop="1" aria-label="Unscheduled work Basket">
+      <aside class="basket-panel floating-basket hidden" id="floatingBasket" data-basket-drop="1" aria-label="Unscheduled work Basket">
         <div class="basket-header basket-drag-handle" id="basketDragHandle">
           <div><p class="eyebrow">Basket</p><strong>Unscheduled work</strong></div>
           <div class="basket-window-actions">
@@ -73,6 +72,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   let saves=0;
   let dragMode=false;
   let selectedVisitIds=new Set<string>();
+  let selectedQueueItemIds=new Set<string>();
 
   const host=root.querySelector<HTMLElement>('#calendarHost')!;
   const basketHost=root.querySelector<HTMLElement>('#basketHost')!;
@@ -93,12 +93,14 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   const showSaving=()=>saveIndicator.classList.toggle('hidden',saves===0);
 
   const updateSelectionChrome=()=>{
-    const count=selectedVisitIds.size;
+    const visitCount=selectedVisitIds.size,queueCount=selectedQueueItemIds.size,count=visitCount+queueCount;
     selectionCount.textContent=`${count} selected`;
     selectionCount.classList.toggle('hidden',!dragMode||count===0);
-    if(dragMode)modeHelp.innerHTML=count>1
-      ? `<strong>${count} visits selected.</strong> Drag any selected card to move them together. Group moves change these visits only, not future recurrence.`
-      : `Rearrange mode is on. Tick cards to move several visits together, or drag one card normally. A single recurring visit still asks <strong>This visit</strong> or <strong>This + future</strong>.`;
+    if(dragMode)modeHelp.innerHTML=queueCount>1
+      ? `<strong>${queueCount} Basket items selected.</strong> Drag any selected Basket card onto a team/day to place them together.`
+      : visitCount>1
+        ? `<strong>${visitCount} visits selected.</strong> Drag any selected calendar card to move them together. Group moves change these visits only, not future recurrence.`
+        : `Rearrange mode is on. Tick calendar or Basket cards to move several together, or drag one card normally. A single recurring calendar visit still asks <strong>This visit</strong> or <strong>This + future</strong>.`;
   };
   const renderDragChrome=()=>{
     page.classList.toggle('rearrange-mode',dragMode);
@@ -106,7 +108,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     dragToggle.classList.toggle('secondary',!dragMode);
     dragToggle.textContent=dragMode?'✓ Done rearranging':'↔ Drag mode';
     rearrangeModeLabel.classList.toggle('hidden',!dragMode);
-    if(!dragMode)modeHelp.innerHTML=`Normal mode is simple: click a visit card for its actions; hover the <strong>i</strong> for quick information. Turn on <strong>Drag mode</strong> only when you want to rearrange the week.`;
+    if(!dragMode)modeHelp.innerHTML=`Normal mode is simple: click a visit card for its actions and hover the card for quick information. Turn on <strong>Drag mode</strong> when you want to rearrange the week or use the Basket.`;
     updateSelectionChrome();
   };
 
@@ -141,7 +143,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     host.classList.remove('loading-state');
     renderWeekCards();
     renderDragChrome();
-    root.querySelector<HTMLElement>('#basketCount')!.textContent=String(data.queueItems.length);root.querySelector<HTMLElement>('#basketStripCount')!.textContent=String(data.queueItems.length);
+    root.querySelector<HTMLElement>('#basketStripCount')!.textContent=String(data.queueItems.length);
     calendar=renderCalendar(host,data,{
       dragEnabled:dragMode,
       selectedVisitIds,
@@ -155,7 +157,17 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       onVisitAction:openVisitActions,
       onDayAction:openDayAction,
     });
-    basketController=renderBasket(basketHost,data.queueItems,data.accounts,data.locations,data.visits,dragMode,placeQueueItem);
+    if(dragMode){
+      basketController=renderBasket(basketHost,data.queueItems,data.accounts,data.locations,data.visits,true,{
+        selectedQueueItemIds,
+        onSelectionChange:ids=>{selectedQueueItemIds=ids;updateSelectionChrome();},
+        onPlace:placeQueueItem,
+        onPlaceGroup:placeQueueItemGroup,
+      });
+    }else{
+      basketHost.innerHTML='';
+      basketController=null;
+    }
   };
 
   async function fetchWeek(){
@@ -214,7 +226,21 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     const saved=await saveOptimistic(before,()=>persistVisitGroupToBasket(identity.businessId,visitIds));
     if(saved&&!identity.demo)await fetchWeek();
   }
-  async function placeQueueItem(input:PlaceQueueItemInput){if(!data)return;const before=data,next=placeQueueItemOptimistically(data.visits,data.queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);data={...data,...next};render();await saveOptimistic(before,()=>persistQueuePlacement(identity.businessId,input));}
+  async function placeQueueItem(input:PlaceQueueItemInput){
+    if(!data)return;
+    const before=data,next=placeQueueItemOptimistically(data.visits,data.queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);
+    selectedQueueItemIds.delete(input.queueItemId);data={...data,...next};render();
+    const saved=await saveOptimistic(before,()=>persistQueuePlacement(identity.businessId,input));
+    if(saved&&!identity.demo)await fetchWeek();
+  }
+  async function placeQueueItemGroup(inputs:PlaceQueueItemInput[]){
+    if(!data||!inputs.length)return;
+    const before=data;let visits=data.visits,queueItems=data.queueItems;
+    for(const input of inputs){const next=placeQueueItemOptimistically(visits,queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);visits=next.visits;queueItems=next.queueItems;}
+    data={...data,visits,queueItems};selectedQueueItemIds.clear();render();
+    const saved=await saveOptimistic(before,()=>persistQueuePlacementGroup(identity.businessId,inputs));
+    if(saved&&!identity.demo)await fetchWeek();
+  }
   async function openAdditional(date:AdditionalVisitInput['date'],teamId:string,_index:number,sortOrder:number){if(!data)return;openAdditionalVisitDialog({businessId:identity.businessId,date,teamId,sortOrder,accounts:data.accounts,locations:data.locations},createAdditional);}
   async function createAdditional(input:AdditionalVisitInput){if(!data)return;const before=data,visit=buildAdditionalVisit(input,identity.businessId);data={...data,visits:[...data.visits,visit]};render();const saved=await saveOptimistic(before,()=>persistAdditionalVisit(identity.businessId,input));if(saved&&!data.accounts.some(a=>a.id===input.accountId)&&!identity.demo)await fetchWeek();}
   function openVisitActions(visit:Visit,account:any,hold:ClientServiceHold|null){if(!data)return;const location=visit.serviceLocationId?data.locations.find(row=>row.id===visit.serviceLocationId):data.locations.find(row=>row.accountId===visit.accountId);const agreements=data.agreements.filter(row=>row.accountId===visit.accountId&&(!location||row.serviceLocationId===location.id)&&['active','paused'].includes(String(row.status).toLowerCase())).sort((a,b)=>Number(b.version||0)-Number(a.version||0));openVisitActionDialog(visit,account,location,agreements[0],data.services,data.teams,hold,{onCancel:cancelVisit,onUndoCancel:undoCancel,onMissed:markMissed,onResolveMissed:resolveMissed,onReschedule:rescheduleMissed,onSuspend:setSuspension,onVisitDoNotService:setVisitDoNotService,onClientHold:setClientHold});}
@@ -234,11 +260,10 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   page.querySelector<HTMLButtonElement>('#todayWeek')!.onclick=()=>{weekStart=startOfWeek(todayIso());void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#nextWeek')!.onclick=()=>{weekStart=addDays(weekStart,7);void fetchWeek();};
   page.querySelector<HTMLButtonElement>('#refreshWeek')!.onclick=()=>void fetchWeek();
-  dragToggle.onclick=()=>{dragMode=!dragMode;selectedVisitIds.clear();if(dragMode)setBasketState('open');render();};
+  dragToggle.onclick=()=>{dragMode=!dragMode;selectedVisitIds.clear();selectedQueueItemIds.clear();if(dragMode)setBasketState('open');render();setBasketState(basketWindowState);};
 
   const basket=page.querySelector<HTMLElement>('#floatingBasket')!;
   const launcher=page.querySelector<HTMLButtonElement>('#openBasket')!;
-  const basketToggle=page.querySelector<HTMLButtonElement>('#basketToggle')!;
   const minimizeButton=page.querySelector<HTMLButtonElement>('#minimizeBasket')!;
   const dragHandle=page.querySelector<HTMLElement>('#basketDragHandle')!;
   type BasketWindowState='open'|'minimized'|'tucked';
@@ -247,10 +272,10 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   let basketWindowState:BasketWindowState=(localStorage.getItem(basketStateKey) as BasketWindowState)||'open';
   const setBasketState=(state:BasketWindowState)=>{
     basketWindowState=state;localStorage.setItem(basketStateKey,state);
-    basket.classList.toggle('hidden',state==='tucked');
-    basket.classList.toggle('minimized',state==='minimized');
-    launcher.classList.toggle('hidden',state!=='tucked');
-    basketToggle.classList.toggle('active',state!=='tucked');
+    const visible=dragMode&&state!=='tucked';
+    basket.classList.toggle('hidden',!visible);
+    basket.classList.toggle('minimized',dragMode&&state==='minimized');
+    launcher.classList.toggle('hidden',!dragMode||state!=='tucked');
     minimizeButton.textContent=state==='minimized'?'□':'−';
     minimizeButton.title=state==='minimized'?'Restore Basket':'Minimize Basket';
     minimizeButton.setAttribute('aria-label',minimizeButton.title);
@@ -265,7 +290,6 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
   page.querySelector<HTMLButtonElement>('#closeBasket')!.onclick=tuckBasket;
   minimizeButton.onclick=toggleMinimizeBasket;
   launcher.onclick=openBasket;
-  basketToggle.onclick=()=>basketWindowState==='tucked'?openBasket():tuckBasket();
   dragHandle.addEventListener('pointerdown',event=>{
     if(event.button!==0||(event.target as HTMLElement).closest('button'))return;
     event.preventDefault();
