@@ -318,3 +318,22 @@ console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
   has(buildScript,"copyRewriteTree('dist/rewrite'",'R18 rewrite must remain isolated until parity verification');
 }
 console.log('TUINBOOKS R18 ACTIVE-OFFICE RECOVERY CONTRACT: PASS');
+
+
+// R19: narrow repair — encoding-safe Settings control + durable Business control panel.
+{
+  const [officeHtml,businessControl,serviceWorker,buildScript]=await Promise.all([
+    read('original-ui/app/index.html'),read('original-ui/app/business-needs-attention-v6052.js'),read('original-ui/app/service-worker.js'),read('scripts/build-release-ui-restored.mjs')
+  ]);
+  has(officeHtml,'id="headerSettingsBtnV58930"','R19 must retain the restored header Settings control');
+  has(officeHtml,'&#9881;','R19 Settings icon must be encoding-safe');
+  not(officeHtml,'>âš™</button>','R19 must remove the corrupted Settings glyph');
+  has(businessControl,"const BUILD='R19-business-control-repair'",'R19 Business control repair must be active');
+  has(businessControl,'runtime()?.workMarkerForJob','Business control must classify routine rows through canonical schedule logic');
+  has(businessControl,'validAssignedTeam','Business control must accept either valid team assignment field');
+  has(businessControl,"signature===lastRenderSignature",'Business control must not destructively rerender unchanged content');
+  has(businessControl,"render(false)",'Business control background refresh must preserve open detail state');
+  has(serviceWorker,"const VERSION='R19-business-control-repair'",'R19 service-worker cache must invalidate R18 UI assets');
+  has(buildScript,'TUINBOOKS UI-RESTORED RELEASE R19','Render build must prove R19 packaging');
+}
+console.log('TUINBOOKS R19 SETTINGS/BUSINESS-CONTROL CONTRACT: PASS');

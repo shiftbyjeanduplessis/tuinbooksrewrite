@@ -1,0 +1,12 @@
+TUINBOOKS R19 DEPLOY
+====================
+
+1. Replace/update the current R18 repository with this complete R19 release.
+2. Commit and push main.
+3. Confirm Render build log says:
+   TUINBOOKS UI-RESTORED RELEASE R19: Settings icon + Business control repaired on full established office UI.
+4. Hard refresh once: Ctrl+Shift+R.
+5. Verify the Settings gear in the header.
+6. Open Business > Needs attention and confirm the section remains stable when an affected-record list is expanded.
+
+R19 is narrow: do not re-restore or replace Schedule/Clients/Work/Billing separately.

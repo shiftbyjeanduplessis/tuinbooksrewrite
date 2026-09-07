@@ -1,6 +1,6 @@
-# TuinBooks UI-Restored Release R18
+# TuinBooks UI-Restored Release R19
 
-R18 is the **true office-UI recovery** release.
+R19 is the narrow follow-up to the R18 true office-UI recovery. The full restored office UI remains authoritative; only the Settings icon and Business control/Needs attention panel are repaired.
 
 R17 built successfully on Render, but `/app/` was still the stripped TypeScript rewrite shell. R18 corrects that packaging error by making the established TuinBooks office product the production `/app/` again.
 
@@ -27,7 +27,7 @@ The build must never silently replace `/app/` with the stripped rewrite shell ag
 3. Render should run the existing build command.
 4. The build proof line must be:
 
-`TUINBOOKS UI-RESTORED RELEASE R18: full established office UI published to /app/; rewrite isolated at /rewrite/.`
+`TUINBOOKS UI-RESTORED RELEASE R19: Settings icon + Business control repaired on full established office UI.`
 
 5. After Render reports live, hard refresh the browser once (`Ctrl+Shift+R`).
 6. Open `/app/` and confirm the normal TuinBooks header/navigation is back before doing deeper QA.

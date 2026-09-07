@@ -1,39 +1,32 @@
-# TuinBooks UI-Restored Release R18 — verification report
+# TuinBooks UI-Restored Release R19 — verification report
 
-Purpose: correct the R17 packaging error that made the stripped rewrite shell the active `/app/` UI.
+Purpose: narrow repair on top of the successful R18 full-office restoration.
 
-## Active build contract
-- full established office product -> `/app/`
-- established Management -> `/management/`
-- TypeScript rewrite -> `/rewrite/` only
-- root -> immediate redirect to `/app/`
+## Fixed in R19
+- Header Settings gear is encoding-safe (`&#9881;`), replacing the corrupted `âš™` text.
+- Business > Needs attention now classifies routine schedule rows through the canonical work-marker helper.
+- Business control accepts either valid team-assignment field instead of failing on a stale secondary id.
+- The Business control panel no longer destroys/recreates unchanged DOM every 2.5 seconds, so open affected-record details and control focus remain stable.
+- Business control calculation failure is contained inside the panel instead of breaking the Business page.
+- Service-worker cache/version is bumped to R19 so the repaired icon/script cannot remain hidden behind R18 cache.
 
-## Protected parity carried into the restored office UI
-- street address directly on Schedule cards;
-- visible visit ID while dragging;
-- literal `Service normally / Do not service` two-state control;
-- visit-only vs client-wide Do Not Service scope;
-- service icon chips and specific instructions in visit detail;
-- Sunday as a seventh routine service day across schedule/import/mobile paths;
-- mobile visibility of visit/client Do Not Service;
-- R17 `Recent activity` reader in Settings, with graceful fallback if its SQL has not been applied.
+## Preserved
+The R18 restored office product remains the production `/app/`. Schedule, Work, Clients, Billing, Management, cancellation/billing logic, DNS controls, Sunday support, address-on-card, drag ID and audit reader were not rewritten.
 
-## Exact local verification completed on the packaged source
+## Exact local verification on this source
 `npm run check` — PASS
-- domain tests: PASS — 178 assertions
-- stress tests: PASS — 100 accounts / 110 locations; 200-client recurrence = 1,408 visits; 10,000 invoices
-- release contracts: PASS — base V2 + R6/R8/R9/R10/R11/R12/R13/R14/R16/R17/R18
-- TypeScript/build: PASS
-- XLSX round-trip: PASS — 100-account v4 binary -> v2 -> generated v4 binary -> v2, 0 errors
-- static references: PASS — 48 isolated rewrite modules, 106 relative imports, 0 missing
-- local HTTP smoke: PASS — `/app/`, `/management/`, `/rewrite/` all HTTP 200
-- active old-office script syntax/reference audit: PASS
+- domain: PASS — 178 assertions
+- stress: PASS — 100 accounts / 110 locations; 200-client recurrence = 1,408 visits; 10,000 invoices
+- release contracts: PASS — includes R19 Settings/Business-control contract
+- build: PASS
+- XLSX round-trip: PASS
+- static references: PASS
+- HTTP smoke: PASS — `/app/`, `/management/`, `/rewrite/` HTTP 200
+- repaired Business-control JS syntax: PASS
+- repaired service-worker JS syntax: PASS
 
-Active generated office sizes after build:
-- `dist/app/index.html`: ~151 KB (not the 451-byte R17 shell)
-- `dist/app/app.js`: ~2.54 MB
-- `dist/app/styles.css`: ~353 KB
-- `dist/app/r18-ui-parity-bridge.js`: ~22 KB
+Expected Render proof line:
+`TUINBOOKS UI-RESTORED RELEASE R19: Settings icon + Business control repaired on full established office UI.`
 
 ## Verification boundary
-These are local build/static/domain/stress checks. They do **not** claim a live Render browser session or Supabase database migration was executed from this environment. The R17 audit RPC SQL remains database-dependent; the restored Settings UI fails safely when it is absent.
+Local automated verification cannot prove the exact live business data shown by Render/Supabase. R19 corrects the code paths identified in the deployed R18 source and preserves the working R18 product surface.

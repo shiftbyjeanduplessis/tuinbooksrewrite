@@ -10,7 +10,7 @@ async function copyRewriteTree(dir, htmlFile) {
   await cp('dist/assets', `${dir}/assets`, { recursive: true });
 }
 
-// R18: the established TuinBooks office product is again the production /app.
+// R19: keep the established office product as /app; repair only Settings icon + Business control.
 // Do not rebuild its presentation from the stripped rewrite shell.
 await mkdir('dist/app', { recursive: true });
 await cp('original-ui/app', 'dist/app', { recursive: true });
@@ -30,4 +30,4 @@ await copyFile('original-ui/management/management.js', 'dist/management/manageme
 await copyFile('original-ui/management/VERSION.txt', 'dist/management/VERSION.txt');
 
 await writeFile('dist/index.html', `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=/app/"><title>TuinBooks</title></head><body><p><a href="/app/">Open TuinBooks</a></p></body></html>\n`);
-console.log('TUINBOOKS UI-RESTORED RELEASE R18: full established office UI published to /app/; rewrite isolated at /rewrite/.');
+console.log('TUINBOOKS UI-RESTORED RELEASE R19: Settings icon + Business control repaired on full established office UI.');
