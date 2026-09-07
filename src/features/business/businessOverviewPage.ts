@@ -62,5 +62,5 @@ function previousMonth(month:string):string{const [y,m]=month.split('-').map(Num
 function nextMonth(month:string):string{const [y,m]=month.split('-').map(Number),d=new Date(Date.UTC(y,m,1));return `${d.getUTCFullYear()}-${String(d.getUTCMonth()+1).padStart(2,'0')}`;}
 function monthLabel(month:string):string{const [y,m]=month.split('-').map(Number);return new Intl.DateTimeFormat('en-ZA',{month:'long',year:'numeric',timeZone:'UTC'}).format(new Date(Date.UTC(y,m-1,1)));}
 function moneyFmt(v:number):string{return Number(v||0).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function esc(v:string):string{return String(v).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt',"'":'&#39;','\"':'&quot;'}[ch]??ch));}
+function esc(v:string):string{return String(v).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]??ch));}
 function msg(e:unknown):string{return e instanceof Error?e.message:(e&&typeof e==='object'&&'message' in e?String((e as any).message):String(e));}
