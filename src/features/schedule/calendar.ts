@@ -149,7 +149,14 @@ function makeVisitCard(visit:Visit,route:number,team:Team,account:Account|undefi
   card.addEventListener('pointerdown',e=>begin(e,visit,route,card));
   const checkbox=card.querySelector<HTMLInputElement>('[data-select-visit]');
   if(checkbox){checkbox.onclick=e=>e.stopPropagation();checkbox.onchange=()=>{card.classList.toggle('multi-selected',checkbox.checked);onSelect(checkbox.checked);};}
-  card.addEventListener('click',e=>{if(dragEnabled||(e.target as HTMLElement).closest('[data-resize-handle],[data-select-visit]'))return;onAction();});
+  const infoHover=card.querySelector<HTMLElement>('[data-visit-info-hover]');
+  if(infoHover){
+    // Mouse/pointer use is hover-only: do not let clicking the i focus-lock the tooltip
+    // or fall through to the card's primary visit action. Keyboard focus still works.
+    infoHover.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();});
+    infoHover.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();});
+  }
+  card.addEventListener('click',e=>{if(dragEnabled||(e.target as HTMLElement).closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]'))return;onAction();});
   const handle=card.querySelector<HTMLElement>('[data-resize-handle]');
   if(handle)handle.addEventListener('pointerdown',event=>{
     event.preventDefault();event.stopPropagation();const startY=event.clientY,start=visit.estimatedMinutes||60;let current=start;

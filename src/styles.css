@@ -493,3 +493,26 @@ button:disabled { cursor: not-allowed; opacity: .45; }
 
 /* R17 — admin-visible audit/activity history */
 .audit-card-r17{align-self:start}.audit-rows-r17{display:grid;gap:7px;margin-top:8px}.audit-row-r17{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:5px 14px;border:1px solid #e0e7e3;border-radius:9px;padding:9px 10px;background:#fcfdfc}.audit-row-r17>div:first-child{display:grid;gap:2px;min-width:0}.audit-row-r17 strong{font-size:12px;color:#304238}.audit-row-r17 span,.audit-row-r17 time{font-size:10px;color:#6d7b73}.audit-meta-r17{display:grid;justify-items:end;gap:2px;text-align:right}.audit-row-r17 details{grid-column:1/-1}.audit-row-r17 summary{cursor:pointer;font-size:10px;color:#617269}.audit-row-r17 pre{max-height:180px;overflow:auto;margin:6px 0 0;padding:8px;border-radius:7px;background:#f2f5f3;font-size:9px;white-space:pre-wrap;word-break:break-word}.audit-unavailable-r17{display:grid;gap:4px;border:1px solid #ead9a5;background:#fff9e8;border-radius:9px;padding:10px}.audit-unavailable-r17 strong{font-size:12px;color:#6f560f}.audit-unavailable-r17 span{font-size:10px;color:#786b47}@media(max-width:620px){.audit-row-r17{grid-template-columns:1fr}.audit-meta-r17{justify-items:start;text-align:left}}
+
+/* R22 — calm Schedule card hierarchy + stable quick-info hover. */
+/* Use the compact dense-column client-name treatment consistently. */
+.visit-card-topline>strong{
+  font-size:10.5px!important;
+  line-height:1.05!important;
+  font-weight:750!important;
+  display:block!important;
+  -webkit-line-clamp:1!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+.schedule-cell.very-dense .visit-card-topline>strong{font-size:10px!important}
+
+/* Raise only the active card so its quick-information panel does not fight neighbouring cards. */
+.visit-card:hover,.visit-card:focus-within{z-index:30}
+.visit-info-hover{z-index:31}
+.visit-hover-card{
+  width:min(230px,calc(100vw - 28px));
+  right:-5px;
+  top:calc(100% + 6px);
+}

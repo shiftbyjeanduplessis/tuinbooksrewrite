@@ -1,0 +1,13 @@
+TUINBOOKS R22 — SCHEDULE INFO + TYPOGRAPHY POLISH
+
+Overlay this package onto the current R21 tuinbooksrewrite repository.
+Do not replace the repository and do not restore original-ui/app as the active runtime.
+
+Changes:
+- Schedule i quick-info remains hover/focus only. Pointer clicks no longer focus-lock the tooltip or trigger the visit action dialog.
+- The active visit card is raised above neighbouring cards while its quick-info is open.
+- Standard visit-card client names now use the same compact hierarchy as busy/dense columns: smaller, one-line, and less heavy.
+- R21 rewrite authority and R20 Management routing are unchanged.
+
+Expected Render build proof:
+TUINBOOKS RELEASE R22: R21 rewrite authority preserved; Schedule quick-info hover stabilised and card typography calmed; R20 Management routing retained; legacy app engine inactive.

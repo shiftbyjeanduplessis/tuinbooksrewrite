@@ -312,6 +312,23 @@ console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
 }
 console.log('TUINBOOKS R21 PRODUCTION-AUTHORITY CONTRACT: PASS');
 
+
+// R22 Schedule polish: quick-info remains hover/focus only without click-through, and card names use one calm compact hierarchy.
+{
+  const [calendar,styles,buildScript]=await Promise.all([
+    read('src/features/schedule/calendar.ts'),read('src/styles.css'),read('scripts/build-release-ui-restored.mjs')
+  ]);
+  has(calendar,"closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]')",'R22 info affordance must never fall through to the visit-card primary action');
+  has(calendar,"infoHover.addEventListener('pointerdown'",'R22 pointer use on the i must not focus-lock the hover card');
+  has(calendar,"infoHover.addEventListener('click'",'R22 clicking the i must be isolated from the visit-card click action');
+  has(styles,'R22 — calm Schedule card hierarchy + stable quick-info hover','R22 Schedule polish styles must be active');
+  has(styles,'font-size:10.5px!important','R22 standard cards must use the compact dense-column name size');
+  has(styles,'font-weight:750!important','R22 card names must be lighter than the previous extra-bold hierarchy');
+  has(styles,'.visit-card:hover,.visit-card:focus-within{z-index:30}','R22 active quick-info cards must stack above neighbouring visit cards');
+  has(buildScript,'TUINBOOKS RELEASE R22','Render build proof must identify R22');
+}
+console.log('TUINBOOKS R22 SCHEDULE-INFO/TYPOGRAPHY CONTRACT: PASS');
+
 // R20: Management must work when Render serves the document at /management without a trailing slash.
 {
   const [managementHtml,managementJs,buildScript]=await Promise.all([
