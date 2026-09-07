@@ -18,16 +18,20 @@ CURRENT RELEASE CONTRACT — ALSO REQUIRED
 10. APPLY-R13-GROUP-DRAG.sql
 11. APPLY-R14-VISIT-DETAIL.sql
 12. APPLY-R24-MINI-STRESS-BLOCKERS.sql
-13. APPLY-R25-SCHEDULE-BASKET.sql
+13. migration-v2-money-quotes.sql   [RE-RUN — final finance authority]
+14. APPLY-R25-SCHEDULE-BASKET.sql
 
-The old statement that INSTALL-V2-CORE.sql alone represents the entire current database contract is no longer valid. It contains the eight base migrations only. A deployment must apply the five current-release migrations above as well, in order.
+WHY STEP 13 IS INTENTIONAL
+R24 expands support/financial access and Planning-only enforcement, but it also replaces several money RPCs. The canonical money migration is deliberately re-runnable and is applied again after R24 so the final database keeps R24's access functions while using the current quote, billing, charge-cancellation, VAT and invoice-visit authority. This avoids a deployment whose behaviour depends on which historical SQL happened to run last.
 
-This distinction is important: application source and database RPCs must move together. Do not deploy a new frontend against a database that has only part of this list installed.
+The old statement that INSTALL-V2-CORE.sql alone represents the entire current database contract is no longer valid. It contains the eight base migrations only. A current deployment must follow this complete order.
+
+Application source and database RPCs must move together. Do not deploy a new frontend against a database that has only part of this list installed.
 
 NOT AUTOMATIC / REVIEW BEFORE RUNNING
 - migration-v2-optional-adopt-legacy-recurrence.sql
-  This is the conservative bridge for adopting simple legacy recurrence into the v2 series model. Keep it separate so deployment cannot silently rewrite legacy recurrence.
+  Conservative bridge for adopting simple legacy recurrence into the v2 series model. Keep it separate so deployment cannot silently rewrite legacy recurrence.
 
 NOT REQUIRED BY CURRENT SETTINGS
 - APPLY-R17-AUDIT-LOG.sql
-  Recent activity has been removed from Settings. The audit_events table remains part of internal system history, but the R17 Settings reader is no longer a release dependency.
+  Recent activity has been removed from Settings. audit_events remains internal system history, but the R17 Settings reader is no longer a release dependency.
