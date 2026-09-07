@@ -76,7 +76,7 @@ console.log(`TUINBOOKS UI PRESERVATION CONTRACT: PASS`);
   not(schedulePage,'data-drag-scope="one"','Drag scope must not remain as a confusing global mode');
   has(schedulePage,'schedule-basket-toggle','Schedule must expose the Basket directly');
   has(calendar,'visit-route','Schedule cards must show route order');
-  has(calendar,'visit-info-hover','Schedule cards must expose the information affordance');
+  has(calendar,'visit-hover-card','Schedule cards must retain quick information without a repeated visible i affordance');
   has(calendar,'visit-location','Schedule cards must show street address before opening details');
   has(calendar,'visit-suburb','Schedule cards must show suburb before opening details');
   has(calendar,'data-new-note','Each team/day must retain the compact Note action');
@@ -202,7 +202,7 @@ console.log('TUINBOOKS R11 REARRANGE/BASKET CONTRACT: PASS');
   ]);
   has(schedulePage,'Schedule status key','R12 must identify the legend as a status key');
   has(calendar,"onAction();});",'Normal-mode card click must open visit actions');
-  has(calendar,'data-visit-info-hover','Information affordance must remain hover/focus only while the card is the action surface');
+  has(calendar,'visit-hover-card','Quick information must remain available while the card stays the single action surface');
   has(visitDialog,'Do not service this visit','Visit-specific DNS must be prominent in the visit dialog');
   has(visitDialog,'It was completed','Missed resolution must restore completed-by-office choice');
   has(visitDialog,'Reschedule / catch-up','Missed resolution must restore catch-up choice');
@@ -233,7 +233,7 @@ console.log('TUINBOOKS R12 MISSED-VISIT/ACTION CONTRACT: PASS');
   has(repository,'tuinbooks_v2_move_visits_to_basket_r13','Group Basket moves must use the atomic R13 RPC');
   has(sql,'tuinbooks_v2_move_visits_group_r13','R13 SQL must define atomic group calendar moves');
   has(sql,'tuinbooks_v2_move_visits_to_basket_r13','R13 SQL must define atomic group Basket moves');
-  has(calendar,'visit-info-hover','Visit information must be hover/focus information instead of a second action button');
+  has(calendar,'visit-hover-card','Visit information must remain hover information instead of a second action button');
   has(calendar,'visit-hover-card','Hover info must expose the quick-information card');
   not(calendar,'data-visit-action','The confusing separate three-dot visit action control must be removed');
   not(calendar,'>•••<','The three-dot action affordance must be removed from Schedule cards');
@@ -313,21 +313,31 @@ console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
 console.log('TUINBOOKS R21 PRODUCTION-AUTHORITY CONTRACT: PASS');
 
 
-// R22 Schedule polish: quick-info remains hover/focus only without click-through, and card names use one calm compact hierarchy.
+// R22 typography remains active. R23 supersedes R22's separate visible info affordance.
 {
-  const [calendar,styles,buildScript]=await Promise.all([
-    read('src/features/schedule/calendar.ts'),read('src/styles.css'),read('scripts/build-release-ui-restored.mjs')
-  ]);
-  has(calendar,"closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]')",'R22 info affordance must never fall through to the visit-card primary action');
-  has(calendar,"infoHover.addEventListener('pointerdown'",'R22 pointer use on the i must not focus-lock the hover card');
-  has(calendar,"infoHover.addEventListener('click'",'R22 clicking the i must be isolated from the visit-card click action');
-  has(styles,'R22 — calm Schedule card hierarchy + stable quick-info hover','R22 Schedule polish styles must be active');
-  has(styles,'font-size:10.5px!important','R22 standard cards must use the compact dense-column name size');
-  has(styles,'font-weight:750!important','R22 card names must be lighter than the previous extra-bold hierarchy');
-  has(styles,'.visit-card:hover,.visit-card:focus-within{z-index:30}','R22 active quick-info cards must stack above neighbouring visit cards');
-  has(buildScript,'TUINBOOKS RELEASE R22','Render build proof must identify R22');
+  const styles=await read('src/styles.css');
+  has(styles,'R22 — calm Schedule card hierarchy + stable quick-info hover','R22 compact Schedule typography must remain active');
+  has(styles,'font-size:10.5px!important','R22 standard cards must retain the compact dense-column name size');
+  has(styles,'font-weight:750!important','R22 card names must remain lighter than the previous extra-bold hierarchy');
 }
-console.log('TUINBOOKS R22 SCHEDULE-INFO/TYPOGRAPHY CONTRACT: PASS');
+console.log('TUINBOOKS R22 TYPOGRAPHY CONTRACT: PASS');
+
+// R23 removes repeated information circles; the whole card now owns quick-info hover.
+{
+  const [calendar,styles,buildScript,pkg]=await Promise.all([
+    read('src/features/schedule/calendar.ts'),read('src/styles.css'),read('scripts/build-release-ui-restored.mjs'),read('package.json')
+  ]);
+  not(calendar,'data-visit-info-hover','R23 must not render a separate i affordance on every visit card');
+  not(calendar,'aria-label="Hover for visit information">i','R23 must remove the visible information-circle text');
+  has(calendar,'<span class="visit-hover-card" role="tooltip">${hover}</span>','R23 must retain the same quick-information content on the visit card');
+  has(styles,'R23 — card-level quick info: remove repeated i circles from Schedule.','R23 card-level quick-info styles must be active');
+  has(styles,'.calendar-grid:not(.drag-mode-active) .visit-card:hover>.visit-hover-card{opacity:1;visibility:visible','R23 whole-card hover must reveal quick information');
+  has(styles,'transition-delay:.28s','R23 quick info must wait briefly so moving across cards does not create popup flicker');
+  has(styles,'.calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}','R23 quick info must stay out of rearrange mode');
+  has(buildScript,'R23 Schedule polish preserved','R24 build must explicitly preserve the R23 card-hover cleanup');
+  has(pkg,'2.0.0-parity-r24','R24 package must carry the preserved R23 Schedule behavior');
+}
+console.log('TUINBOOKS R23 CARD-HOVER INFO CONTRACT: PASS');
 
 // R20: Management must work when Render serves the document at /management without a trailing slash.
 {
@@ -344,3 +354,35 @@ console.log('TUINBOOKS R22 SCHEDULE-INFO/TYPOGRAPHY CONTRACT: PASS');
   has(buildScript,'R20 absolute-path fix','R21 build must explicitly preserve the R20 Management path correction');
 }
 console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');
+
+// R24 mini-stress checkpoint blockers: support authority, quote persistence, Planning-only Billing, business contact durability and activity-log bridge.
+{
+  const [app,chrome,moneyPage,businessPage,businessRepo,management,sql,buildScript,pkg]=await Promise.all([
+    read('src/app.ts'),read('src/features/shell/chrome.ts'),read('src/features/billing/moneyPage.ts'),read('src/features/business/businessPage.ts'),read('src/features/business/businessRepository.ts'),read('original-ui/management/management.js'),read('supabase/APPLY-R24-MINI-STRESS-BLOCKERS.sql'),read('scripts/build-release-ui-restored.mjs'),read('package.json')
+  ]);
+  has(app,"loadBusinessWorkspace",'R24 must preload business mode before exposing financial navigation');
+  has(app,"identity.planningOnly=business.settings.mode==='planning'",'R24 must carry Planning-only mode into workspace identity');
+  has(app,"identity?.planningOnly&&page==='money'",'R24 navigation must block Billing in Planning-only mode');
+  has(chrome,"identity.planningOnly&&page==='money'",'R24 shell must hide Billing in Planning-only mode');
+  has(moneyPage,"Billing is disabled",'R24 direct Billing render must be blocked in Planning-only mode');
+  has(moneyPage,"Billing and Quick invoice are unavailable in Planning-only mode",'R24 must remove Quick invoice from Planning-only mode');
+  has(businessPage,'APPLY-R24-MINI-STRESS-BLOCKERS.sql','R24 Settings must point Recent activity remediation to the consolidated SQL');
+  has(businessRepo,"data?.settings?.phone",'R24 business contact read must include durable v2 fallback');
+  has(management,'function cleanEmailV24','R24 Management must normalise copied admin emails');
+  has(management,'function validEmailV24','R24 Management must use the repaired admin email validator');
+  has(sql,'tuinbooks_v2_can_operational_read','R24 SQL must install operational read authority');
+  has(sql,'tuinbooks_v2_can_operational_edit','R24 SQL must install operational edit authority');
+  has(sql,'tuinbooks_v2_can_financial_edit','R24 SQL must install financial edit authority');
+  has(sql,"if public.tuinbooks_v2_can_operational_edit(p_business_id) then\n    perform public.tuinbooks_v2_ensure_series_horizon",'R24 read-only Schedule must not mutate recurrence state');
+  has(sql,"if v_role is null and public.tuinbooks_v2_can_operational_edit(p_business_id) then v_role:='owner'; end if;",'R24 Work actions must accept audited operational-edit Support authority');
+  has(sql,'declare old_status text;v_payload jsonb;','R24 quote save must remove the payload variable/column collision');
+  has(sql,"q.business_id=p_business_id and q.id<>p_quote_id and q.payload->>'number'=trim(p_number)",'R24 quote-number uniqueness must be business-scoped and payload-qualified');
+  not(sql,'declare old_status text;payload jsonb;','R24 quote save must not reintroduce ambiguous payload');
+  has(sql,"'phone',trim(coalesce(p_settings->>'phone',''))",'R24 business settings must retain phone in the v2 durable snapshot');
+  has(sql,'tuinbooks_v2_list_audit_log_r17','R24 SQL must install the Recent activity bridge');
+  has(sql,'tuinbooks_v2_financials_enabled','R24 SQL must install the Planning-only financial write guard');
+  has(sql,"Billing is disabled in Planning-only mode",'R24 SQL must reject financial writes when the business is Planning-only');
+  has(buildScript,'TUINBOOKS RELEASE R24','Render build proof must identify R24');
+  has(pkg,'2.0.0-parity-r24','Package version must identify R24');
+}
+console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');

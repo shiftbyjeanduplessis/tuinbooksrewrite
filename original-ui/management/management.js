@@ -469,7 +469,7 @@ window.__TUINBOOKS_MANAGEMENT_BUILD='59.6.88-stable-client-open-restore';
     const email=$('setupBusinessEmail').value.trim();
     const teams=collectManagementSetupTeamsV5961();
     if(!name){$('managementSetupMessage').textContent='Enter the business name.';$('setupBusinessName').focus();return;}
-    if(email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('managementSetupMessage').textContent='Enter a valid business email address.';$('setupBusinessEmail').focus();return;}
+    if(email&&!validEmailV24(email)){$('managementSetupMessage').textContent='Enter a valid business email address.';$('setupBusinessEmail').focus();return;}
     if(!teams.length||teams.some(team=>!team.name)){$('managementSetupMessage').textContent='Every team needs a name.';return;}
     if(!teams.some(team=>team.active)){$('managementSetupMessage').textContent='Keep at least one active team.';return;}
     const button=$('saveManagementSetupButton');
@@ -608,11 +608,20 @@ window.__TUINBOOKS_MANAGEMENT_BUILD='59.6.88-stable-client-open-restore';
     renderOfficeAccess();
   }
 
+
+  function cleanEmailV24(value){
+    return String(value||'').normalize('NFKC').replace(/[\u200B-\u200D\uFEFF]/g,'').trim().toLowerCase();
+  }
+  function validEmailV24(value){
+    const email=cleanEmailV24(value),at=email.indexOf('@'),dot=email.lastIndexOf('.');
+    return email.length<=254&&at>0&&dot>at+1&&dot<email.length-1&&!/\s/.test(email);
+  }
+
   async function adminSetupActionV59676({email,displayName,send}){
-    email=String(email||'').trim().toLowerCase();displayName=String(displayName||'').trim();
+    email=cleanEmailV24(email);displayName=String(displayName||'').trim();
     if(!state.currentAccountId||!state.client)return;
     if(displayName.length<2){$('officeAccessMessage').textContent='Enter the admin name.';return;}
-    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('officeAccessMessage').textContent='Enter a valid admin email address.';return;}
+    if(!validEmailV24(email)){$('officeAccessMessage').textContent='Enter a valid admin email address.';return;}
     const button=send?$('sendOfficeInvitationButton'):$('copyOfficeSetupLinkButton');
     const original=button?.textContent||'';
     if(button){button.disabled=true;button.textContent=send?'Creating access…':'Creating secure link…';}

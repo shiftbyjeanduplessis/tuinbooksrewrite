@@ -24,3 +24,5 @@ R13: APPLY-R13-GROUP-DRAG.sql — atomic multi-select calendar moves and group m
 R14: APPLY-R14-VISIT-DETAIL.sql — Schedule card detail restores service/task names, site instructions and simplified actions.
 
 R17: APPLY-R17-AUDIT-LOG.sql — admin-only reader for the existing audit_events history shown in Settings → Recent activity.
+
+R24: APPLY-R24-MINI-STRESS-BLOCKERS.sql — required hotfix after the 7 Sep mini stress checkpoint; support read/edit authority, quote persistence, business contact persistence and activity-log bridge.

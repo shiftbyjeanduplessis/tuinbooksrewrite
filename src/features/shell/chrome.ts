@@ -1,5 +1,5 @@
 export type WorkspacePage='schedule'|'clients'|'work'|'quotes'|'money'|'business'|'settings';
-export interface WorkspaceIdentity{businessId:string;userId:string;businessName:string;demo?:boolean;support?:boolean;}
+export interface WorkspaceIdentity{businessId:string;userId:string;businessName:string;demo?:boolean;support?:boolean;planningOnly?:boolean;}
 export interface WorkspaceNavigation{go:(page:WorkspacePage)=>void;logout:()=>Promise<void>;}
 
 const nav:[WorkspacePage,string][]=[
@@ -14,7 +14,7 @@ export function mountWorkspace(root:HTMLElement,identity:WorkspaceIdentity,activ
         <strong class="brand-title">${esc(identity.businessName)}</strong>
       </div>
       <nav class="admin-nav admin-nav-final" aria-label="Admin sections">
-        ${nav.map(([page,label])=>`<button data-nav="${page}" class="nav-tab${page===active?' active':''}">${label}</button>`).join('')}
+        ${nav.filter(([page])=>!(identity.planningOnly&&page==='money')).map(([page,label])=>`<button data-nav="${page}" class="nav-tab${page===active?' active':''}">${label}</button>`).join('')}
       </nav>
       <div class="header-actions original-header-actions">
         <button type="button" class="icon-button header-settings-button${active==='settings'?' active':''}" data-nav="settings" aria-label="Open Settings" title="Settings">⚙</button>

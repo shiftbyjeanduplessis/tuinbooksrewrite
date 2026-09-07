@@ -516,3 +516,11 @@ button:disabled { cursor: not-allowed; opacity: .45; }
   right:-5px;
   top:calc(100% + 6px);
 }
+
+
+/* R23 — card-level quick info: remove repeated i circles from Schedule. */
+/* The visit card itself is the hover target; no visible info affordance is rendered. */
+.visit-info-hover{display:none!important}
+.visit-card>.visit-hover-card{display:grid;gap:4px;right:4px;top:calc(100% + 5px);z-index:160;opacity:0;visibility:hidden;transform:translateY(-2px);transition:opacity .1s ease,transform .1s ease,visibility 0s linear .1s;transition-delay:0s;pointer-events:none}
+.calendar-grid:not(.drag-mode-active) .visit-card:hover>.visit-hover-card{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.28s}
+.calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}

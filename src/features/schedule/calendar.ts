@@ -91,7 +91,7 @@ export function renderCalendar(container:HTMLElement,data:ScheduleWeek,callbacks
 
   let drag:{visit:Visit;route:number;visitIds:string[];ghost:HTMLElement;offsetX:number;offsetY:number;moved:boolean}|null=null;
   function beginDrag(event:PointerEvent,visit:Visit,route:number,card:HTMLElement):void{
-    if(!callbacks.dragEnabled||event.button!==0||(event.target as HTMLElement).closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]')||!movable(visit))return;
+    if(!callbacks.dragEnabled||event.button!==0||(event.target as HTMLElement).closest('[data-resize-handle],[data-select-visit]')||!movable(visit))return;
     event.preventDefault();
     const selectedGroup=selected.has(visit.id)&&selected.size>1
       ? data.visits.filter(v=>selected.has(v.id)&&movable(v)).sort(groupSort)
@@ -145,18 +145,11 @@ function makeVisitCard(visit:Visit,route:number,team:Team,account:Account|undefi
   const taskLine=task?`<div class="visit-task" title="${esc(task)}">${esc(task)}</div>`:'';
   const selectControl=dragEnabled&&!locked?`<label class="visit-select-control" title="Select this visit for a group move"><input type="checkbox" data-select-visit ${isSelected?'checked':''} aria-label="Select ${esc(account?.name??visit.accountId)} for group move"><span></span></label>`:'';
   const hover=visitHoverInfo(visit,route,team,account,location,series,hold,task,notes);
-  card.innerHTML=`${selectControl}<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name??visit.accountId)}">${esc(account?.name??visit.accountId)}</strong><span class="visit-badges">${badges}<span data-visit-info-hover class="visit-info-hover" tabindex="0" aria-label="Hover for visit information">i<span class="visit-hover-card" role="tooltip">${hover}</span></span></span></div><div class="visit-location" title="${esc([location?.address,location?.suburb].filter(Boolean).join(' · ')||'Address not linked')}">${esc(location?.address||'Address not linked')}${location?.suburb?`<span class="visit-suburb-inline"> · ${esc(location.suburb)}</span>`:''}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div>${!locked&&dragEnabled?'<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>':''}`;
+  card.innerHTML=`${selectControl}<div class="visit-card-topline"><span class="visit-route" title="Route order">${route}</span><strong title="${esc(account?.name??visit.accountId)}">${esc(account?.name??visit.accountId)}</strong><span class="visit-badges">${badges}</span></div><div class="visit-location" title="${esc([location?.address,location?.suburb].filter(Boolean).join(' · ')||'Address not linked')}">${esc(location?.address||'Address not linked')}${location?.suburb?`<span class="visit-suburb-inline"> · ${esc(location.suburb)}</span>`:''}</div>${taskLine}<div class="visit-card-footer"><span>${esc(type)}</span><b>${duration}</b></div><span class="visit-hover-card" role="tooltip">${hover}</span>${!locked&&dragEnabled?'<span class="resize-handle" data-resize-handle title="Drag to change duration"></span>':''}`;
   card.addEventListener('pointerdown',e=>begin(e,visit,route,card));
   const checkbox=card.querySelector<HTMLInputElement>('[data-select-visit]');
   if(checkbox){checkbox.onclick=e=>e.stopPropagation();checkbox.onchange=()=>{card.classList.toggle('multi-selected',checkbox.checked);onSelect(checkbox.checked);};}
-  const infoHover=card.querySelector<HTMLElement>('[data-visit-info-hover]');
-  if(infoHover){
-    // Mouse/pointer use is hover-only: do not let clicking the i focus-lock the tooltip
-    // or fall through to the card's primary visit action. Keyboard focus still works.
-    infoHover.addEventListener('pointerdown',event=>{event.preventDefault();event.stopPropagation();});
-    infoHover.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();});
-  }
-  card.addEventListener('click',e=>{if(dragEnabled||(e.target as HTMLElement).closest('[data-resize-handle],[data-select-visit],[data-visit-info-hover]'))return;onAction();});
+  card.addEventListener('click',e=>{if(dragEnabled||(e.target as HTMLElement).closest('[data-resize-handle],[data-select-visit]'))return;onAction();});
   const handle=card.querySelector<HTMLElement>('[data-resize-handle]');
   if(handle)handle.addEventListener('pointerdown',event=>{
     event.preventDefault();event.stopPropagation();const startY=event.clientY,start=visit.estimatedMinutes||60;let current=start;

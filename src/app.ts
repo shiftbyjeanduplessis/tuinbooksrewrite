@@ -7,6 +7,7 @@ import { renderWorkPage } from './features/work/workPage.js';
 import { renderMoneyPage } from './features/billing/moneyPage.js';
 import { renderBusinessPage } from './features/business/businessPage.js';
 import { renderBusinessOverviewPage } from './features/business/businessOverviewPage.js';
+import { loadBusinessWorkspace } from './features/business/businessRepository.js';
 import type { WorkspaceIdentity, WorkspaceNavigation, WorkspacePage } from './features/shell/chrome.js';
 
 const root=document.getElementById('root');
@@ -14,12 +15,12 @@ if(!root)throw new Error('TuinBooks root element is missing.');
 const params=new URLSearchParams(location.search),demo=params.get('demo')==='1',supportMode=params.get('support')==='1',supportBusiness=supportMode?(params.get('business')??''):'',supportSession=supportMode?(params.get('session')??''):'';
 let identity:WorkspaceIdentity|null=null,currentPage:WorkspacePage='schedule';
 
-const navigation:WorkspaceNavigation={go(page){if(!['schedule','clients','work','quotes','money','business','settings'].includes(page))return;currentPage=page;renderCurrent();},async logout(){if(demo){location.href=location.pathname;return;}if(identity?.support){location.href=new URL('../management/',location.href).href;return;}await supabase.auth.signOut();identity=null;await boot();}};
+const navigation:WorkspaceNavigation={go(page){if(!['schedule','clients','work','quotes','money','business','settings'].includes(page))return;if(identity?.planningOnly&&page==='money'){currentPage='schedule';renderCurrent();return;}currentPage=page;renderCurrent();},async logout(){if(demo){location.href=location.pathname;return;}if(identity?.support){location.href=new URL('../management/',location.href).href;return;}await supabase.auth.signOut();identity=null;await boot();}};
 function renderCurrent():void{if(!identity)return;if(currentPage==='clients')renderClientsPage(root!,identity,navigation);else if(currentPage==='work')renderWorkPage(root!,identity,navigation);else if(currentPage==='quotes')renderMoneyPage(root!,identity,navigation,'quotes');else if(currentPage==='money')renderMoneyPage(root!,identity,navigation,'money');else if(currentPage==='business')renderBusinessOverviewPage(root!,identity,navigation);else if(currentPage==='settings')void renderBusinessPage(root!,identity,navigation);else renderSchedulePage(root!,identity,navigation);}
 async function boot():Promise<void>{
   if(demo){identity={businessId:'demo',userId:'demo',businessName:'TuinBooks Demo',demo:true};renderCurrent();return;}
   root!.innerHTML='<main class="boot-screen"><div class="spinner"></div><strong>Opening TuinBooks…</strong></main>';
-  try{const context=supportMode?await loadSupportAuthContext(supportBusiness,supportSession):await loadAuthContext();if(!context){renderLogin(root!,boot);return;}identity={businessId:context.business.id,userId:context.userId,businessName:context.business.name,support:supportMode};renderCurrent();}
+  try{const context=supportMode?await loadSupportAuthContext(supportBusiness,supportSession):await loadAuthContext();if(!context){renderLogin(root!,boot);return;}identity={businessId:context.business.id,userId:context.userId,businessName:context.business.name,support:supportMode};try{const business=await loadBusinessWorkspace(identity.businessId);identity.businessName=business.settings.name||identity.businessName;identity.planningOnly=business.settings.mode==='planning';}catch(modeError){console.warn('Business mode could not be preloaded; continuing with standard navigation.',modeError);}renderCurrent();}
   catch(error){renderLogin(root!,boot,error instanceof Error?error.message:String(error));}
 }
 void boot();

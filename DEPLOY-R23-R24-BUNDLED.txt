@@ -1,0 +1,40 @@
+TUINBOOKS R23 + R24 BUNDLED MINIMAL OVERLAY
+============================================
+
+This single overlay combines the undeployed R23 Schedule UI cleanup with the R24 mini-stress blocker repairs.
+
+APPLY TO
+--------
+Overlay this folder onto the current TuinBooks rewrite repository that is still on the pre-R23 build (for example R22/R21 authority baseline). Allow matching files to be replaced.
+
+ORDER ALREADY RESOLVED
+----------------------
+R23 was merged first, then R24. R24's package/build/release-contract files intentionally supersede R23 metadata while explicitly preserving the R23 Schedule behavior.
+
+INCLUDED R23 UI CHANGE
+----------------------
+- Remove visible per-card information circles.
+- Whole-card hover reveals quick information after a short delay.
+- Hover information stays disabled in Drag/Rearrange mode.
+- Compact R22 card typography remains preserved.
+
+INCLUDED R24 BLOCKER REPAIRS
+----------------------------
+- Support Mode authority for Schedule / Work / operational writes.
+- Fresh-workspace client / service-location / agreement ownership path.
+- Admin invitation email normalization/validation repair.
+- Quote-save ambiguous payload reference repair.
+- Planning-only Billing hidden and database writes blocked.
+- Durable business phone/email settings fallback.
+- Recent activity audit-log RPC bridge.
+
+SUPABASE SQL
+------------
+After overlaying the source, run this file in the Supabase SQL Editor:
+  supabase/APPLY-R24-MINI-STRESS-BLOCKERS.sql
+
+Stop if Supabase reports an error. Then commit/push the source overlay and let Render build normally.
+
+EXPECTED BUILD PROOF
+--------------------
+TUINBOOKS RELEASE R24: mini-stress blockers repaired; support authority and quote persistence corrected; Planning-only Billing enforced; R23 Schedule polish preserved; legacy app engine inactive.
