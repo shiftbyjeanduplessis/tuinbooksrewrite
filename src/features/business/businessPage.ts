@@ -10,17 +10,17 @@ export async function renderBusinessPage(root:HTMLElement,identity:WorkspaceIden
  page.innerHTML='<div class="loading-state">Loading business settings…</div>';
  try{
   const ws=identity.demo?structuredClone(demoBusinessWorkspace):await loadBusinessWorkspace(identity.businessId);
-  let pins:FieldPin[]=[];
+  let pins:FieldPin[]=[],pinLoadError='';
   if(identity.demo){
    pins=ws.teams.map((t,i)=>({teamId:t.id,teamName:t.name,pin:String(1234+i).padStart(4,'0'),active:true,updatedAt:null}));
   }else{
-   try{pins=await loadFieldPins(identity.businessId);}catch(pinError){console.warn('Field PIN list unavailable in this session',pinError);}
+   try{pins=await loadFieldPins(identity.businessId);}catch(pinError){pinLoadError=msg(pinError);console.warn('Field PIN list unavailable in this session',pinError);}
   }
-  paint(page,identity,ws,pins);
+  paint(page,identity,ws,pins,pinLoadError);
  }catch(e){page.innerHTML=`<div class="error-box">${esc(msg(e))}</div>`;}
 }
 
-function paint(page:HTMLElement,identity:WorkspaceIdentity,ws:BusinessWorkspace,pins:FieldPin[]){
+function paint(page:HTMLElement,identity:WorkspaceIdentity,ws:BusinessWorkspace,pins:FieldPin[],pinLoadError:string){
  page.innerHTML=`<header class="page-heading workspace-heading legacy-page-heading-r27 old-settings-heading">
   <div><p class="eyebrow">Business setup</p><h1>Settings</h1><p>Configure services, teams, mobile access, business details and billing defaults.</p></div>
   <div class="heading-actions"><button class="button secondary" id="openImportExport">Import / Export</button><button class="button" id="saveBusiness">Save business</button></div>
@@ -44,6 +44,7 @@ function paint(page:HTMLElement,identity:WorkspaceIdentity,ws:BusinessWorkspace,
   </article>
   <article id="fieldPinsSettingsR27" class="settings-card span-two old-settings-panel">
    <header class="settings-card-head"><div><p class="eyebrow">Mobile access</p><h2>Field phone PINs</h2><p>Permanent team PINs remain visible until deliberately replaced or revoked.</p></div></header>
+   ${pinLoadError?`<div class="error-box mobile-pin-contract-error"><strong>Mobile PINs are not available.</strong><span>${esc(pinLoadError)}</span></div>`:''}
    <div id="pinRows" class="settings-rows"></div>
   </article>
   <article id="businessDetailSettingsR27" class="settings-card old-settings-panel">
@@ -97,6 +98,7 @@ function paint(page:HTMLElement,identity:WorkspaceIdentity,ws:BusinessWorkspace,
 
  const renderPins=()=>{
   const host=page.querySelector<HTMLElement>('#pinRows')!;
+  if(pinLoadError){host.innerHTML='<div class="agreement-empty">PIN controls are disabled until the database contract is repaired.</div>';return;}
   host.innerHTML=ws.teams.filter(t=>t.active).map(t=>{
    const pin=pins.find(p=>p.teamId===t.id&&p.active);
    return `<div class="settings-row field-pin-row old-field-pin-row" data-pin-team="${esc(t.id)}"><strong>${esc(t.name)}</strong><code>${pin?.pin?esc(pin.pin):'—'}</code><span>${pin?.pin?'Active permanent PIN':'No PIN issued'}</span><button data-generate-pin>${pin?.pin?'Replace PIN':'Create PIN'}</button>${pin?.pin?'<button data-revoke-pin>Revoke</button>':''}</div>`;
@@ -125,6 +127,6 @@ function paint(page:HTMLElement,identity:WorkspaceIdentity,ws:BusinessWorkspace,
 }
 
 function value(page:HTMLElement,id:string){return(page.querySelector(`#${id}`) as HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement).value;}
-async function run(page:HTMLElement,fn:()=>Promise<void>){const old=document.querySelector('.save-indicator');old?.remove();const n=document.createElement('div');n.className='save-indicator';n.textContent='Saving…';document.body.appendChild(n);try{await fn();n.textContent='Saved';setTimeout(()=>n.remove(),900);}catch(e){n.textContent=msg(e);n.classList.add('error-box');setTimeout(()=>n.remove(),3500);}}
+async function run(page:HTMLElement,fn:()=>Promise<void>){const old=document.querySelector('.save-indicator');old?.remove();const n=document.createElement('div');n.className='save-indicator';n.textContent='Saving…';document.body.appendChild(n);try{await fn();n.textContent='Saved';setTimeout(()=>n.remove(),900);}catch(e){n.textContent=msg(e);n.classList.add('error-box');setTimeout(()=>n.remove(),5000);}}
 function msg(e:unknown){return e instanceof Error?e.message:(e&&typeof e==='object'&&'message' in e?String((e as any).message):String(e));}
 function esc(v:string){return String(v).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]??ch));}
