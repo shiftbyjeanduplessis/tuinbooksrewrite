@@ -151,13 +151,23 @@ function makeVisitCard(visit:Visit,route:number,team:Team,account:Account|undefi
   if(checkbox){checkbox.onclick=e=>e.stopPropagation();checkbox.onchange=()=>{card.classList.toggle('multi-selected',checkbox.checked);onSelect(checkbox.checked);};}
   card.addEventListener('click',e=>{if(dragEnabled||(e.target as HTMLElement).closest('[data-resize-handle],[data-select-visit]'))return;onAction();});
   const handle=card.querySelector<HTMLElement>('[data-resize-handle]');
-  if(handle)handle.addEventListener('pointerdown',event=>{
-    event.preventDefault();event.stopPropagation();const startY=event.clientY,start=visit.estimatedMinutes||60;let current=start;
-    const move=(e:PointerEvent)=>{e.preventDefault();current=normaliseDuration(start+Math.round((e.clientY-startY)/10)*15);card.querySelector<HTMLElement>('.visit-card-footer b')!.textContent=`${current} min`;card.style.setProperty('--visit-height',`${Math.max(48,Math.min(110,48+Math.max(0,current-60)/15*3))}px`);};
-    const end=()=>{off();if(current!==visit.estimatedMinutes)void onResize({visitId:visit.id,estimatedMinutes:current});};
-    const off=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);};
-    window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',end,{once:true});
-  });
+  if(handle){
+    // The old regression CSS reduced this to a five-pixel hit target. Keep the
+    // visible grip small but give mouse/touch a reliable interaction surface.
+    handle.style.height='16px';handle.style.left='22%';handle.style.right='22%';handle.style.bottom='-3px';handle.style.zIndex='6';handle.style.touchAction='none';
+    handle.addEventListener('pointerdown',event=>{
+      if(event.button!==0)return;
+      event.preventDefault();event.stopPropagation();
+      try{handle.setPointerCapture(event.pointerId);}catch{}
+      card.classList.add('is-resizing');
+      const startY=event.clientY,start=visit.estimatedMinutes||60;let current=start;
+      const move=(e:PointerEvent)=>{e.preventDefault();current=normaliseDuration(start+Math.round((e.clientY-startY)/8)*15);card.querySelector<HTMLElement>('.visit-card-footer b')!.textContent=`${current} min`;card.style.setProperty('--visit-height',`${Math.max(48,Math.min(110,48+Math.max(0,current-60)/15*3))}px`);};
+      const end=(e?:PointerEvent)=>{off();card.classList.remove('is-resizing');if(e){try{handle.releasePointerCapture(e.pointerId);}catch{}}if(current!==visit.estimatedMinutes)void onResize({visitId:visit.id,estimatedMinutes:current});};
+      const cancel=(e:PointerEvent)=>{off();card.classList.remove('is-resizing');try{handle.releasePointerCapture(e.pointerId);}catch{}card.querySelector<HTMLElement>('.visit-card-footer b')!.textContent=duration;card.style.setProperty('--visit-height',`${Math.max(48,Math.min(110,48+Math.max(0,visit.estimatedMinutes-60)/15*3))}px`);};
+      const off=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);window.removeEventListener('pointercancel',cancel);};
+      window.addEventListener('pointermove',move,{passive:false});window.addEventListener('pointerup',end,{once:true});window.addEventListener('pointercancel',cancel,{once:true});
+    });
+  }
   return card;
 }
 
@@ -198,4 +208,4 @@ function teamColour(index:number){return TEAM_COLOURS[index%TEAM_COLOURS.length]
 function applyTeamColour(el:HTMLElement,theme:{accent:string;soft:string}):void{el.style.setProperty('--team-accent',theme.accent);el.style.setProperty('--team-soft',theme.soft);}
 
 function shortId(value:string):string{const text=String(value||'');return text.length<=8?text:text.slice(-8);}
-function esc(v:string):string{return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]??ch));}
+function esc(v:string):string{return String(v).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]??ch));}
