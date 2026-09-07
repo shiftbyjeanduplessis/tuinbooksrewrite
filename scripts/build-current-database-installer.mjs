@@ -24,9 +24,10 @@ const order=[
   'APPLY-R25-SCHEDULE-BASKET.sql',
   // Final recovery authority proven against the 7 Sep QA stress failures.
   'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql',
-  // Conditional: preserves repaired R29/R30 finance behavior when that newer
-  // live quote-prepayment layer is present; otherwise leaves R27 unchanged.
+  // Conditional: preserve repaired R29/R30 behavior when that newer live
+  // quote-prepayment layer is present; otherwise leave R27 unchanged.
   'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql',
+  'APPLY-R31-LIVE-R30-BILLING-READ.sql',
 ];
 
 for(const name of order){
