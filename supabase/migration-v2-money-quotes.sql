@@ -1,6 +1,7 @@
 -- TuinBooks v2 Milestone 7: Quotes + Billing authority.
 -- Canonical source. Re-runnable against an existing v2 database.
--- Quote, invoice, payment and visit-billing rules live here.
+-- This file is intentionally run once in the base install and again after R24
+-- so the final database keeps R24 access functions but uses these finance rules.
 begin;
 
 create table if not exists public.quote_lines_v2(
@@ -38,18 +39,21 @@ create table if not exists public.invoice_lines_v2(
  primary key(business_id,invoice_id,id),
  foreign key(business_id,invoice_id) references public.invoices(business_id,id) on delete cascade
 );
--- A quoted visit can legitimately create several invoice lines. Duplicate
--- prevention is therefore visit-to-invoice authority, not a unique line index.
+alter table public.quote_lines_v2 add column if not exists discount_percent numeric(6,3) not null default 0 check(discount_percent between 0 and 100);
+alter table public.invoice_lines_v2 add column if not exists discount_percent numeric(6,3) not null default 0 check(discount_percent between 0 and 100);
 drop index if exists public.invoice_lines_v2_visit_unique;
 create index if not exists invoice_lines_v2_visit_idx on public.invoice_lines_v2(business_id,source_visit_id) where source_visit_id is not null;
 
+-- One visit may produce several invoice lines (for example a two-line quote),
+-- so duplicate prevention is a visit-to-invoice link rather than a unique line.
+-- This shape exactly matches migration-v2-release-completion.sql.
 create table if not exists public.invoice_visit_links_v2(
  business_id uuid not null references public.businesses(id) on delete cascade,
- source_visit_id text not null,
  invoice_id text not null,
- category text not null default 'work',
+ visit_id text not null,
  created_at timestamptz not null default now(),
- primary key(business_id,source_visit_id),
+ primary key(business_id,invoice_id,visit_id),
+ unique(business_id,visit_id),
  foreign key(business_id,invoice_id) references public.invoices(business_id,id) on delete cascade
 );
 create index if not exists invoice_visit_links_v2_invoice_idx on public.invoice_visit_links_v2(business_id,invoice_id);
@@ -95,10 +99,10 @@ returns jsonb language plpgsql stable set search_path=public as $$
 declare v jsonb;
 begin
  if p_kind='quote' then
-   select jsonb_agg(jsonb_build_object('id',id,'description',description,'quantity',quantity,'unitPrice',unit_price,'vatRate',vat_rate,'sourceVisitId',source_visit_id,'sourceQuoteId',source_quote_id,'category',category) order by position,id)
+   select jsonb_agg(jsonb_build_object('id',id,'description',description,'quantity',quantity,'unitPrice',unit_price,'vatRate',vat_rate,'discountPercent',discount_percent,'sourceVisitId',source_visit_id,'sourceQuoteId',source_quote_id,'category',category) order by position,id)
    into v from public.quote_lines_v2 where business_id=p_business_id and quote_id=p_document_id;
  else
-   select jsonb_agg(jsonb_build_object('id',id,'description',description,'quantity',quantity,'unitPrice',unit_price,'vatRate',vat_rate,'sourceVisitId',source_visit_id,'sourceQuoteId',source_quote_id,'category',category) order by position,id)
+   select jsonb_agg(jsonb_build_object('id',id,'description',description,'quantity',quantity,'unitPrice',unit_price,'vatRate',vat_rate,'discountPercent',discount_percent,'sourceVisitId',source_visit_id,'sourceQuoteId',source_quote_id,'category',category) order by position,id)
    into v from public.invoice_lines_v2 where business_id=p_business_id and invoice_id=p_document_id;
  end if;
  return coalesce(v,case when jsonb_typeof(p_fallback->'lines')='array' then p_fallback->'lines' when jsonb_typeof(p_fallback->'lineItems')='array' then p_fallback->'lineItems' else '[]'::jsonb end);
@@ -106,10 +110,9 @@ end$$;
 
 create or replace function public.tuinbooks_v2_client_monthly_billing(p_business_id uuid,p_client_id text)
 returns boolean language plpgsql stable set search_path=public as $$
-declare v_basis text;v_amount text;
+declare v_basis text;
 begin
- select lower(coalesce(c.payload#>>'{v2Billing,billingBasis}','')),coalesce(c.payload#>>'{v2Billing,billingAmount}','')
- into v_basis,v_amount from public.customers c where c.business_id=p_business_id and c.id=p_client_id;
+ select lower(coalesce(c.payload#>>'{v2Billing,billingBasis}','')) into v_basis from public.customers c where c.business_id=p_business_id and c.id=p_client_id;
  if v_basis like '%month%' then return true;end if;
  if exists(select 1 from public.client_service_agreements_v2 a where a.business_id=p_business_id and a.client_id=p_client_id and a.status='active' and a.monthly_fee is not null) then return true;end if;
  return false;
@@ -139,14 +142,14 @@ end$$;
 create or replace function public.tuinbooks_v2_visit_already_invoiced(p_business_id uuid,p_visit_id text,p_client_id text,p_visit_date date,p_visit_type text)
 returns boolean language plpgsql stable set search_path=public as $$
 begin
- if exists(select 1 from public.invoice_visit_links_v2 l where l.business_id=p_business_id and l.source_visit_id=p_visit_id) then return true;end if;
- -- Legacy invoices created before visit links were introduced remain authoritative.
- if exists(select 1 from public.invoice_lines_v2 l where l.business_id=p_business_id and l.source_visit_id=p_visit_id) then return true;end if;
- -- A monthly routine fee covers the month, not only whichever visit happened to
- -- be used as the source line when the invoice was created.
+ if exists(select 1 from public.invoice_visit_links_v2 l join public.invoices i on i.business_id=l.business_id and i.id=l.invoice_id where l.business_id=p_business_id and l.visit_id=p_visit_id and lower(i.status) not in('void','credited')) then return true;end if;
+ -- Backward compatibility for invoices created before link authority existed.
+ if exists(select 1 from public.invoice_lines_v2 l join public.invoices i on i.business_id=l.business_id and i.id=l.invoice_id where l.business_id=p_business_id and l.source_visit_id=p_visit_id and lower(i.status) not in('void','credited')) then return true;end if;
+ -- A monthly routine fee is month authority, not only authority for the one
+ -- visit that happened to become its visible source line.
  if p_visit_type='routine' and public.tuinbooks_v2_client_monthly_billing(p_business_id,p_client_id) and exists(
    select 1 from public.invoices i join public.invoice_lines_v2 l on l.business_id=i.business_id and l.invoice_id=i.id
-   where i.business_id=p_business_id and i.client_id=p_client_id and i.invoice_month=to_char(p_visit_date,'YYYY-MM') and i.status not in('Void','Credited') and l.category='routine'
+   where i.business_id=p_business_id and i.client_id=p_client_id and i.invoice_month=to_char(p_visit_date,'YYYY-MM') and lower(i.status) not in('void','credited') and l.category='routine'
  ) then return true;end if;
  return false;
 end$$;
@@ -193,7 +196,8 @@ begin
  delete from public.quote_lines_v2 where business_id=p_business_id and quote_id=p_quote_id;
  for r in select * from jsonb_array_elements(coalesce(p_lines,'[]')) loop
    n:=n+1;
-   insert into public.quote_lines_v2 values(p_business_id,p_quote_id,coalesce(nullif(r->>'id',''),'line-'||n),n,coalesce(r->>'description',''),coalesce((r->>'quantity')::numeric,1),coalesce((r->>'unitPrice')::numeric,0),coalesce((r->>'vatRate')::numeric,0),nullif(r->>'sourceVisitId',''),nullif(r->>'sourceQuoteId',''),coalesce(nullif(r->>'category',''),'manual'),now(),now());
+   insert into public.quote_lines_v2(business_id,quote_id,id,position,description,quantity,unit_price,vat_rate,source_visit_id,source_quote_id,category,created_at,updated_at,discount_percent)
+   values(p_business_id,p_quote_id,coalesce(nullif(r->>'id',''),'line-'||n),n,coalesce(r->>'description',''),coalesce((r->>'quantity')::numeric,1),coalesce((r->>'unitPrice')::numeric,0),coalesce((r->>'vatRate')::numeric,0),nullif(r->>'sourceVisitId',''),nullif(r->>'sourceQuoteId',''),coalesce(nullif(r->>'category',''),'manual'),now(),now(),greatest(0,least(100,coalesce((r->>'discountPercent')::numeric,0))));
  end loop;
 end$$;
 
@@ -201,16 +205,13 @@ create or replace function public.tuinbooks_v2_replace_invoice_lines(p_business_
 returns void language plpgsql security definer set search_path=public as $$
 declare r jsonb;n integer:=0;
 begin
- delete from public.invoice_visit_links_v2 where business_id=p_business_id and invoice_id=p_invoice_id;
  delete from public.invoice_lines_v2 where business_id=p_business_id and invoice_id=p_invoice_id;
  for r in select * from jsonb_array_elements(coalesce(p_lines,'[]')) loop
    n:=n+1;
-   insert into public.invoice_lines_v2 values(p_business_id,p_invoice_id,coalesce(nullif(r->>'id',''),'line-'||n),n,coalesce(r->>'description',''),coalesce((r->>'quantity')::numeric,1),coalesce((r->>'unitPrice')::numeric,0),coalesce((r->>'vatRate')::numeric,0),nullif(r->>'sourceVisitId',''),nullif(r->>'sourceQuoteId',''),coalesce(nullif(r->>'category',''),'manual'),now(),now());
+   insert into public.invoice_lines_v2(business_id,invoice_id,id,position,description,quantity,unit_price,vat_rate,source_visit_id,source_quote_id,category,created_at,updated_at,discount_percent)
+   values(p_business_id,p_invoice_id,coalesce(nullif(r->>'id',''),'line-'||n),n,coalesce(r->>'description',''),coalesce((r->>'quantity')::numeric,1),coalesce((r->>'unitPrice')::numeric,0),coalesce((r->>'vatRate')::numeric,0),nullif(r->>'sourceVisitId',''),nullif(r->>'sourceQuoteId',''),coalesce(nullif(r->>'category',''),'manual'),now(),now(),greatest(0,least(100,coalesce((r->>'discountPercent')::numeric,0))));
+   if nullif(r->>'sourceVisitId','') is not null then insert into public.invoice_visit_links_v2(business_id,invoice_id,visit_id) values(p_business_id,p_invoice_id,r->>'sourceVisitId') on conflict do nothing;end if;
  end loop;
- insert into public.invoice_visit_links_v2(business_id,source_visit_id,invoice_id,category)
- select p_business_id,source_visit_id,p_invoice_id,min(category)
- from public.invoice_lines_v2 where business_id=p_business_id and invoice_id=p_invoice_id and source_visit_id is not null
- group by source_visit_id;
 end$$;
 
 create or replace function public.tuinbooks_v2_save_quote(p_business_id uuid,p_quote_id text,p_client_id text,p_quote_date date,p_valid_until date,p_status text,p_number text,p_lines jsonb,p_notes text)
@@ -232,7 +233,7 @@ begin
 end$$;
 
 create or replace function public.tuinbooks_v2_set_quote_status(p_business_id uuid,p_quote_id text,p_status text)
-returns void language plpgsql security definer set search_path=public as $$
+returns void language plpgsql security definer set search_path=public,auth as $$
 begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
  if p_status not in('Draft','Sent','Accepted','Declined','Expired','Cancelled') then raise exception 'Invalid quote status';end if;
@@ -247,7 +248,8 @@ begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
  select * into q from public.quotes where business_id=p_business_id and id=p_quote_id and status='Accepted';
  if not found then raise exception 'Only accepted quotes can be sent to Basket';end if;
- select string_agg(description,', '),coalesce(sum(quantity*unit_price),0),coalesce(sum(quantity*unit_price*vat_rate/100),0) into desc_text,subtotal,vat_amount from public.quote_lines_v2 where business_id=p_business_id and quote_id=p_quote_id;
+ select string_agg(description,', '),coalesce(sum(quantity*unit_price*(1-discount_percent/100)),0),coalesce(sum(quantity*unit_price*(1-discount_percent/100)*vat_rate/100),0)
+ into desc_text,subtotal,vat_amount from public.quote_lines_v2 where business_id=p_business_id and quote_id=p_quote_id;
  total:=subtotal+vat_amount;
  insert into public.schedule_queue_items_v2(business_id,id,client_id,estimated_minutes,item_type,billing_disposition,reason,status,payload,created_by,updated_by)
  values(p_business_id,qid,q.client_id,0,'quoted','quoted','Accepted quote','open',jsonb_build_object('sourceQuoteId',p_quote_id,'task',coalesce(desc_text,'Quoted work'),'quotedSubtotal',round(subtotal,2),'quotedVat',round(vat_amount,2),'quotedTotal',round(total,2),'visitType','quoted','billingDisposition','quoted'),auth.uid(),auth.uid())
@@ -262,15 +264,20 @@ begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
  if not public.tuinbooks_v2_financials_enabled(p_business_id) then raise exception 'Billing is disabled in Planning-only mode';end if;
  if p_status not in('Draft','Ready','Sent','Paid','Partially paid','Overdue','Credited','Void') then raise exception 'Invalid invoice status';end if;
+ if p_due_date<p_issue_date then raise exception 'Due date cannot be before invoice date';end if;
  select status into old_status from public.invoices where business_id=p_business_id and id=p_invoice_id for update;
  if old_status is not null and old_status not in('Draft','Ready') then raise exception 'Issued invoices are immutable; use payment/credit flows instead';end if;
  if trim(coalesce(p_number,''))<>'Draft' and exists(select 1 from public.invoices where business_id=p_business_id and id<>p_invoice_id and invoice_number=trim(p_number)) then raise exception 'Invoice number already exists';end if;
- select coalesce(sum(coalesce((r->>'quantity')::numeric,1)*coalesce((r->>'unitPrice')::numeric,0)*(1+coalesce((r->>'vatRate')::numeric,0)/100)),0) into total from jsonb_array_elements(coalesce(p_lines,'[]')) r;
+ select coalesce(sum(coalesce((r->>'quantity')::numeric,1)*coalesce((r->>'unitPrice')::numeric,0)*(1-greatest(0,least(100,coalesce((r->>'discountPercent')::numeric,0)))/100)*(1+coalesce((r->>'vatRate')::numeric,0)/100)),0) into total from jsonb_array_elements(coalesce(p_lines,'[]')) r;
  payload=jsonb_build_object('issueDate',p_issue_date,'dueDate',p_due_date,'notes',coalesce(p_notes,''),'lines',coalesce(p_lines,'[]'::jsonb),'v2Document',true);
  insert into public.invoices(business_id,id,client_id,invoice_month,invoice_number,status,total,payload,created_by)
  values(p_business_id,p_invoice_id,p_client_id,p_invoice_month,coalesce(nullif(trim(p_number),''),'Draft'),p_status,round(total,2),payload,auth.uid())
- on conflict(business_id,id) do update set client_id=excluded.client_id,invoice_month=excluded.invoice_month,status=excluded.status,total=excluded.total,payload=excluded.payload,updated_at=now();
+ on conflict(business_id,id) do update set client_id=excluded.client_id,invoice_month=excluded.invoice_month,invoice_number=excluded.invoice_number,status=excluded.status,total=excluded.total,payload=excluded.payload,updated_at=now();
  perform public.tuinbooks_v2_replace_invoice_lines(p_business_id,p_invoice_id,p_lines);
+ delete from public.invoice_visit_links_v2 l using public.schedule_jobs j
+ where l.business_id=p_business_id and l.invoice_id=p_invoice_id and j.business_id=l.business_id and j.id=l.visit_id
+   and not exists(select 1 from jsonb_array_elements(coalesce(p_lines,'[]')) r where nullif(r->>'sourceVisitId','')=l.visit_id)
+   and not (exists(select 1 from jsonb_array_elements(coalesce(p_lines,'[]')) r where coalesce(r->>'category','')='routine') and lower(coalesce(j.payload->>'visitType',j.payload->>'workKind','routine')) not like '%additional%' and lower(coalesce(j.payload->>'visitType',j.payload->>'revenueType','routine')) not like '%quote%');
  return p_invoice_id;
 end$$;
 
@@ -288,8 +295,7 @@ create or replace function public.tuinbooks_v2_create_invoice_from_facts(p_busin
 returns text language plpgsql security definer set search_path=public,auth as $$
 declare
  inv_id text:='inv-v2-'||replace(gen_random_uuid()::text,'-','');
- lines jsonb:='[]';
- v record;fee numeric;vat numeric:=0;routine_added boolean:=false;monthly_mode boolean:=false;
+ lines jsonb:='[]';v record;fee numeric;vat numeric:=0;routine_added boolean:=false;monthly_mode boolean:=false;eligible_ids text[]:='{}';
  source_quote text;quote_rows jsonb;
 begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
@@ -302,22 +308,26 @@ begin
    select j.*,
     case when lower(coalesce(j.payload->>'visitType',j.payload->>'workKind','')) like '%additional%' then 'additional' when lower(coalesce(j.payload->>'visitType',j.payload->>'revenueType','')) like '%quote%' then 'quoted' else 'routine' end vt,
     coalesce(j.payload->>'billingDisposition','routine') bd
-   from public.schedule_jobs j where j.business_id=p_business_id and j.client_id=p_client_id and j.id=any(p_visit_ids)
+   from public.schedule_jobs j where j.business_id=p_business_id and j.client_id=p_client_id and j.id=any(p_visit_ids) order by j.visit_date,j.id
  loop
    if lower(v.status)='cancelled' and v.bd='no-charge' then continue;end if;
    if public.tuinbooks_v2_visit_already_invoiced(p_business_id,v.id,p_client_id,v.visit_date,v.vt) then raise exception 'Visit % is already invoiced',v.id;end if;
 
-   if v.vt='routine' and (lower(v.status)='completed' or (lower(v.status)='cancelled' and v.bd='charge' and monthly_mode)) then
+   if v.vt='routine' and monthly_mode and (lower(v.status)='completed' or (lower(v.status)='cancelled' and v.bd='charge')) then
      if not routine_added then
        fee:=public.tuinbooks_v2_visit_default_amount(p_business_id,p_client_id,v.payload);
-       if fee is null then raise exception 'Routine billing amount is not configured for this client';end if;
-       lines=lines||jsonb_build_array(jsonb_build_object('id','line-routine-'||p_invoice_month,'description','Routine garden service - '||p_invoice_month,'quantity',1,'unitPrice',fee,'vatRate',vat,'sourceVisitId',v.id,'sourceQuoteId',null,'category','routine'));
+       if fee is null then raise exception 'Routine monthly fee is not configured for this client';end if;
+       lines=lines||jsonb_build_array(jsonb_build_object('id','line-routine-'||p_invoice_month,'description','Routine garden service - '||p_invoice_month,'quantity',1,'unitPrice',fee,'vatRate',vat,'discountPercent',0,'sourceVisitId',v.id,'sourceQuoteId',null,'category','routine'));
        routine_added:=true;
      end if;
+   elsif v.vt='routine' and lower(v.status)='completed' then
+     fee:=public.tuinbooks_v2_visit_default_amount(p_business_id,p_client_id,v.payload);
+     if fee is null then raise exception 'Routine per-visit billing amount is not configured for visit %',v.id;end if;
+     lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description','Routine garden service','quantity',1,'unitPrice',fee,'vatRate',vat,'discountPercent',0,'sourceVisitId',v.id,'sourceQuoteId',null,'category','routine'));
    elsif v.vt='quoted' then
      source_quote:=nullif(v.payload->>'sourceQuoteId','');quote_rows:=null;
      if source_quote is not null then
-       select jsonb_agg(jsonb_build_object('id','line-'||v.id||'-'||ql.id,'description',ql.description,'quantity',ql.quantity,'unitPrice',ql.unit_price,'vatRate',ql.vat_rate,'sourceVisitId',v.id,'sourceQuoteId',source_quote,'category','quoted') order by ql.position,ql.id)
+       select jsonb_agg(jsonb_build_object('id','line-'||v.id||'-'||ql.id,'description',ql.description,'quantity',ql.quantity,'unitPrice',ql.unit_price,'vatRate',ql.vat_rate,'discountPercent',ql.discount_percent,'sourceVisitId',v.id,'sourceQuoteId',source_quote,'category','quoted') order by ql.position,ql.id)
        into quote_rows from public.quote_lines_v2 ql where ql.business_id=p_business_id and ql.quote_id=source_quote;
      end if;
      if jsonb_typeof(quote_rows)='array' and jsonb_array_length(quote_rows)>0 then
@@ -327,32 +337,24 @@ begin
        elsif coalesce(v.payload->>'billingAmountV2','')~'^[0-9]+([.][0-9]+)?$' then fee=(v.payload->>'billingAmountV2')::numeric;
        elsif coalesce(v.payload->>'quotedTotal','')~'^[0-9]+([.][0-9]+)?$' then fee=round((v.payload->>'quotedTotal')::numeric/(1+vat/100),2);
        else raise exception 'Quoted visit % has no billing amount',v.id;end if;
-       lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description',coalesce(nullif(v.payload->>'task',''),'Quoted work'),'quantity',1,'unitPrice',fee,'vatRate',vat,'sourceVisitId',v.id,'sourceQuoteId',source_quote,'category','quoted'));
+       lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description',coalesce(nullif(v.payload->>'task',''),'Quoted work'),'quantity',1,'unitPrice',fee,'vatRate',vat,'discountPercent',0,'sourceVisitId',v.id,'sourceQuoteId',source_quote,'category','quoted'));
      end if;
-   elsif lower(v.status)='cancelled' and v.bd='charge' and v.vt='routine' then
+   elsif v.vt='routine' and lower(v.status)='cancelled' and v.bd='charge' then
      fee:=public.tuinbooks_v2_visit_default_amount(p_business_id,p_client_id,v.payload);
      if fee is null then raise exception 'Routine billing amount is not configured for chargeable cancellation %',v.id;end if;
-     lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description','Chargeable cancellation','quantity',1,'unitPrice',fee,'vatRate',vat,'sourceVisitId',v.id,'sourceQuoteId',null,'category','cancellation'));
+     lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description','Chargeable cancellation','quantity',1,'unitPrice',fee,'vatRate',vat,'discountPercent',0,'sourceVisitId',v.id,'sourceQuoteId',null,'category','cancellation'));
    else
      -- Additional visits are intentionally priced in Billing after the work is known.
      if not(coalesce(v.payload->>'billingAmountV2','')~'^[0-9]+([.][0-9]+)?$') then raise exception 'Set the Billing amount for visit % before invoicing',v.id;end if;
      fee=(v.payload->>'billingAmountV2')::numeric;
-     lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description',coalesce(nullif(v.payload->>'task',''),'Additional visit'),'quantity',1,'unitPrice',fee,'vatRate',vat,'sourceVisitId',v.id,'sourceQuoteId',null,'category','additional'));
+     lines=lines||jsonb_build_array(jsonb_build_object('id','line-'||v.id,'description',coalesce(nullif(v.payload->>'task',''),'Additional visit'),'quantity',1,'unitPrice',fee,'vatRate',vat,'discountPercent',0,'sourceVisitId',v.id,'sourceQuoteId',null,'category','additional'));
    end if;
+   eligible_ids:=array_append(eligible_ids,v.id);
  end loop;
 
- if jsonb_array_length(lines)=0 then raise exception 'No billable lines were produced from the selected visits';end if;
+ if jsonb_array_length(lines)=0 then raise exception 'No billable work selected';end if;
  perform public.tuinbooks_v2_save_invoice(p_business_id,inv_id,p_client_id,p_invoice_month,p_issue_date,p_due_date,'Draft','Draft',lines,'Created from Billing review');
- -- One monthly fee covers all selected routine occurrences, even though only one
- -- visible invoice line carries the fee.
- if monthly_mode and routine_added then
-   insert into public.invoice_visit_links_v2(business_id,source_visit_id,invoice_id,category)
-   select p_business_id,j.id,inv_id,'routine' from public.schedule_jobs j
-   where j.business_id=p_business_id and j.client_id=p_client_id and j.id=any(p_visit_ids)
-     and not(lower(j.status)='cancelled' and coalesce(j.payload->>'billingDisposition','routine')='no-charge')
-     and case when lower(coalesce(j.payload->>'visitType',j.payload->>'workKind','')) like '%additional%' then 'additional' when lower(coalesce(j.payload->>'visitType',j.payload->>'revenueType','')) like '%quote%' then 'quoted' else 'routine' end='routine'
-   on conflict(business_id,source_visit_id) do nothing;
- end if;
+ insert into public.invoice_visit_links_v2(business_id,invoice_id,visit_id) select p_business_id,inv_id,x from unnest(eligible_ids) x on conflict do nothing;
  return inv_id;
 end$$;
 
@@ -362,8 +364,7 @@ declare inv public.invoices%rowtype;paid numeric;
 begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
  if not public.tuinbooks_v2_financials_enabled(p_business_id) then raise exception 'Billing is disabled in Planning-only mode';end if;
- select * into inv from public.invoices where business_id=p_business_id and id=p_invoice_id for update;
- if not found then raise exception 'Invoice not found';end if;
+ select * into inv from public.invoices where business_id=p_business_id and id=p_invoice_id for update;if not found then raise exception 'Invoice not found';end if;
  if p_amount<=0 then raise exception 'Payment must be positive';end if;
  select coalesce(sum(amount),0) into paid from public.payments_v2 where business_id=p_business_id and invoice_id=p_invoice_id and reversed_at is null;
  if p_amount>inv.total-paid+.01 then raise exception 'Payment exceeds outstanding balance';end if;
@@ -389,20 +390,27 @@ end$$;
 
 create or replace function public.tuinbooks_v2_set_invoice_status(p_business_id uuid,p_invoice_id text,p_status text)
 returns void language plpgsql security definer set search_path=public,auth as $$
-declare inv public.invoices%rowtype;
+declare inv public.invoices%rowtype;v_number text;
 begin
  if not public.tuinbooks_v2_can_financial_edit(p_business_id) then raise exception 'Financial edit access required';end if;
  if not public.tuinbooks_v2_financials_enabled(p_business_id) then raise exception 'Billing is disabled in Planning-only mode';end if;
  if p_status not in('Ready','Sent','Void') then raise exception 'Invalid invoice transition';end if;
- select * into inv from public.invoices where business_id=p_business_id and id=p_invoice_id for update;
- if not found then raise exception 'Invoice not found';end if;
- if inv.status not in('Draft','Ready') then raise exception 'Issued invoices are immutable';end if;
- if p_status='Sent' and coalesce(inv.invoice_number,'Draft')='Draft' then raise exception 'Set an invoice number before sending';end if;
- update public.invoices set status=p_status,updated_at=now(),payload=payload||case when p_status='Sent' then jsonb_build_object('sentAt',now(),'deliveryStatus','Sent') else '{}'::jsonb end where business_id=p_business_id and id=p_invoice_id;
+ select * into inv from public.invoices where business_id=p_business_id and id=p_invoice_id for update;if not found then raise exception 'Invoice not found';end if;
+ if p_status='Ready' then
+   if inv.status not in('Draft','Ready') then raise exception 'Only draft invoices can be marked ready';end if;
+   v_number:=inv.invoice_number;if coalesce(v_number,'Draft')='Draft' then v_number:=public.tuinbooks_v2_next_invoice_number(p_business_id);end if;
+   update public.invoices set status='Ready',invoice_number=v_number,updated_at=now() where business_id=p_business_id and id=p_invoice_id;
+ elsif p_status='Sent' then
+   if inv.status<>'Ready' then raise exception 'Only ready invoices can be sent';end if;if coalesce(inv.invoice_number,'Draft')='Draft' then raise exception 'Invoice number was not assigned';end if;
+   update public.invoices set status='Sent',updated_at=now(),payload=payload||jsonb_build_object('sentAt',now(),'deliveryStatus','Sent') where business_id=p_business_id and id=p_invoice_id;
+ else
+   if inv.status not in('Draft','Ready') then raise exception 'Only unissued invoices can be voided here';end if;
+   update public.invoices set status='Void',updated_at=now() where business_id=p_business_id and id=p_invoice_id;
+   delete from public.invoice_visit_links_v2 where business_id=p_business_id and invoice_id=p_invoice_id;
+ end if;
 end$$;
 
--- Helpers are internal implementation details. Only the public money RPCs below
--- are callable by authenticated clients.
+-- Helpers are implementation details. Only the public money RPCs below are callable.
 revoke all on function public.tuinbooks_v2_money_lines_json(uuid,text,text,jsonb) from public,anon,authenticated;
 revoke all on function public.tuinbooks_v2_client_monthly_billing(uuid,text) from public,anon,authenticated;
 revoke all on function public.tuinbooks_v2_visit_default_amount(uuid,text,jsonb) from public,anon,authenticated;
