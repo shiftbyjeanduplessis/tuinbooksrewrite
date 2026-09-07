@@ -19,10 +19,14 @@ const order=[
   'APPLY-R13-GROUP-DRAG.sql',
   'APPLY-R14-VISIT-DETAIL.sql',
   'APPLY-R24-MINI-STRESS-BLOCKERS.sql',
-  // Intentional final re-run: R24 replaces some finance RPCs. The canonical
-  // money migration is re-runnable and must be the final finance authority.
+  // Intentional final R27 finance re-run: R24 replaces some finance RPCs.
   'migration-v2-money-quotes.sql',
   'APPLY-R25-SCHEDULE-BASKET.sql',
+  // Final recovery authority proven against the 7 Sep QA stress failures.
+  'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql',
+  // Conditional: preserves repaired R29/R30 finance behavior when that newer
+  // live quote-prepayment layer is present; otherwise leaves R27 unchanged.
+  'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql',
 ];
 
 for(const name of order){
@@ -30,7 +34,7 @@ for(const name of order){
   if(!fs.existsSync(file))throw new Error(`Missing canonical migration: ${name}`);
 }
 
-const header=`-- TUINBOOKS CURRENT DATABASE INSTALLER\n-- GENERATED FILE — DO NOT EDIT BY HAND\n-- Source: canonical files listed in supabase/APPLY-ORDER.txt\n-- Generated: ${new Date().toISOString()}\n-- Apply to QA/staging first and stop on the first SQL error.\n\n`;
+const header=`-- TUINBOOKS CURRENT DATABASE INSTALLER\n-- GENERATED FILE — DO NOT EDIT BY HAND\n-- Source: canonical files listed in supabase/APPLY-ORDER.txt\n-- Generated: ${new Date().toISOString()}\n-- Apply to QA/staging first and stop on the first SQL error.\n-- IMPORTANT: a live database with R29/R30 quote-prepayment features is newer than the R27 base; R31 preserves repaired R30 behavior but does not authorize downgrading a newer database with older base SQL.\n\n`;
 const body=order.map((name,index)=>{
   const sql=fs.readFileSync(path.join(supabase,name),'utf8').replace(/^\uFEFF/,'').trim();
   return `-- ============================================================================\n-- STEP ${index+1}: ${name}\n-- ============================================================================\n${sql}\n`;
