@@ -18,6 +18,7 @@ const not=(s,v,label)=>{assert.ok(!s.includes(v),label);checks++;};
 
 not(settings,'Recent activity','Settings must not restore the removed Recent activity feature');
 not(settings,'loadAuditLog','Settings must not execute the removed audit reader');
+not(settingsRepo,'loadAuditLog','Settings repository must not retain the retired audit RPC reader');
 for(const label of ['Services','Teams & capacity','Mobile access','Business details','Billing defaults','Import / Export'])has(settings,label,`Restored Settings missing ${label}`);
 has(settings,'Mobile PINs are not available.','Settings must distinguish a missing PIN contract from No PIN issued');
 has(settingsRepo,'PIN creation did not persist','PIN creation must verify persistence before reporting success');
