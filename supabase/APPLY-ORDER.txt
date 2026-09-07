@@ -18,15 +18,21 @@ CURRENT RELEASE CONTRACT — ALSO REQUIRED
 10. APPLY-R13-GROUP-DRAG.sql
 11. APPLY-R14-VISIT-DETAIL.sql
 12. APPLY-R24-MINI-STRESS-BLOCKERS.sql
-13. migration-v2-money-quotes.sql   [RE-RUN — final finance authority]
+13. migration-v2-money-quotes.sql   [RE-RUN — final R27 finance authority]
 14. APPLY-R25-SCHEDULE-BASKET.sql
+15. APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql
+16. APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql
 
 WHY STEP 13 IS INTENTIONAL
-R24 expands support/financial access and Planning-only enforcement, but it also replaces several money RPCs. The canonical money migration is deliberately re-runnable and is applied again after R24 so the final database keeps R24's access functions while using the current quote, billing, charge-cancellation, VAT and invoice-visit authority. This avoids a deployment whose behaviour depends on which historical SQL happened to run last.
+R24 expands support/financial access and Planning-only enforcement, but it also replaces several money RPCs. The canonical money migration is deliberately re-runnable and is applied again after R24 so the final database keeps R24's access functions while using the R27 quote, billing, charge-cancellation, VAT and invoice-visit authority.
 
-The old statement that INSTALL-V2-CORE.sql alone represents the entire current database contract is no longer valid. It contains the eight base migrations only. A current deployment must follow this complete order.
+WHY STEPS 15–16 ARE FINAL
+The 7 Sep medium stress test exposed two database defects that were being misreported by the UI as missing migrations: permanent PIN generation had an ambiguous team_id conflict target, and secure document creation called pgcrypto without the Supabase extensions schema. R31 makes those repairs authoritative after every earlier migration. The live TuinBooks database also contains a newer R29/R30 quote-prepayment layer that was not present in this repository. Step 16 is deliberately conditional: when that layer exists it preserves the repaired R30 prepayment reconciler and chargeable-routine-cancellation billing semantics; when it does not exist it leaves the R27 finance authority unchanged.
 
-Application source and database RPCs must move together. Do not deploy a new frontend against a database that has only part of this list installed.
+IMPORTANT SOURCE-PARITY NOTE
+The live R29/R30 quote-prepayment feature set predates this recovery branch and was not found in repository history. Step 16 preserves the repaired live behavior but does not pretend that the complete historical R29/R30 feature implementation has been reconstructed here. Do not use an older installer to overwrite a newer production database. Application source and database RPCs must move together.
+
+The old statement that INSTALL-V2-CORE.sql alone represents the entire current database contract is no longer valid. It contains the eight base migrations only.
 
 NOT AUTOMATIC / REVIEW BEFORE RUNNING
 - migration-v2-optional-adopt-legacy-recurrence.sql
