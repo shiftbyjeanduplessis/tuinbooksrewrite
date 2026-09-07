@@ -1,0 +1,15 @@
+TuinBooks v59.6.86 — desktop warm start
+
+UPLOAD THESE FILES WHILE YOU ARE INSIDE THE EXISTING /app FOLDER IN GITHUB:
+- index.html
+- app.js
+- styles.css
+- service-worker.js
+- VERSION.txt
+
+Do not upload an app folder inside /app. Do not upload these at repository root.
+No SQL. No Management files.
+
+After Render is Live, verify:
+https://www.tuinbooks.garden/app/VERSION.txt
+must show: 59.6.86-desktop-warm-start

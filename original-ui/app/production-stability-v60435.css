@@ -1,0 +1,160 @@
+/* TuinBooks v60.4.35 — isolated production stability guard.
+   Presentation only. Does not alter data, billing logic, scheduler records or management state. */
+
+/* Schedule drop targets must be invisible unless an actual drag is in progress. */
+body:not(.schedule-drag-active) #view-schedule .schedule-insert-zone-v58930{
+  height:0!important;
+  min-height:0!important;
+  margin:0 4px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow:hidden!important;
+}
+body:not(.schedule-drag-active) #view-schedule .schedule-insert-zone-v58930 span{
+  display:none!important;
+  opacity:0!important;
+}
+
+/* Restore the floating basket launcher even if an older layout layer leaked through. */
+#scheduleBasketLauncherV58931.schedule-basket-launcher-v58931:not(.hidden){
+  position:fixed!important;
+  right:0!important;
+  left:auto!important;
+  top:170px!important;
+  bottom:auto!important;
+  z-index:1190!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:7px!important;
+  padding:10px 9px 10px 12px!important;
+  border:1px solid #8eb6a5!important;
+  border-right:0!important;
+  border-radius:13px 0 0 13px!important;
+  background:#1f6f54!important;
+  color:#fff!important;
+  font-weight:900!important;
+  line-height:1!important;
+  box-shadow:0 8px 24px rgba(18,57,44,.20)!important;
+  cursor:pointer!important;
+}
+#scheduleBasketLauncherV58931.schedule-basket-launcher-v58931:not(.hidden) span{
+  display:grid!important;
+  place-items:center!important;
+  min-width:22px!important;
+  height:22px!important;
+  padding:0 5px!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#1f6f54!important;
+  font-size:.70rem!important;
+}
+
+/* Restore the card information control. */
+#view-schedule .schedule-card-info-v58931,
+#view-schedule .basket-card-info-v58931{
+  display:grid!important;
+  place-items:center!important;
+  flex:0 0 auto!important;
+  width:20px!important;
+  height:20px!important;
+  min-width:20px!important;
+  padding:0!important;
+  margin:0!important;
+  border:1px solid #a9c5b9!important;
+  border-radius:999px!important;
+  background:#fff!important;
+  color:#1f6f54!important;
+  font:900 .68rem/1 system-ui,sans-serif!important;
+  cursor:pointer!important;
+  opacity:1!important;
+}
+#view-schedule .schedule-card-info-v58931:hover,
+#view-schedule .basket-card-info-v58931:hover{
+  background:#1f6f54!important;
+  color:#fff!important;
+  border-color:#1f6f54!important;
+}
+
+/* The approved week board must be readable, not a row of clipped labels. */
+#view-schedule .schedule-card-clean.v59384-card{
+  grid-template-columns:16px minmax(0,1fr) 20px!important;
+  min-height:56px!important;
+  height:max(var(--card-height,56px),56px)!important;
+  padding:6px 6px 9px 5px!important;
+  overflow:hidden!important;
+}
+#view-schedule .schedule-card-clean.v59384-card .schedule-card-copy{
+  min-width:0!important;
+  overflow:hidden!important;
+}
+#view-schedule .schedule-card-clean.v59384-card strong{
+  display:-webkit-box!important;
+  -webkit-box-orient:vertical!important;
+  -webkit-line-clamp:2!important;
+  white-space:normal!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  line-height:1.16!important;
+  font-size:.73rem!important;
+  max-height:1.75rem!important;
+}
+#view-schedule .schedule-card-clean.v59384-card .schedule-card-meta{
+  display:flex!important;
+  min-width:0!important;
+  gap:4px!important;
+}
+#view-schedule .schedule-card-clean.v59384-card .schedule-card-suburb{
+  min-width:0!important;
+  flex:1 1 auto!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#view-schedule .v59384-card-meta-right{
+  flex:0 0 auto!important;
+  max-width:55%!important;
+}
+
+/* Make the basket usable if it is opened. */
+#scheduleParkingLotV5537.schedule-basket-panel-v58930.floating-v58931:not(.hidden){
+  position:fixed!important;
+  top:112px!important;
+  right:16px!important;
+  left:auto!important;
+  width:min(370px,calc(100vw - 32px))!important;
+  max-height:calc(100vh - 128px)!important;
+  z-index:1200!important;
+}
+
+/* Keep the eight-week strip usable on ordinary laptop widths. */
+#view-schedule .rolling-week-strip{
+  overflow-x:auto!important;
+  overscroll-behavior-inline:contain!important;
+  scrollbar-width:thin!important;
+}
+#view-schedule .rolling-week-card{
+  min-width:118px!important;
+}
+
+/* Generic billing containment: prevent panels/tables from blowing out of the viewport. */
+#view-billing,
+#view-billing .panel,
+#view-billing .billing-workspace,
+#view-billing .billing-main,
+#view-billing .billing-content{
+  min-width:0!important;
+  max-width:100%!important;
+}
+#view-billing table{
+  max-width:100%!important;
+}
+#view-billing .table-wrap,
+#view-billing .billing-table-wrap{
+  overflow-x:auto!important;
+  max-width:100%!important;
+}
+
+@media(max-width:900px){
+  #scheduleBasketLauncherV58931.schedule-basket-launcher-v58931:not(.hidden){top:auto!important;bottom:18px!important}
+}

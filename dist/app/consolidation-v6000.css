@@ -1,0 +1,16 @@
+/* TuinBooks v60 consolidation canary shell.  This file intentionally does not
+   replace production page styling yet; it only marks the isolated canary. */
+body::before{
+  content:'CONSOLIDATION CANARY — NOT THE LIVE APP';
+  position:fixed;left:50%;top:0;transform:translateX(-50%);z-index:2147483647;
+  padding:5px 12px;border-radius:0 0 9px 9px;background:#7c2d12;color:#fff;
+  font:800 11px/1.2 system-ui,sans-serif;letter-spacing:.05em;box-shadow:0 2px 8px rgba(0,0,0,.18);
+  pointer-events:none;
+}
+body{padding-top:22px}
+.tuinbooks-canary-status-v6000{
+  position:fixed;right:10px;bottom:10px;z-index:2147483646;background:#fff;border:1px solid #cbd5e1;
+  border-radius:10px;padding:8px 10px;font:700 11px/1.3 system-ui,sans-serif;color:#334155;
+  box-shadow:0 4px 16px rgba(15,23,42,.12);max-width:min(420px,calc(100vw - 20px));
+}
+.tuinbooks-canary-status-v6000 strong{color:#7c2d12}

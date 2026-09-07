@@ -1,0 +1,8 @@
+ACTIVE SCHEDULE REFERENCES
+<link rel="stylesheet" href="schedule-foundation.css?v=59.6.9-quote-status-acceptance-cleanup">
+<link rel="stylesheet" href="schedule-exact-canary-v6035.css?v=60.3.5-exact-v6011-calendar-production">
+<script src="schedule-read-v60522.js?v=60.5.22"></script>
+<script src="schedule-exact-canary-v6035.js?v=60.5.9-clean-schedule-drag-scope"></script>
+<script src="schedule-card-clean-v6060.js?v=60.6.0-schedule-card-clean-late-fix"></script>
+<script src="schedule-drag-mode-v6061.js?v=60.7.45-drag-toggle-single-owner"></script>
+<script src="schedule-drag-basket-v6066.js?v=60.7.46-long-sticky-basket"></script>

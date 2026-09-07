@@ -1,0 +1,17 @@
+TuinBooks v60.3.7 — literal v60.0.11 canary promotion
+
+WHY THIS RELEASE EXISTS
+The repository proves the tested v60.0.11 page is consolidation-v6011.html.
+That page loaded app-consolidated-v6007.js, then stability-repair-v59694.js,
+consolidation-v6004.js and consolidation-v6011.js. The v6011 Schedule wrapper
+explicitly uses renderScheduleConsolidatedV6002 as its visual base.
+
+This release starts production index.html from the literal v60.0.11 canary HTML,
+keeps that exact Schedule chain/order, then adds only the already-approved Work,
+Billing, Management-view lock and production rolling engine.
+
+It also updates the stale service worker, which was still advertising v60.3.4 /
+v60.3.5 assets in the uploaded repository.
+
+NO SQL REQUIRED.
+Upload all contents of this package inside /app.

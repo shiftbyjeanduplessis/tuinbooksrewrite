@@ -1,0 +1,22 @@
+TuinBooks v60.2.1 — Work compact evidence production refinement
+
+Upload these files inside /app, preserving filenames:
+- index.html
+- service-worker.js
+- VERSION.txt
+- work-consolidated-v6021.js
+- work-consolidated-v6021.css
+
+No SQL migration is required.
+No Management files are changed.
+The v60.1.0 consolidated Schedule remains untouched.
+
+Work behaviour in this refinement:
+1. Keeps the single Today-by-team percentage summary at the top.
+2. Keeps Today grouped by team.
+3. Keeps previous workdays grouped date -> team.
+4. Restores the compact yellow/green expandable job-card design.
+5. Each job shows a one-line summary of actual work/planned work while collapsed.
+6. Completed work shows task completion count and photo count while collapsed.
+7. Expanding a job shows full task outcomes, field note, extras and job-photo thumbnails.
+8. No duplicate Today-at-a-glance / old Work history blocks.

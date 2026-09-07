@@ -1,6 +1,6 @@
 import { cp, copyFile, mkdir, writeFile } from 'node:fs/promises';
 
-async function copyAppTree(dir, htmlFile) {
+async function copyRewriteTree(dir, htmlFile) {
   await mkdir(dir, { recursive: true });
   await mkdir(`${dir}/vendor`, { recursive: true });
   await copyFile(htmlFile, `${dir}/index.html`);
@@ -10,23 +10,24 @@ async function copyAppTree(dir, htmlFile) {
   await cp('dist/assets', `${dir}/assets`, { recursive: true });
 }
 
-await copyAppTree('dist/app', 'index.html');
-await copyFile('mobile.html', 'dist/app/mobile.html');
-await copyFile('accept.html', 'dist/app/accept.html');
-await copyFile('document.html', 'dist/app/document.html');
+// R18: the established TuinBooks office product is again the production /app.
+// Do not rebuild its presentation from the stripped rewrite shell.
+await mkdir('dist/app', { recursive: true });
+await cp('original-ui/app', 'dist/app', { recursive: true });
 
-// Preserve the established TuinBooks Management product instead of the stripped v2 shell.
+// Keep the TypeScript rewrite intact, but isolate it from production UI authority
+// until feature-by-feature parity is verified. This prevents another bare-shell cutover.
+await copyRewriteTree('dist/rewrite', 'index.html');
+await copyFile('mobile.html', 'dist/rewrite/mobile.html');
+await copyFile('accept.html', 'dist/rewrite/accept.html');
+await copyFile('document.html', 'dist/rewrite/document.html');
+
+// Preserve established Management exactly.
 await mkdir('dist/management', { recursive: true });
 await copyFile('original-ui/management/index.html', 'dist/management/index.html');
 await copyFile('original-ui/management/management.css', 'dist/management/management.css');
 await copyFile('original-ui/management/management.js', 'dist/management/management.js');
 await copyFile('original-ui/management/VERSION.txt', 'dist/management/VERSION.txt');
-await cp('dist/assets', 'dist/management/assets', { recursive: true });
-
-// Original Management references these app-level Supabase files.
-await copyFile('original-ui/app/supabase-config.js', 'dist/app/supabase-config.js');
-await mkdir('dist/app/vendor', { recursive: true });
-await copyFile('original-ui/app/vendor/supabase.js', 'dist/app/vendor/supabase.js');
 
 await writeFile('dist/index.html', `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=/app/"><title>TuinBooks</title></head><body><p><a href="/app/">Open TuinBooks</a></p></body></html>\n`);
-console.log('TUINBOOKS UI-RESTORED RELEASE R17: parity candidate + admin audit history reader published to /management/ + /app/.');
+console.log('TUINBOOKS UI-RESTORED RELEASE R18: full established office UI published to /app/; rewrite isolated at /rewrite/.');

@@ -1,0 +1,170 @@
+--- /mnt/data/tb64/TUINBOOKS-main/app/app.js	2026-08-30 21:28:29.000000000 +0000
++++ /mnt/data/TUINBOOKS-BASKET-FIX/app/app.js	2026-08-31 04:29:29.373264340 +0000
+@@ -8010,11 +8010,6 @@
+   drawer.className='schedule-queue-drawer';
+   drawer.innerHTML=`<header><div><span class="eyebrow">Unplaced work</span><h2>${count} job${count===1?'':'s'} to place</h2></div><button type="button" class="icon-button" onclick="closeScheduleQueue()" aria-label="Close unplaced work">×</button></header>${count>6?`<input class="control" value="${esc(scheduleQueueSearch)}" oninput="setScheduleQueueSearch(this.value)" placeholder="Search client or suburb">`:''}<div class="schedule-queue-list">${items.map(item=>item.type==='single'?queueCard(item.rows[0]):`<section class="schedule-queue-estate" draggable="true" ondragstart="startEstateDrag(event,'${esc(item.name)}')" ondragend="endScheduleDrag()"><header><strong>${esc(item.name)}</strong><span>${item.rows.length} sites · ${formatScheduleDuration(item.rows.reduce((sum,row)=>sum+Number(row.estimatedMinutes||0),0)/60)}</span></header>${item.rows.map(queueCard).join('')}</section>`).join('')||'<div class="schedule-queue-empty">No matching unplaced work.</div>'}</div>`;
+ }
+-window.openScheduleQueue=function(){scheduleQueueOpen=true;renderScheduleQueue();};
+-window.closeScheduleQueue=function(){scheduleQueueOpen=false;scheduleQueueSearch='';renderScheduleQueue();};
+-window.setScheduleQueueSearch=function(value){scheduleQueueSearch=value||'';renderScheduleQueue();};
+-window.openScheduleParkingDrawerV5538=window.openScheduleQueue;
+-window.closeScheduleParkingDrawerV5538=window.closeScheduleQueue;
+ 
+ function scheduleDragData(event){
+   if(activeScheduleDrag)return activeScheduleDrag;
+@@ -8290,7 +8285,7 @@
+     const end=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);};window.addEventListener('pointermove',move);window.addEventListener('pointerup',end,{once:true});
+   };
+ }
+-const legacyRenderScheduleQueuePreV58929=function renderScheduleQueue(){
++const legacyRenderScheduleQueuePreV58929=function legacyRenderScheduleQueuePreV58929Impl(){
+   const drawer=$('scheduleParkingLotV5537');if(!drawer)return;if(!scheduleQueueOpen){drawer.classList.add('hidden');drawer.innerHTML='';return;}
+   const dates=scheduleWeekDates(),rows=scheduleUnplacedRows(dates).filter(row=>!scheduleQueueSearch||`${row.client?.name||''} ${row.client?.suburb||''} ${row.reason||''}`.toLowerCase().includes(scheduleQueueSearch.toLowerCase())),missed=rows.filter(row=>row.queueSource!=='could-not-fit'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');
+   drawer.className='schedule-queue-drawer schedule-queue-draggable-v5544';if(scheduleQueuePositionV5544.left!==null){drawer.style.left=`${scheduleQueuePositionV5544.left}px`;drawer.style.top=`${scheduleQueuePositionV5544.top}px`;drawer.style.right='auto';}
+@@ -8787,7 +8782,7 @@
+   };
+ };
+ window.toggleScheduleQueueMinimisedV5546=function(){scheduleQueueMinimisedV5546=!scheduleQueueMinimisedV5546;renderScheduleQueue();};
+-function renderScheduleQueue(){
++function renderScheduleQueueLegacyV5546(){
+   const drawer=$('scheduleParkingLotV5537');if(!drawer)return;if(!scheduleQueueOpen){drawer.classList.add('hidden');drawer.innerHTML='';return;}
+   loadQueuePositionV5546();const dates=scheduleWeekDates(),allRows=scheduleUnplacedRows(dates),rows=allRows.filter(row=>!scheduleQueueSearch||`${row.client?.name||''} ${row.client?.suburb||''} ${row.reason||''} ${row.quote?.id||''} ${quoteDescriptionV5546(row.quote||{})}`.toLowerCase().includes(scheduleQueueSearch.toLowerCase())),catchups=rows.filter(row=>row.queueSource==='missed-unresolved'||row.queueSource==='catchup-waiting'),quotes=rows.filter(row=>row.queueSource==='accepted-quote'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');
+   drawer.className=`schedule-queue-drawer schedule-queue-draggable-v5544 schedule-work-queue-v5546${scheduleQueueMinimisedV5546?' minimised':''}`;
+@@ -11552,7 +11547,17 @@
+   const client=row.client||{},marker=row.workMarker||workMarkerForQueueV5546(row),services=(row.serviceIds||[]).map(id=>serviceByIdV55?.(id)?.name||serviceByIdV55?.(id)?.shortLabel).filter(Boolean),sourceDate=row.basketItem?.originalDate||row.catchupRow?.job?.date||row.overflowItem?.originalDate||row.outstandingDate||'',duration=formatScheduleDuration(Number(row.estimatedMinutes||60)/60);
+   dialog.innerHTML=`<form method="dialog" class="dialog-shell"><div class="dialog-heading"><div><span class="eyebrow">${esc(queueLabelV58930(row))}</span><h2>${esc(scheduleClientName(client))}</h2></div><button class="icon-button" value="cancel" aria-label="Close">×</button></div><div class="basket-info-grid-v58931"><div><span>Type</span><strong>${marker==='R'?'Recurring visit':'Once-off work'}</strong></div><div><span>Duration</span><strong>${esc(duration)}</strong></div><div><span>Area</span><strong>${esc(scheduleClientSuburb(client)||'Not set')}</strong></div><div><span>Original / received</span><strong>${esc(sourceDate?fmtDate(sourceDate):'Not recorded')}</strong></div></div><section class="basket-info-section-v58931"><h3>Work</h3><p>${esc(services.join(', ')||row.reason||'Garden service')}</p></section>${row.reason?`<section class="basket-info-section-v58931"><h3>Why it is in the basket</h3><p>${esc(row.reason)}</p></section>`:''}<div class="dialog-actions"><button class="button secondary" value="cancel">Close</button><button class="button" value="cancel" onclick="toast('Drag this card onto the required team, day and position.')">Place by dragging</button></div></form>`;dialog.showModal();
+ };
+-renderScheduleQueue=function renderScheduleBasketV58931(){
++function renderScheduleQueue(){
++  // Final Schedule Basket renderer. Keep all basket data/state work inside the
++  // main app closure so scheduleUnplacedRowsV58930 and scheduleQueueOpen are
++  // always the canonical bindings used by the renderer.
++  projectOperationalScheduleV59330();
++  const atomicChanged=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();
++  if(atomicChanged){
++    try{saveLocalBaseV28?.();queueOperationalSyncV41?.();}catch(error){console.error(error);}
++  }
++  dedupeAcceptedQuoteBasketV58945({persist:true});
++
+   const drawer=$('scheduleParkingLotV5537'),launcher=$('scheduleBasketLauncherV58931');if(!drawer)return;
+   const all=scheduleUnplacedRowsV58930(),reviewCount=missedReviewRowsV58930().length,term=scheduleBasketSearchV58930.toLowerCase().trim(),rows=all.filter(row=>!term||`${scheduleClientName(row.client)} ${scheduleClientSuburb(row.client)} ${row.reason||''} ${queueLabelV58930(row)}`.toLowerCase().includes(term)),catchup=rows.filter(row=>row.queueSource==='catchup-waiting'),once=rows.filter(row=>['accepted-quote','manual-basket','stored-unscheduled'].includes(row.queueSource)&&(row.workMarker||workMarkerForQueueV5546(row))==='O'),recurring=rows.filter(row=>['manual-basket','stored-unscheduled'].includes(row.queueSource)&&(row.workMarker||workMarkerForQueueV5546(row))==='R'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');
+   const tabCount=$('scheduleBasketTabCountV58930');if(tabCount)tabCount.textContent=all.length;const launchCount=$('scheduleBasketLauncherCountV58931');if(launchCount)launchCount.textContent=all.length;const needsCount=$('needsReviewCountV58930');if(needsCount)needsCount.textContent=reviewCount;
+@@ -11562,9 +11567,9 @@
+   drawer.innerHTML=`<header class="schedule-basket-head-v58930 schedule-queue-move-handle"><div><span class="eyebrow">Drag this window to move it</span><h2>Schedule basket <span>${all.length}</span></h2></div><div class="schedule-basket-window-actions-v58931"><button type="button" class="icon-button" onclick="toggleScheduleBasketMinimisedV58931()" aria-label="${scheduleBasketMinimisedV58931?'Expand':'Minimise'} Schedule basket">${scheduleBasketMinimisedV58931?'□':'—'}</button><button type="button" class="icon-button" onclick="closeScheduleQueue()" aria-label="Close Schedule basket">×</button></div></header><div class="schedule-basket-body-v58931"><div class="schedule-basket-drop-hint-v58930">Drop here to unschedule safely</div>${all.length>5?`<input class="control" value="${esc(scheduleBasketSearchV58930)}" oninput="setScheduleQueueSearch(this.value)" placeholder="Search basket">`:''}<div class="schedule-basket-groups-v58930">${basketGroupV58930('Catch-up',catchup)}${basketGroupV58930('Once-off work',once)}${basketGroupV58930('Recurring work',recurring)}${basketGroupV58930('Could not fit',overflow)}${rows.length?'':'<div class="ui-empty compact">The basket is empty.</div>'}</div></div>`;
+   loadQueuePositionV5546?.();if(Number.isFinite(scheduleQueuePositionV5544?.left)&&Number.isFinite(scheduleQueuePositionV5544?.top)){scheduleQueuePositionV5544=clampQueuePositionV5546(drawer,scheduleQueuePositionV5544.left,scheduleQueuePositionV5544.top);applyQueuePositionV5546?.(drawer,scheduleQueuePositionV5544);}
+   enableQueueDragV5544?.(drawer);
+-};
+-window.openScheduleQueue=function(){scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;renderScheduleQueue();};
+-window.closeScheduleQueue=function(){scheduleQueueOpen=false;renderScheduleQueue();};
++}
++window.openScheduleQueue=function(){scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;document.body?.classList.add('v6007-basket-open');renderScheduleQueue();};
++window.closeScheduleQueue=function(){scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;document.body?.classList.remove('v6007-basket-open');renderScheduleQueue();};
+ window.toggleScheduleBasketMinimisedV58931=function(){scheduleBasketMinimisedV58931=!scheduleBasketMinimisedV58931;renderScheduleQueue();};
+ window.setScheduleQueueSearch=function(value){scheduleBasketSearchV58930=value||'';renderScheduleQueue();};
+ window.openScheduleParkingDrawerV5538=window.openScheduleQueue;window.closeScheduleParkingDrawerV5538=window.closeScheduleQueue;
+@@ -13223,8 +13228,6 @@
+ window.moveScheduleJobToBasketV58931=moveScheduleJobToBasketV58931;
+ window.moveMissedJobToBasketV58931=moveScheduleJobToBasketV58931;
+ 
+-const renderScheduleQueueBaseV58945=renderScheduleQueue;
+-renderScheduleQueue=function renderScheduleQueueV58945(){dedupeAcceptedQuoteBasketV58945({persist:true});return renderScheduleQueueBaseV58945();};
+ 
+ function initialiseAcceptedQuoteQueueConsumptionV58945(){
+   dedupeAcceptedQuoteBasketV58945({persist:true});
+@@ -13390,8 +13393,6 @@
+ const repairOperationalStateForSyncBaseV58946=repairOperationalStateForSyncV5604;
+ repairOperationalStateForSyncV5604=function repairOperationalStateForSyncV58946(){const base=repairOperationalStateForSyncBaseV58946();return collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946()||base;};
+ 
+-const renderScheduleQueueBaseV58946=renderScheduleQueue;
+-renderScheduleQueue=function renderScheduleQueueV58946(){const changed=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();if(changed){try{saveLocalBaseV28?.();queueOperationalSyncV41?.();}catch(error){console.error(error);}}return renderScheduleQueueBaseV58946();};
+ 
+ function initialiseAtomicBasketIdentityV58946(){
+   const changed=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();
+@@ -16999,14 +17000,6 @@
+   return result;
+ };
+ 
+-if (typeof renderScheduleQueue === 'function') {
+-  const renderScheduleQueueBaseV59330 = renderScheduleQueue;
+-  renderScheduleQueue = function renderScheduleQueueV59330() {
+-    projectOperationalScheduleV59330();
+-    return renderScheduleQueueBaseV59330();
+-  };
+-}
+-
+ function installManualScheduleProjectionV59330() {
+   projectOperationalScheduleV59330();
+   if (activeView === 'schedule') renderSchedule();
+@@ -27497,7 +27490,7 @@
+   try{selectedScheduleDetailV23=null;}catch(_){ }
+   $('scheduleDetailPanel')?.classList.add('hidden');
+   try{if($('teamDayDetailDialog')?.open)$('teamDayDetailDialog').close();}catch(_){ }
+-  try{scheduleQueueOpen=false;renderScheduleQueue();}catch(_){ }
++  try{window.closeScheduleQueue?.();}catch(_){ }
+   document.body.classList.remove('schedule-zoom-open');
+ }
+ function renderScheduleConsolidatedV6006(){
+@@ -27570,29 +27563,12 @@
+ }
+ 
+ function forceScheduleBasketClosedV6007(){
+-  try{scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;}catch(_){ }
++  try{window.closeScheduleQueue?.();}catch(_){ }
+   document.body.classList.remove('v6007-basket-open');
+   const drawer=$('scheduleParkingLotV5537');if(drawer){drawer.classList.add('hidden');drawer.innerHTML='';}
+-  // v60.7.34: closed means the compact Basket launcher/tag remains visible.
+   $('scheduleBasketLauncherV58931')?.classList.remove('hidden');
+ }
+ 
+-window.openScheduleQueue=function openScheduleQueueV6007(){
+-  try{scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;}catch(_){ }
+-  document.body.classList.add('v6007-basket-open');
+-  try{renderScheduleQueue();}catch(error){console.warn('[TuinBooks v60.0.7] basket open',error);}
+-};
+-window.closeScheduleQueue=function closeScheduleQueueV60726(){
+-  try{scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;}catch(_){ }
+-  document.body.classList.remove('v6007-basket-open');
+-  // Use the canonical basket renderer for the closed state. It hides the large
+-  // drawer and restores the compact Basket launcher/tag instead of removing both.
+-  try{renderScheduleQueue();}catch(_){
+-    const drawer=$('scheduleParkingLotV5537');if(drawer){drawer.classList.add('hidden');drawer.innerHTML='';}
+-    const launcher=$('scheduleBasketLauncherV58931');if(launcher)launcher.classList.remove('hidden');
+-  }
+-};
+-
+ // Make recurring-move scope visible after any genuine recurring drag move. The
+ // existing drop path may already open the dialog; this fallback only fires when
+ // it did not.
+@@ -27629,9 +27605,8 @@
+   $('scheduleDetailPanel')?.classList.add('hidden');
+   try{if($('teamDayDetailDialog')?.open)$('teamDayDetailDialog').close();}catch(_){ }
+ 
+-  // v60.7.34: Schedule rendering must never reset the user's Basket choice.
+-  // scheduleQueueOpen is authoritative: false = compact launcher/tag, true = full basket.
+-  const basketOpenV60734=(()=>{try{return !!scheduleQueueOpen;}catch(_){return false;}})();
++  // Basket open/closed state is owned inside the main app closure by the
++  // canonical openScheduleQueue / closeScheduleQueue implementation.
+ 
+   const picker=$('scheduleWeekPicker');
+   if(picker){const clamped=scheduleClampWeekV6001(picker.value||scheduleCurrentWeekV6001());if(picker.value!==clamped)picker.value=clamped;}
+@@ -27648,17 +27623,13 @@
+   }
+   try{renderRollingScheduleOverviewV6007();}catch(error){console.warn('[TuinBooks v60.7.34] Schedule overview render deferred',error);}
+ 
+-  // Restore exactly the Basket state that existed before this render.
+-  try{
+-    scheduleQueueOpen=basketOpenV60734;
+-    renderScheduleQueue();
+-    if(!basketOpenV60734)$('scheduleBasketLauncherV58931')?.classList.remove('hidden');
+-  }catch(error){console.warn('[TuinBooks v60.7.34] Basket render deferred',error);}
++  // Re-render the Basket without attempting to rewrite its closure-private state.
++  try{renderScheduleQueue();}catch(error){console.warn('[TuinBooks v60.7.34] Basket render deferred',error);}
+ 
+   loadScheduleActionsV6005(false).then(()=>{
+     try{renderScheduleCompactBoardV6007();$('weeklyScheduleBoard')?.classList.remove('hidden');}catch(error){console.warn('[TuinBooks v60.7.34] Calendar action refresh deferred',error);}
+     try{renderRollingScheduleOverviewV6007();}catch(error){console.warn('[TuinBooks v60.7.34] Schedule overview refresh deferred',error);}
+-    try{scheduleQueueOpen=basketOpenV60734;renderScheduleQueue();if(!basketOpenV60734)$('scheduleBasketLauncherV58931')?.classList.remove('hidden');}catch(_){ }
++    try{renderScheduleQueue();}catch(_){ }
+   }).catch(()=>{});
+   document.documentElement.dataset.scheduleRenderer='v6007';
+   window.__tuinbooksScheduleConsolidationV6007={build:'60.7.34-schedule-authority-repair',totalScheduleJobs:(state.schedules||[]).length,teams:(state.teams||[]).length,actions:scheduleActionsV6005.length,renderedAt:new Date().toISOString()};

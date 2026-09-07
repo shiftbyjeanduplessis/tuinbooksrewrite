@@ -1,0 +1,22 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TuinBooks Schedule V2</title><link rel="stylesheet" href="schedule-v2.css?v=60.8.1"></head><body>
+<div id="app">
+  <div class="topbar">
+    <div class="nav-group"><button class="btn" id="prevBtn">‹ Previous week</button><button class="btn" id="todayBtn">Today</button><button class="btn" id="nextBtn">Next week ›</button></div>
+    <span class="week-label" id="weekLabel">—</span>
+    <div class="spacer"></div>
+    <button class="btn" id="refreshRolling" title="Maintain the next 8 weeks">Refresh 8 weeks</button>
+    <button class="btn" id="addNote">+ Day note</button><button class="btn" id="addEvent">+ Event</button>
+    <div class="mode-group"><span class="mode-label">Move:</span><button class="btn active" id="scopeOnce">This visit only</button><button class="btn" id="scopeFuture">This &amp; future visits</button><button class="btn" id="finishBtn">Rearrange</button></div>
+    <span class="save-state" id="saveState">Loading…</span>
+  </div>
+  <div class="horizon" id="horizon"></div>
+  <div class="workspace">
+    <aside class="basket-panel" id="basketPanel"><div class="basket-head"><div><h2>Schedule basket</h2><span><b id="basketTitleCount">0</b> items · drag onto a team/day</span></div></div><input class="basket-search" id="basketSearch" placeholder="Search basket"><div class="basket-list" id="basketList"></div></aside>
+    <main class="calendar-shell" id="calendar"></main>
+  </div>
+  <button class="basket-strip" id="basketStrip">BASKET <span id="basketCount">0</span></button>
+  <div class="drawer-backdrop" id="drawerBackdrop"><aside class="drawer"><div class="basket-head"><div><h2>Schedule basket</h2><span>Work waiting to be placed</span></div><button class="drawer-close" id="drawerClose" aria-label="Close">×</button></div><input class="basket-search" id="drawerSearch" placeholder="Search basket"><div class="basket-list" id="drawerBasketList"></div></aside></div>
+  <aside class="side-panel" id="sidePanel"><div class="side-head"><h3 id="detailTitle">Visit</h3><button class="drawer-close" id="closeDetail">×</button></div><div class="side-body" id="detailBody"></div></aside>
+  <div class="modal-backdrop" id="actionModal"><form class="modal" id="actionForm"><h3 id="actionTitle">Add item</h3><div class="form-grid"><label>Team<select id="actionTeam" required></select></label><label>Date<input id="actionDate" type="date" required></label><label class="full">Title<input id="actionName" placeholder="Short label"></label><label class="full">Details<textarea id="actionDetail" placeholder="Instruction or event details"></textarea></label><label id="actionTimeWrap">Time<input id="actionTime" type="time"></label></div><div class="modal-actions"><button class="btn" type="button" id="actionCancel">Cancel</button><button class="btn primary" type="submit">Save</button></div></form></div>
+  <div class="loading" id="loading">Loading Schedule V2…</div><div class="build">SCHEDULE V2 · 60.8.1</div>
+</div><script src="schedule-v2.js?v=60.8.1"></script></body></html>

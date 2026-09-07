@@ -1,0 +1,48 @@
+TuinBooks v60.1.0 — CONSOLIDATED SCHEDULE PRODUCTION
+
+UPLOAD LOCATION
+- Upload the CONTENTS of this ZIP directly inside the existing /app folder.
+- Do not upload to repo root.
+- Do not touch /management.
+- After GitHub upload, Render -> Manual Deploy -> Deploy latest commit.
+
+VERSION CHECK
+https://www.tuinbooks.garden/app/VERSION.txt
+Expected: 60.1.0-schedule-consolidated-production
+
+PROMOTED CALENDAR BEHAVIOUR
+- Compact team/week calendar tested in the v60 canary.
+- Previous 4 weeks remain available as history.
+- Current + next 7 weeks are the operational rolling horizon.
+- Canonical rolling engine is LIVE again and automatically maintains 8 weeks.
+- + Note and + Event live on each current/future team/day.
+- Day instructions persist via tuinbooks_save_operational_action_v6011.
+- Day instruction appears first on the field mobile route.
+- Ad-hoc events are non-client calendar items and create no billing.
+- Recurring drag move retains This visit only / This + future visits scope.
+- Schedule basket retains the existing queue/basket path, including accepted post-pay service quote jobs.
+
+NOT CHANGED
+- Management app files.
+- Client login/auth flow.
+- Quotes/Billing business logic.
+- Existing Work page logic from v59.6.98 baseline.
+
+DATABASE PREREQUISITE
+- tuinbooks_save_operational_action_v6011(uuid,jsonb,uuid) must be installed.
+  This was installed and the v60.0.11A save fix was confirmed working before promotion.
+
+FIRST SMOKE TESTS
+1. VERSION.txt = expected version.
+2. Management -> Stepping Stones -> Open workspace.
+3. Schedule loads compact week with real jobs.
+4. Previous week and Next week work.
+5. + Note saves and appears before jobs.
+6. + Event saves as a non-client calendar item.
+7. Basket opens/closes normally.
+8. Move one safe recurring test visit and confirm scope question appears.
+9. Mobile: saved Day instruction appears first on the route.
+10. Confirm far-end schedule is extended automatically toward the 8-week horizon.
+
+ROLLBACK
+Use ROLLBACK-INSIDE-APP-v59.6.98-BEFORE-v60.1.0.zip inside /app.

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TuinBooks main64 Basket Fix</title>
+<style>
+body{font-family:system-ui,Arial,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#18231d}
+.card{border:1px solid #d6e0da;border-radius:14px;padding:22px;box-shadow:0 6px 24px #0001}
+h1{font-size:24px;margin-top:0}.muted{color:#65716a}button{padding:12px 18px;border:0;border-radius:9px;background:#176a49;color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}input{display:block;margin:18px 0}pre{background:#f5f7f6;padding:14px;border-radius:9px;white-space:pre-wrap;max-height:320px;overflow:auto}.ok{color:#126a42;font-weight:700}.bad{color:#a02323;font-weight:700}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>TuinBooks Basket Fix — main (64)</h1>
+<p>This tool applies only the already-reviewed Basket consolidation diff to <b>/app/app.js</b>. It does not touch any other file.</p>
+<p class="muted">Choose the untouched app.js from TUINBOOKS-main (64). The tool refuses to generate a file if any patch hunk does not match exactly.</p>
+<input id="file" type="file" accept=".js,text/javascript">
+<button id="apply" disabled>Apply fix and download app.js</button>
+<pre id="log">Waiting for app.js…</pre>
+</div>
+<script>
+const DIFF="--- /mnt/data/tb64/TUINBOOKS-main/app/app.js\t2026-08-30 21:28:29.000000000 +0000\n+++ /mnt/data/TUINBOOKS-BASKET-FIX/app/app.js\t2026-08-31 04:29:29.373264340 +0000\n@@ -8010,11 +8010,6 @@\n   drawer.className='schedule-queue-drawer';\n   drawer.innerHTML=`<header><div><span class=\"eyebrow\">Unplaced work</span><h2>${count} job${count===1?'':'s'} to place</h2></div><button type=\"button\" class=\"icon-button\" onclick=\"closeScheduleQueue()\" aria-label=\"Close unplaced work\">\u00d7</button></header>${count>6?`<input class=\"control\" value=\"${esc(scheduleQueueSearch)}\" oninput=\"setScheduleQueueSearch(this.value)\" placeholder=\"Search client or suburb\">`:''}<div class=\"schedule-queue-list\">${items.map(item=>item.type==='single'?queueCard(item.rows[0]):`<section class=\"schedule-queue-estate\" draggable=\"true\" ondragstart=\"startEstateDrag(event,'${esc(item.name)}')\" ondragend=\"endScheduleDrag()\"><header><strong>${esc(item.name)}</strong><span>${item.rows.length} sites \u00b7 ${formatScheduleDuration(item.rows.reduce((sum,row)=>sum+Number(row.estimatedMinutes||0),0)/60)}</span></header>${item.rows.map(queueCard).join('')}</section>`).join('')||'<div class=\"schedule-queue-empty\">No matching unplaced work.</div>'}</div>`;\n }\n-window.openScheduleQueue=function(){scheduleQueueOpen=true;renderScheduleQueue();};\n-window.closeScheduleQueue=function(){scheduleQueueOpen=false;scheduleQueueSearch='';renderScheduleQueue();};\n-window.setScheduleQueueSearch=function(value){scheduleQueueSearch=value||'';renderScheduleQueue();};\n-window.openScheduleParkingDrawerV5538=window.openScheduleQueue;\n-window.closeScheduleParkingDrawerV5538=window.closeScheduleQueue;\n \n function scheduleDragData(event){\n   if(activeScheduleDrag)return activeScheduleDrag;\n@@ -8290,7 +8285,7 @@\n     const end=()=>{window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',end);};window.addEventListener('pointermove',move);window.addEventListener('pointerup',end,{once:true});\n   };\n }\n-const legacyRenderScheduleQueuePreV58929=function renderScheduleQueue(){\n+const legacyRenderScheduleQueuePreV58929=function legacyRenderScheduleQueuePreV58929Impl(){\n   const drawer=$('scheduleParkingLotV5537');if(!drawer)return;if(!scheduleQueueOpen){drawer.classList.add('hidden');drawer.innerHTML='';return;}\n   const dates=scheduleWeekDates(),rows=scheduleUnplacedRows(dates).filter(row=>!scheduleQueueSearch||`${row.client?.name||''} ${row.client?.suburb||''} ${row.reason||''}`.toLowerCase().includes(scheduleQueueSearch.toLowerCase())),missed=rows.filter(row=>row.queueSource!=='could-not-fit'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');\n   drawer.className='schedule-queue-drawer schedule-queue-draggable-v5544';if(scheduleQueuePositionV5544.left!==null){drawer.style.left=`${scheduleQueuePositionV5544.left}px`;drawer.style.top=`${scheduleQueuePositionV5544.top}px`;drawer.style.right='auto';}\n@@ -8787,7 +8782,7 @@\n   };\n };\n window.toggleScheduleQueueMinimisedV5546=function(){scheduleQueueMinimisedV5546=!scheduleQueueMinimisedV5546;renderScheduleQueue();};\n-function renderScheduleQueue(){\n+function renderScheduleQueueLegacyV5546(){\n   const drawer=$('scheduleParkingLotV5537');if(!drawer)return;if(!scheduleQueueOpen){drawer.classList.add('hidden');drawer.innerHTML='';return;}\n   loadQueuePositionV5546();const dates=scheduleWeekDates(),allRows=scheduleUnplacedRows(dates),rows=allRows.filter(row=>!scheduleQueueSearch||`${row.client?.name||''} ${row.client?.suburb||''} ${row.reason||''} ${row.quote?.id||''} ${quoteDescriptionV5546(row.quote||{})}`.toLowerCase().includes(scheduleQueueSearch.toLowerCase())),catchups=rows.filter(row=>row.queueSource==='missed-unresolved'||row.queueSource==='catchup-waiting'),quotes=rows.filter(row=>row.queueSource==='accepted-quote'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');\n   drawer.className=`schedule-queue-drawer schedule-queue-draggable-v5544 schedule-work-queue-v5546${scheduleQueueMinimisedV5546?' minimised':''}`;\n@@ -11552,7 +11547,17 @@\n   const client=row.client||{},marker=row.workMarker||workMarkerForQueueV5546(row),services=(row.serviceIds||[]).map(id=>serviceByIdV55?.(id)?.name||serviceByIdV55?.(id)?.shortLabel).filter(Boolean),sourceDate=row.basketItem?.originalDate||row.catchupRow?.job?.date||row.overflowItem?.originalDate||row.outstandingDate||'',duration=formatScheduleDuration(Number(row.estimatedMinutes||60)/60);\n   dialog.innerHTML=`<form method=\"dialog\" class=\"dialog-shell\"><div class=\"dialog-heading\"><div><span class=\"eyebrow\">${esc(queueLabelV58930(row))}</span><h2>${esc(scheduleClientName(client))}</h2></div><button class=\"icon-button\" value=\"cancel\" aria-label=\"Close\">\u00d7</button></div><div class=\"basket-info-grid-v58931\"><div><span>Type</span><strong>${marker==='R'?'Recurring visit':'Once-off work'}</strong></div><div><span>Duration</span><strong>${esc(duration)}</strong></div><div><span>Area</span><strong>${esc(scheduleClientSuburb(client)||'Not set')}</strong></div><div><span>Original / received</span><strong>${esc(sourceDate?fmtDate(sourceDate):'Not recorded')}</strong></div></div><section class=\"basket-info-section-v58931\"><h3>Work</h3><p>${esc(services.join(', ')||row.reason||'Garden service')}</p></section>${row.reason?`<section class=\"basket-info-section-v58931\"><h3>Why it is in the basket</h3><p>${esc(row.reason)}</p></section>`:''}<div class=\"dialog-actions\"><button class=\"button secondary\" value=\"cancel\">Close</button><button class=\"button\" value=\"cancel\" onclick=\"toast('Drag this card onto the required team, day and position.')\">Place by dragging</button></div></form>`;dialog.showModal();\n };\n-renderScheduleQueue=function renderScheduleBasketV58931(){\n+function renderScheduleQueue(){\n+  // Final Schedule Basket renderer. Keep all basket data/state work inside the\n+  // main app closure so scheduleUnplacedRowsV58930 and scheduleQueueOpen are\n+  // always the canonical bindings used by the renderer.\n+  projectOperationalScheduleV59330();\n+  const atomicChanged=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();\n+  if(atomicChanged){\n+    try{saveLocalBaseV28?.();queueOperationalSyncV41?.();}catch(error){console.error(error);}\n+  }\n+  dedupeAcceptedQuoteBasketV58945({persist:true});\n+\n   const drawer=$('scheduleParkingLotV5537'),launcher=$('scheduleBasketLauncherV58931');if(!drawer)return;\n   const all=scheduleUnplacedRowsV58930(),reviewCount=missedReviewRowsV58930().length,term=scheduleBasketSearchV58930.toLowerCase().trim(),rows=all.filter(row=>!term||`${scheduleClientName(row.client)} ${scheduleClientSuburb(row.client)} ${row.reason||''} ${queueLabelV58930(row)}`.toLowerCase().includes(term)),catchup=rows.filter(row=>row.queueSource==='catchup-waiting'),once=rows.filter(row=>['accepted-quote','manual-basket','stored-unscheduled'].includes(row.queueSource)&&(row.workMarker||workMarkerForQueueV5546(row))==='O'),recurring=rows.filter(row=>['manual-basket','stored-unscheduled'].includes(row.queueSource)&&(row.workMarker||workMarkerForQueueV5546(row))==='R'),overflow=rows.filter(row=>row.queueSource==='could-not-fit');\n   const tabCount=$('scheduleBasketTabCountV58930');if(tabCount)tabCount.textContent=all.length;const launchCount=$('scheduleBasketLauncherCountV58931');if(launchCount)launchCount.textContent=all.length;const needsCount=$('needsReviewCountV58930');if(needsCount)needsCount.textContent=reviewCount;\n@@ -11562,9 +11567,9 @@\n   drawer.innerHTML=`<header class=\"schedule-basket-head-v58930 schedule-queue-move-handle\"><div><span class=\"eyebrow\">Drag this window to move it</span><h2>Schedule basket <span>${all.length}</span></h2></div><div class=\"schedule-basket-window-actions-v58931\"><button type=\"button\" class=\"icon-button\" onclick=\"toggleScheduleBasketMinimisedV58931()\" aria-label=\"${scheduleBasketMinimisedV58931?'Expand':'Minimise'} Schedule basket\">${scheduleBasketMinimisedV58931?'\u25a1':'\u2014'}</button><button type=\"button\" class=\"icon-button\" onclick=\"closeScheduleQueue()\" aria-label=\"Close Schedule basket\">\u00d7</button></div></header><div class=\"schedule-basket-body-v58931\"><div class=\"schedule-basket-drop-hint-v58930\">Drop here to unschedule safely</div>${all.length>5?`<input class=\"control\" value=\"${esc(scheduleBasketSearchV58930)}\" oninput=\"setScheduleQueueSearch(this.value)\" placeholder=\"Search basket\">`:''}<div class=\"schedule-basket-groups-v58930\">${basketGroupV58930('Catch-up',catchup)}${basketGroupV58930('Once-off work',once)}${basketGroupV58930('Recurring work',recurring)}${basketGroupV58930('Could not fit',overflow)}${rows.length?'':'<div class=\"ui-empty compact\">The basket is empty.</div>'}</div></div>`;\n   loadQueuePositionV5546?.();if(Number.isFinite(scheduleQueuePositionV5544?.left)&&Number.isFinite(scheduleQueuePositionV5544?.top)){scheduleQueuePositionV5544=clampQueuePositionV5546(drawer,scheduleQueuePositionV5544.left,scheduleQueuePositionV5544.top);applyQueuePositionV5546?.(drawer,scheduleQueuePositionV5544);}\n   enableQueueDragV5544?.(drawer);\n-};\n-window.openScheduleQueue=function(){scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;renderScheduleQueue();};\n-window.closeScheduleQueue=function(){scheduleQueueOpen=false;renderScheduleQueue();};\n+}\n+window.openScheduleQueue=function(){scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;document.body?.classList.add('v6007-basket-open');renderScheduleQueue();};\n+window.closeScheduleQueue=function(){scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;document.body?.classList.remove('v6007-basket-open');renderScheduleQueue();};\n window.toggleScheduleBasketMinimisedV58931=function(){scheduleBasketMinimisedV58931=!scheduleBasketMinimisedV58931;renderScheduleQueue();};\n window.setScheduleQueueSearch=function(value){scheduleBasketSearchV58930=value||'';renderScheduleQueue();};\n window.openScheduleParkingDrawerV5538=window.openScheduleQueue;window.closeScheduleParkingDrawerV5538=window.closeScheduleQueue;\n@@ -13223,8 +13228,6 @@\n window.moveScheduleJobToBasketV58931=moveScheduleJobToBasketV58931;\n window.moveMissedJobToBasketV58931=moveScheduleJobToBasketV58931;\n \n-const renderScheduleQueueBaseV58945=renderScheduleQueue;\n-renderScheduleQueue=function renderScheduleQueueV58945(){dedupeAcceptedQuoteBasketV58945({persist:true});return renderScheduleQueueBaseV58945();};\n \n function initialiseAcceptedQuoteQueueConsumptionV58945(){\n   dedupeAcceptedQuoteBasketV58945({persist:true});\n@@ -13390,8 +13393,6 @@\n const repairOperationalStateForSyncBaseV58946=repairOperationalStateForSyncV5604;\n repairOperationalStateForSyncV5604=function repairOperationalStateForSyncV58946(){const base=repairOperationalStateForSyncBaseV58946();return collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946()||base;};\n \n-const renderScheduleQueueBaseV58946=renderScheduleQueue;\n-renderScheduleQueue=function renderScheduleQueueV58946(){const changed=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();if(changed){try{saveLocalBaseV28?.();queueOperationalSyncV41?.();}catch(error){console.error(error);}}return renderScheduleQueueBaseV58946();};\n \n function initialiseAtomicBasketIdentityV58946(){\n   const changed=collapseInvalidScheduleDuplicatesV58946()||dedupeAcceptedQuoteBasketAtomicV58946();\n@@ -16999,14 +17000,6 @@\n   return result;\n };\n \n-if (typeof renderScheduleQueue === 'function') {\n-  const renderScheduleQueueBaseV59330 = renderScheduleQueue;\n-  renderScheduleQueue = function renderScheduleQueueV59330() {\n-    projectOperationalScheduleV59330();\n-    return renderScheduleQueueBaseV59330();\n-  };\n-}\n-\n function installManualScheduleProjectionV59330() {\n   projectOperationalScheduleV59330();\n   if (activeView === 'schedule') renderSchedule();\n@@ -27497,7 +27490,7 @@\n   try{selectedScheduleDetailV23=null;}catch(_){ }\n   $('scheduleDetailPanel')?.classList.add('hidden');\n   try{if($('teamDayDetailDialog')?.open)$('teamDayDetailDialog').close();}catch(_){ }\n-  try{scheduleQueueOpen=false;renderScheduleQueue();}catch(_){ }\n+  try{window.closeScheduleQueue?.();}catch(_){ }\n   document.body.classList.remove('schedule-zoom-open');\n }\n function renderScheduleConsolidatedV6006(){\n@@ -27570,29 +27563,12 @@\n }\n \n function forceScheduleBasketClosedV6007(){\n-  try{scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;}catch(_){ }\n+  try{window.closeScheduleQueue?.();}catch(_){ }\n   document.body.classList.remove('v6007-basket-open');\n   const drawer=$('scheduleParkingLotV5537');if(drawer){drawer.classList.add('hidden');drawer.innerHTML='';}\n-  // v60.7.34: closed means the compact Basket launcher/tag remains visible.\n   $('scheduleBasketLauncherV58931')?.classList.remove('hidden');\n }\n \n-window.openScheduleQueue=function openScheduleQueueV6007(){\n-  try{scheduleQueueOpen=true;scheduleBasketMinimisedV58931=false;}catch(_){ }\n-  document.body.classList.add('v6007-basket-open');\n-  try{renderScheduleQueue();}catch(error){console.warn('[TuinBooks v60.0.7] basket open',error);}\n-};\n-window.closeScheduleQueue=function closeScheduleQueueV60726(){\n-  try{scheduleQueueOpen=false;scheduleBasketMinimisedV58931=false;}catch(_){ }\n-  document.body.classList.remove('v6007-basket-open');\n-  // Use the canonical basket renderer for the closed state. It hides the large\n-  // drawer and restores the compact Basket launcher/tag instead of removing both.\n-  try{renderScheduleQueue();}catch(_){\n-    const drawer=$('scheduleParkingLotV5537');if(drawer){drawer.classList.add('hidden');drawer.innerHTML='';}\n-    const launcher=$('scheduleBasketLauncherV58931');if(launcher)launcher.classList.remove('hidden');\n-  }\n-};\n-\n // Make recurring-move scope visible after any genuine recurring drag move. The\n // existing drop path may already open the dialog; this fallback only fires when\n // it did not.\n@@ -27629,9 +27605,8 @@\n   $('scheduleDetailPanel')?.classList.add('hidden');\n   try{if($('teamDayDetailDialog')?.open)$('teamDayDetailDialog').close();}catch(_){ }\n \n-  // v60.7.34: Schedule rendering must never reset the user's Basket choice.\n-  // scheduleQueueOpen is authoritative: false = compact launcher/tag, true = full basket.\n-  const basketOpenV60734=(()=>{try{return !!scheduleQueueOpen;}catch(_){return false;}})();\n+  // Basket open/closed state is owned inside the main app closure by the\n+  // canonical openScheduleQueue / closeScheduleQueue implementation.\n \n   const picker=$('scheduleWeekPicker');\n   if(picker){const clamped=scheduleClampWeekV6001(picker.value||scheduleCurrentWeekV6001());if(picker.value!==clamped)picker.value=clamped;}\n@@ -27648,17 +27623,13 @@\n   }\n   try{renderRollingScheduleOverviewV6007();}catch(error){console.warn('[TuinBooks v60.7.34] Schedule overview render deferred',error);}\n \n-  // Restore exactly the Basket state that existed before this render.\n-  try{\n-    scheduleQueueOpen=basketOpenV60734;\n-    renderScheduleQueue();\n-    if(!basketOpenV60734)$('scheduleBasketLauncherV58931')?.classList.remove('hidden');\n-  }catch(error){console.warn('[TuinBooks v60.7.34] Basket render deferred',error);}\n+  // Re-render the Basket without attempting to rewrite its closure-private state.\n+  try{renderScheduleQueue();}catch(error){console.warn('[TuinBooks v60.7.34] Basket render deferred',error);}\n \n   loadScheduleActionsV6005(false).then(()=>{\n     try{renderScheduleCompactBoardV6007();$('weeklyScheduleBoard')?.classList.remove('hidden');}catch(error){console.warn('[TuinBooks v60.7.34] Calendar action refresh deferred',error);}\n     try{renderRollingScheduleOverviewV6007();}catch(error){console.warn('[TuinBooks v60.7.34] Schedule overview refresh deferred',error);}\n-    try{scheduleQueueOpen=basketOpenV60734;renderScheduleQueue();if(!basketOpenV60734)$('scheduleBasketLauncherV58931')?.classList.remove('hidden');}catch(_){ }\n+    try{renderScheduleQueue();}catch(_){ }\n   }).catch(()=>{});\n   document.documentElement.dataset.scheduleRenderer='v6007';\n   window.__tuinbooksScheduleConsolidationV6007={build:'60.7.34-schedule-authority-repair',totalScheduleJobs:(state.schedules||[]).length,teams:(state.teams||[]).length,actions:scheduleActionsV6005.length,renderedAt:new Date().toISOString()};\n";
+const $=id=>document.getElementById(id);
+let selected=null;
+$('file').addEventListener('change',e=>{selected=e.target.files?.[0]||null;$('apply').disabled=!selected;$('log').textContent=selected?`Selected: ${selected.name}\nReady to validate.`:'Waiting for app.js…';});
+
+function parseDiff(d){
+  const lines=d.replace(/\r\n/g,'\n').split('\n');
+  const hunks=[]; let i=0;
+  while(i<lines.length){
+    const m=lines[i].match(/^@@ -(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
+    if(!m){i++;continue;}
+    const h={oldStart:+m[1],newStart:+m[3],oldLines:[],newLines:[]}; i++;
+    while(i<lines.length && !lines[i].startsWith('@@ ')){
+      const line=lines[i];
+      if(line.startsWith('--- ')||line.startsWith('+++ ')) break;
+      if(line.startsWith('\\ No newline')){i++;continue;}
+      const tag=line[0], body=line.slice(1);
+      if(tag===' '){h.oldLines.push(body);h.newLines.push(body);}
+      else if(tag==='-') h.oldLines.push(body);
+      else if(tag==='+') h.newLines.push(body);
+      else if(line===''){/* final split artefact */}
+      else throw new Error('Unexpected diff line: '+line);
+      i++;
+    }
+    hunks.push(h);
+  }
+  return hunks;
+}
+function seqAt(lines,seq,pos){
+  if(pos<0||pos+seq.length>lines.length)return false;
+  for(let j=0;j<seq.length;j++)if(lines[pos+j]!==seq[j])return false;
+  return true;
+}
+function findSeq(lines,seq){
+  const hits=[];
+  outer: for(let i=0;i<=lines.length-seq.length;i++){
+    for(let j=0;j<seq.length;j++)if(lines[i+j]!==seq[j])continue outer;
+    hits.push(i); if(hits.length>2)break;
+  }
+  return hits;
+}
+function applyUnifiedDiff(source,diff){
+  const eol=source.includes('\r\n')?'\r\n':'\n';
+  let lines=source.replace(/\r\n/g,'\n').split('\n');
+  const hunks=parseDiff(diff); let offset=0;
+  const messages=[];
+  hunks.forEach((h,idx)=>{
+    let pos=h.oldStart-1+offset;
+    if(!seqAt(lines,h.oldLines,pos)){
+      const hits=findSeq(lines,h.oldLines);
+      if(hits.length!==1) throw new Error(`Patch hunk ${idx+1} did not match uniquely (matches=${hits.length}). No file was generated.`);
+      pos=hits[0];
+    }
+    lines.splice(pos,h.oldLines.length,...h.newLines);
+    offset += h.newLines.length-h.oldLines.length;
+    messages.push(`Hunk ${idx+1}/${hunks.length} applied`);
+  });
+  return {text:lines.join(eol),messages};
+}
+function validateOriginal(t){
+  const required=[
+    "window.openScheduleQueue=function openScheduleQueueV6007()",
+    "renderScheduleQueue=function renderScheduleQueueV58945()",
+    "renderScheduleQueue=function renderScheduleQueueV58946()",
+    "renderScheduleQueue = function renderScheduleQueueV59330()"
+  ];
+  const missing=required.filter(x=>!t.includes(x));
+  if(missing.length) throw new Error('This does not look like the untouched main (64) app.js, or it is already partly modified. Missing marker: '+missing[0]);
+}
+function validateFixed(t){
+  const forbidden=[
+    "window.openScheduleQueue=function openScheduleQueueV6007()",
+    "renderScheduleQueue=function renderScheduleQueueV58945()",
+    "renderScheduleQueue=function renderScheduleQueueV58946()",
+    "renderScheduleQueue = function renderScheduleQueueV59330()"
+  ];
+  const left=forbidden.filter(x=>t.includes(x));
+  if(left.length)throw new Error('Validation failed; obsolete wrapper still present: '+left[0]);
+  if(!t.includes('Final Schedule Basket renderer. Keep all basket data/state work inside the'))throw new Error('Validation failed: consolidated Basket renderer marker missing.');
+  const opens=(t.match(/window\.openScheduleQueue\s*=\s*function/g)||[]).length;
+  if(opens!==1)throw new Error('Validation failed: expected exactly 1 window.openScheduleQueue implementation, found '+opens+'.');
+}
+async function sha256(text){
+  const b=new TextEncoder().encode(text); const h=await crypto.subtle.digest('SHA-256',b);
+  return [...new Uint8Array(h)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+$('apply').addEventListener('click',async()=>{
+  const log=$('log');
+  try{
+    $('apply').disabled=true;
+    const src=await selected.text();
+    validateOriginal(src);
+    const result=applyUnifiedDiff(src,DIFF);
+    validateFixed(result.text);
+    const hash=await sha256(result.text);
+    const blob=new Blob([result.text],{type:'text/javascript;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download='app.js';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    log.innerHTML=`<span class="ok">SUCCESS — corrected app.js downloaded.</span>\n\n${result.messages.join('\n')}\n\nSHA-256: ${hash}\n\nDeploy ONLY this generated file over /app/app.js.`;
+  }catch(err){
+    log.innerHTML=`<span class="bad">STOP — nothing generated.</span>\n\n${String(err.message||err)}`;
+  }finally{$('apply').disabled=!selected;}
+});
+</script>
+</body>
+</html>

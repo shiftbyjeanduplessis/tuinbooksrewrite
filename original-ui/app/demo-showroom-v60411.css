@@ -1,0 +1,77 @@
+/* TuinBooks v60.4.9 — training showroom only */
+.tb-demo-badge-v6049{
+  display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;
+  background:#fff4cc;border:1px solid #e8c75b;color:#6f5610;font-size:11px;font-weight:900;
+  letter-spacing:.08em;text-transform:uppercase;white-space:nowrap
+}
+.tb-demo-tour-btn-v6049{white-space:nowrap}
+.tb-demo-welcome-backdrop-v6049{
+  position:fixed;inset:0;z-index:2147483000;background:rgba(13,32,25,.58);display:grid;place-items:center;padding:22px
+}
+.tb-demo-welcome-v6049{
+  width:min(620px,100%);background:#fff;border-radius:22px;padding:28px;box-shadow:0 26px 80px rgba(0,0,0,.25);color:#17372c
+}
+.tb-demo-welcome-v6049 .tb-demo-logo-v6049{width:160px;max-width:55%;height:auto;margin-bottom:18px}
+.tb-demo-welcome-v6049 h2{font-size:28px;line-height:1.1;margin:0 0 10px}
+.tb-demo-welcome-v6049 p{font-size:16px;line-height:1.55;margin:0;color:#53675f}
+.tb-demo-welcome-v6049 .tb-demo-welcome-points-v6049{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}
+.tb-demo-welcome-v6049 .tb-demo-welcome-points-v6049 div{padding:12px;border:1px solid #dfe8e4;border-radius:14px;background:#f7faf8}
+.tb-demo-welcome-v6049 .tb-demo-welcome-points-v6049 strong{display:block;font-size:18px;color:#1f6f54}
+.tb-demo-welcome-v6049 .tb-demo-welcome-points-v6049 span{font-size:12px;color:#667970}
+.tb-demo-actions-v6049{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;margin-top:22px}
+.tb-demo-tour-card-v6049{
+  position:fixed;right:22px;bottom:22px;z-index:2147483100;width:min(390px,calc(100vw - 28px));
+  background:#fff;border:1px solid #d9e5df;border-radius:18px;box-shadow:0 18px 60px rgba(0,0,0,.24);padding:18px;color:#17372c
+}
+.tb-demo-tour-card-v6049 .tb-demo-step-v6049{font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#1f6f54}
+.tb-demo-tour-card-v6049 h3{font-size:21px;line-height:1.2;margin:7px 0 7px}
+.tb-demo-tour-card-v6049 p{font-size:14px;line-height:1.5;margin:0;color:#52665e}
+.tb-demo-tour-card-v6049 .tb-demo-mobile-box-v6049{margin-top:12px;padding:12px;border-radius:12px;background:#f4f8f6;border:1px solid #dce8e2}
+.tb-demo-tour-card-v6049 .tb-demo-mobile-box-v6049 strong{display:block;font-size:20px;letter-spacing:.08em;color:#17372c;margin-top:4px}
+.tb-demo-tour-nav-v6049{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:16px}
+.tb-demo-tour-nav-v6049>div{display:flex;gap:8px}
+.tb-demo-tour-highlight-v6049{
+  position:relative!important;z-index:2147483050!important;outline:4px solid rgba(230,177,49,.92)!important;
+  outline-offset:5px!important;box-shadow:0 0 0 9999px rgba(13,32,25,.13),0 12px 40px rgba(0,0,0,.22)!important;
+  border-radius:10px!important
+}
+.tb-demo-tour-progress-v6049{height:4px;border-radius:99px;background:#edf2ef;margin-top:13px;overflow:hidden}
+.tb-demo-tour-progress-v6049 i{display:block;height:100%;background:#1f6f54;border-radius:99px}
+.tb-demo-restore-note-v6049{font-size:12px;color:#6b7c74;margin-top:8px}
+@media(max-width:720px){
+ .tb-demo-welcome-v6049{padding:22px}.tb-demo-welcome-v6049 .tb-demo-welcome-points-v6049{grid-template-columns:1fr}
+ .tb-demo-tour-card-v6049{right:14px;bottom:14px}.tb-demo-tour-highlight-v6049{outline-width:3px!important}
+}
+
+.tb-demo-tour-card-v6049{position:fixed}
+.tb-demo-welcome-v6049,.tb-demo-tour-card-v6049{position:relative}
+.tb-demo-close-icon-v60410{position:absolute;top:10px;right:10px;width:32px;height:32px;border:none;border-radius:999px;background:#eef4f1;color:#17372c;font-size:22px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.tb-demo-close-icon-v60410:hover{background:#dde8e3}
+.tb-demo-target-bubble-v60410{position:absolute;z-index:2147483090;background:#17372c;color:#fff;border-radius:16px;padding:14px 16px 14px;box-shadow:0 18px 50px rgba(0,0,0,.28)}
+.tb-demo-target-bubble-v60410 span{display:block;font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#9ad9bd;margin-bottom:4px}
+.tb-demo-target-bubble-v60410 strong{display:block;font-size:18px;line-height:1.2;margin-bottom:6px}
+.tb-demo-target-bubble-v60410 p{margin:0;font-size:13px;line-height:1.4;color:#e7f3ed}
+.tb-demo-target-bubble-v60410 .tb-demo-close-icon-v60410{top:8px;right:8px;background:rgba(255,255,255,.12);color:#fff}
+.tb-demo-target-bubble-v60410 .tb-demo-close-icon-v60410:hover{background:rgba(255,255,255,.2)}
+
+.tb-demo-view-guide-v60411{position:relative;margin:0 0 14px;padding:15px 48px 15px 17px;border:1px solid #b9d8ca;border-left:5px solid #1f6f54;border-radius:15px;background:#f1faf6;color:#17372c;box-shadow:0 5px 20px rgba(23,55,44,.06)}
+.tb-demo-view-guide-v60411>span{display:block;font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase;color:#1f6f54;margin-bottom:3px}
+.tb-demo-view-guide-v60411>strong{display:block;font-size:17px;line-height:1.25;margin-bottom:5px}
+.tb-demo-view-guide-v60411>p{margin:0 0 10px;font-size:13px;line-height:1.45;color:#4c655b;max-width:920px}
+.tb-demo-view-guide-v60411 .tb-demo-close-icon-v60410{top:10px;right:10px}
+.tb-demo-work-summary-v60411{margin:0 0 16px;border:1px solid #d6e5dd;border-radius:17px;background:#fff;padding:18px;box-shadow:0 8px 28px rgba(23,55,44,.07)}
+.tb-demo-work-summary-head-v60411{display:flex;align-items:center;justify-content:space-between;gap:18px}
+.tb-demo-work-summary-head-v60411 span,.tb-demo-photo-strip-v60411>div:first-child>span{display:block;font-size:10px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#1f6f54}
+.tb-demo-work-summary-head-v60411 strong{display:block;font-size:28px;line-height:1.05;margin:4px 0;color:#17372c}
+.tb-demo-work-summary-head-v60411 p{margin:0;color:#5e7169;font-size:13px}
+.tb-demo-progress-ring-v60411{--p:0;width:82px;height:82px;flex:0 0 82px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#1f6f54 calc(var(--p)*1%),#e7efeb 0);position:relative}
+.tb-demo-progress-ring-v60411:after{content:"";position:absolute;inset:9px;border-radius:50%;background:#fff}
+.tb-demo-progress-ring-v60411 b{position:relative;z-index:1;font-size:18px;color:#17372c}
+.tb-demo-team-progress-v60411{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.tb-demo-team-progress-v60411>div{border:1px solid #e0e9e5;border-radius:12px;padding:12px;background:#f9fbfa;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.tb-demo-team-progress-v60411 span{font-weight:800;color:#17372c}.tb-demo-team-progress-v60411 strong{font-size:13px;color:#1f6f54}
+.tb-demo-team-progress-v60411 i{grid-column:1/-1;display:block;height:6px;border-radius:99px;background:#e5eeea;overflow:hidden}.tb-demo-team-progress-v60411 em{display:block;height:100%;background:#1f6f54;border-radius:99px}
+.tb-demo-team-progress-v60411 small{grid-column:1/-1;color:#687b72;font-size:11px}
+.tb-demo-photo-strip-v60411{margin-top:16px;padding-top:14px;border-top:1px solid #e3ebe7}.tb-demo-photo-strip-v60411>div:first-child small{display:block;margin-top:2px;color:#6a7d74}
+.tb-demo-photo-grid-v60411{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:10px}.tb-demo-photo-grid-v60411 img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:11px;border:1px solid #d9e4df}
+@media(max-width:720px){.tb-demo-team-progress-v60411{grid-template-columns:1fr}.tb-demo-photo-grid-v60411{grid-template-columns:repeat(2,1fr)}.tb-demo-progress-ring-v60411{width:68px;height:68px;flex-basis:68px}.tb-demo-work-summary-head-v60411 strong{font-size:23px}}

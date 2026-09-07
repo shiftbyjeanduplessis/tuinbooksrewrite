@@ -1,0 +1,22 @@
+TuinBooks v60.2.0 — Work consolidated production overlay
+
+Upload these files inside /app, preserving filenames:
+- index.html
+- service-worker.js
+- VERSION.txt
+- work-consolidated-v6020.js
+- work-consolidated-v6020.css
+
+No SQL migration is required.
+No Management files are changed.
+The v60.1.0 consolidated Schedule files remain unchanged and are still loaded before Work.
+
+Work behaviour locked in this release:
+1. One Today-by-team percentage summary at the top of Work.
+2. No duplicate Work progress/status summary blocks.
+3. Today jobs grouped by team.
+4. Today unfinished jobs show Scheduled, not Unreported/Missed.
+5. Previous workdays open by date and are grouped by team.
+6. Each past team shows Scheduled / Completed / Unresolved / % complete.
+7. Tracking-start history remains reference history rather than false unresolved work.
+8. Needs Review and Orders remain separate Work tabs.

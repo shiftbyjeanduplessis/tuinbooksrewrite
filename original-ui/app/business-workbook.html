@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TuinBooks — Import / Export</title>
+  <style>
+    :root{--ink:#26332d;--green:#3f4a46;--line:#d9e0dc;--soft:#f4f6f5;--accent:#e3ece7;--red:#fff0ed;--red-line:#d8a49b;--ok:#edf7f0;--ok-line:#9dbbaa}
+    *{box-sizing:border-box} body{margin:0;background:#f6f7f6;color:#252b28;font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    .topbar{background:var(--green);color:white;padding:20px 26px;display:flex;justify-content:space-between;gap:20px;align-items:center}
+    .topbar h1{font-size:22px;margin:0}.topbar p{margin:3px 0 0;color:#dfe6e2}.shell{max-width:1120px;margin:24px auto;padding:0 20px 40px}
+    .host-status{border:1px solid var(--line);background:white;border-radius:12px;padding:13px 16px;margin-bottom:18px;display:flex;gap:10px;justify-content:space-between;align-items:center}.host-status span{color:#626b67}.host-status.bad{background:var(--red);border-color:var(--red-line)}.host-status.ok{background:var(--ok);border-color:var(--ok-line)}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:white;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 1px 2px rgba(0,0,0,.03)}.card.full{grid-column:1/-1}.eyebrow{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#718078}.card h2{margin:4px 0 6px;font-size:19px}.card p{margin:0 0 16px;color:#626b67}
+    button,.button{appearance:none;border:1px solid var(--green);background:var(--green);color:white;border-radius:9px;padding:10px 14px;font:inherit;font-weight:650;cursor:pointer}button.secondary{background:white;color:var(--green)}button:disabled,input:disabled{opacity:.48;cursor:not-allowed}.topbar button{background:transparent;border-color:#93a29a}
+    .form-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:14px;align-items:end}.field label{display:block;font-weight:650;margin-bottom:6px}.field input{width:100%;border:1px solid #bdc8c2;border-radius:9px;padding:10px;background:white;font:inherit}.field small{display:block;margin-top:5px;color:#737d78}
+    #bwPreview{margin-top:18px;border-top:1px solid var(--line);padding-top:18px}.empty-preview{color:#6c7671;padding:16px 0}.preview-status{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:12px}.preview-status.ok{background:var(--ok);border:1px solid var(--ok-line)}.preview-status.bad{background:var(--red);border:1px solid var(--red-line)}.counts{display:flex;flex-wrap:wrap;gap:8px}.counts span{border:1px solid var(--line);background:var(--soft);border-radius:8px;padding:8px 10px}.issue-list{margin-top:14px}.issue-list ul{margin:7px 0 0;padding-left:21px}.issue-list li{margin:5px 0}.issue-list.note{color:#5c6661}.actions{display:flex;justify-content:flex-end;margin-top:18px}.message{min-height:22px;margin-top:14px;color:#5d6862}.message.error{color:#982d20}.message.success{color:#27613c}
+    .rule{background:var(--soft);border-left:4px solid #84958c;padding:12px 14px;border-radius:6px;margin-top:16px;color:#53605a}
+    .import-mode{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px;background:#fafbfa}.import-mode>strong{display:block;margin-bottom:8px}.import-choice{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:9px}.import-choice+ .import-choice{margin-top:5px}.import-choice:hover{background:var(--soft)}.import-choice input{margin-top:4px}.import-choice span{display:grid;gap:2px}.import-choice small{color:#69746f}.replace-warning{margin:8px 0 0 28px;color:#7b493e}.preview-status.attention{background:#fff8e8;border:1px solid #d7bd7a}.attention-summary{margin-top:14px;border:1px solid #e0d2a3;background:#fffaf0;border-radius:10px;padding:13px}.attention-summary-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:9px}.attention-summary-head span{color:#6f6856}.attention-group{padding:9px 0;border-top:1px solid #eadfbd}.attention-group:first-of-type{border-top:0}.attention-group>div{display:flex;justify-content:space-between;gap:12px}.attention-group span,.attention-group small{color:#6d685b}.attention-group small{display:block;margin-top:4px}.issue-list.blocking{border:1px solid var(--red-line);background:var(--red);border-radius:10px;padding:12px}
+    @media(max-width:760px){.grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.host-status,.preview-status{align-items:flex-start;flex-direction:column}.topbar{align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div><h1>Import / Export</h1><p>Business Workbook</p></div>
+    <button type="button" id="bwClose">Close</button>
+  </header>
+  <main class="shell">
+    <div id="bwHostStatus" class="host-status">Connecting to TuinBooks…</div>
+    <div class="grid">
+      <section class="card">
+        <span class="eyebrow">New setup</span>
+        <h2>Download blank workbook</h2>
+        <p>Use the standard TuinBooks workbook to prepare a new business or rebuild existing data cleanly.</p>
+        <button type="button" id="bwDownloadBlank">Download blank workbook</button>
+      </section>
+      <section class="card">
+        <span class="eyebrow">Current business</span>
+        <h2>Export business workbook</h2>
+        <p>Export the current business into the same workbook format for checking, correction and re-import.</p>
+        <button type="button" id="bwExportCurrent">Export current business</button>
+      </section>
+      <section class="card full">
+        <span class="eyebrow">Import</span>
+        <h2>Import completed workbook</h2>
+        <p>The workbook is checked first. Nothing is changed until the review passes and you press <strong>Import business</strong>.</p>
+        <div class="form-grid">
+          <div class="field">
+            <label for="bwWeek1">First live Monday (Week 1)</label>
+            <input type="date" id="bwWeek1">
+            <small>For a replacement import, choose the first Monday you want TuinBooks to schedule. Normally this is the next Monday.</small>
+          </div>
+          <div class="field">
+            <label for="bwFile">Completed workbook</label>
+            <input type="file" id="bwFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+          </div>
+        </div>
+        <div class="import-mode" role="group" aria-label="Import method">
+          <strong>Import method</strong>
+          <label class="import-choice"><input type="radio" name="bwImportMode" value="merge" checked><span><b>Update existing data</b><small>Use TuinBooks IDs or matching client details to update what is already there.</small></span></label>
+          <label class="import-choice"><input type="radio" name="bwImportMode" value="replace"><span><b>Replace existing client data</b><small>The workbook becomes the current client list. Clients not in the workbook are retired and current client setup is rebuilt from the workbook.</small></span></label>
+          <div class="replace-warning">Completed work and issued documents are kept as history. Future unresolved client scheduling is rebuilt from the workbook.</div>
+        </div>
+        <div id="bwPreview"><div class="empty-preview">Choose a workbook to review it.</div></div>
+        <div class="actions"><button type="button" id="bwCommit" disabled>Import business</button></div>
+        <div id="bwMessage" class="message" aria-live="polite"></div>
+        <div class="rule">Services, teams, clients, client services and schedule are cross-checked before import. In Full Service mode, Billing Profiles and Client Billing are checked as well.</div>
+      </section>
+    </div>
+  </main>
+  <script src="business-workbook-v6074.js?v=60.7.5-cumulative-export-schedule-fix"></script>
+</body>
+</html>

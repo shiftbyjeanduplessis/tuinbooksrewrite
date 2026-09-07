@@ -295,3 +295,26 @@ console.log('TUINBOOKS R16 SERVICE-DETAIL/DNS-TOGGLE CONTRACT: PASS');
   has(styles,'R17 — admin-visible audit/activity history','R17 audit history styles must be active');
 }
 console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
+
+// R18 active production UI contract: /app must be the established full office product, not the stripped rewrite shell.
+{
+  const [officeHtml,officeApp,officeStyles,bridge,buildScript]=await Promise.all([
+    read('original-ui/app/index.html'),read('original-ui/app/app.js'),read('original-ui/app/styles.css'),read('original-ui/app/r18-ui-parity-bridge.js'),read('scripts/build-release-ui-restored.mjs')
+  ]);
+  assert.ok(officeHtml.length>100000,'R18 office index must be the full established interface');checks++;
+  assert.ok(officeApp.length>2000000,'R18 office app.js must be the full established office runtime');checks++;
+  assert.ok(officeStyles.length>250000,'R18 office styles must be the full established stylesheet');checks++;
+  for(const marker of ['id="view-schedule"','id="view-clients"','id="view-invoices"','id="view-records"'])has(officeHtml,marker,`R18 full office surface missing ${marker}`);
+  has(officeHtml,'r18-ui-parity-bridge.js','R18 parity bridge must load last in established office UI');
+  has(officeApp,"'Saturday','Sunday'",'R18 office schedule must include Sunday');
+  has(bridge,'Service normally','R18 must retain the literal normal-service choice');
+  has(bridge,'Do not service','R18 must retain the Do not service choice');
+  has(bridge,'schedule-card-address-r18','R18 must keep street address visible on schedule cards');
+  has(bridge,'Dragging visit ID','R18 must keep the visit ID visible while dragging');
+  has(bridge,'r18-service-chip','R18 must restore distinct service-icon chips');
+  has(bridge,'Recent activity','R18 must carry the R17 office-visible audit reader into the established UI');
+  has(bridge,'tuinbooks_v2_list_audit_log_r17','R18 active office must use the protected admin-only R17 audit RPC');
+  has(buildScript,"cp('original-ui/app', 'dist/app'",'R18 build must publish established office UI to /app');
+  has(buildScript,"copyRewriteTree('dist/rewrite'",'R18 rewrite must remain isolated until parity verification');
+}
+console.log('TUINBOOKS R18 ACTIVE-OFFICE RECOVERY CONTRACT: PASS');

@@ -1,0 +1,16 @@
+TuinBooks v60.3.1 — Billing navigation + rate recovery
+
+Upload these files inside /app only.
+No SQL is required for this code release.
+
+What changed:
+- Billing no longer calls save() merely because the page renders. This removes a render-time core/operational save that could trigger an asynchronous Management repaint and send the user back to Clients.
+- Billing opens on Ready to issue when available, otherwise Routine drafts, instead of dropping the office into the unresolved-rate R0 queue by default.
+- Needs attention is relabelled Needs rate / setup.
+- Existing agreed per-visit rate stored on the routine draft is preserved/reused if a hydrated client copy temporarily lacks rateAmount.
+- Existing active service-agreement rate fields are also accepted as fallback evidence.
+- Only completed routine work remains invoiceable; no carry-forward rule unchanged.
+- Schedule v60.1.0 and Work v60.2.1 files are not changed by this release.
+
+Important data note:
+Stepping Stones has a separate existing rate-backfill SQL generated from the approved source. The source contains 154 confirmed positive per-visit rates and 44 unresolved rates. This code never invents the unresolved rates.

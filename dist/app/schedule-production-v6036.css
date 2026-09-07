@@ -1,0 +1,3 @@
+/* v60.3.6 production-only shell: hide canary diagnostics, preserve exact v60.0.11 Schedule UI. */
+body::before{display:none!important;content:none!important}
+.tuinbooks-canary-status-v6004,.tuinbooks-canary-status-v6010,[class^="tuinbooks-canary-status-v60"]{display:none!important}

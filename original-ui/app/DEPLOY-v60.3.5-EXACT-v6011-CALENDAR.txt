@@ -1,0 +1,17 @@
+TuinBooks v60.3.5 — exact approved v60.0.9/v60.0.11 Schedule promotion
+
+Upload ALL files in this ZIP inside /app.
+No SQL required.
+
+This is specifically the canary calendar the user approved:
+- original labelled team/day board (area/route labels)
+- original detailed job cards (R marker, service/status labels, duration/info)
+- + Note and + Event on each live team/day
+- saved day instructions/events before client jobs
+- normal floating Basket behavior
+- recurring move choice: This visit only / This + future visits
+- rolling 8-week maintenance only after workspace hydration
+- mobile day instruction first
+- Management selected view remains pinned (no jump to Clients)
+
+Work v60.2.1 and Billing v60.3.1 assets are unchanged.

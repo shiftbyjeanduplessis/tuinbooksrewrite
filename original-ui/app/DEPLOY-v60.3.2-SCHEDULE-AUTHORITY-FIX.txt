@@ -1,0 +1,20 @@
+TuinBooks v60.3.2 — Schedule authority fix
+
+Purpose
+- Restore the compact consolidated Schedule that was proven in the v60 canary.
+- The production promotion had been capturing the legacy/stability-wrapped renderSchedule after stability-repair-v59694.js loaded.
+- This release explicitly binds Schedule to the preserved v60.0.7 consolidated renderer exported by app.js, then applies the v60.1 note/event/mobile/rolling behavior.
+
+Scope
+- index.html: points to new schedule authority files and bumps cache version.
+- schedule-consolidated-v6032.js: authority fix only.
+- schedule-consolidated-v6032.css: same compact production Schedule styling under a unique filename.
+- service-worker.js / VERSION.txt: cache/version bump.
+- Work v60.2.1 and Billing v60.3.1 remain referenced unchanged.
+- No SQL.
+
+Deploy
+Upload the contents of this ZIP inside /app, then deploy the latest commit.
+
+First smoke test
+Open Schedule. The compact v60 consolidated week board must be visible. Check + Note/+ Event placement and Basket launcher. Do not test billing/work until Schedule presentation passes.

@@ -1,0 +1,416 @@
+/* TuinBooks scheduling foundation — clean magnetic-whiteboard layout */
+
+.schedule-workspace-toolbar.hidden{display:none!important}
+.schedule-filter-bar{margin:0 0 10px!important;padding:8px 10px!important;gap:8px!important;align-items:center!important}
+.schedule-attention-strip-clean{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 10px;padding:10px 14px;border:1px solid var(--line,#d7e5df);border-radius:12px;background:#fff}
+.schedule-attention-main{display:flex;align-items:baseline;gap:10px;min-width:0}
+.schedule-attention-main strong{font-size:1rem;color:var(--ink,#12342b)}
+.schedule-attention-main span{font-size:.82rem;color:var(--muted,#60756d)}
+.schedule-attention-actions{display:flex;gap:8px;flex:0 0 auto}
+
+.schedule-control-room,.schedule-board-and-parking-v5537{display:block!important;position:relative!important}
+#weeklyScheduleBoard{overflow:visible!important;max-height:none!important}
+.schedule-board-scroll{width:100%;overflow-x:auto;overflow-y:visible;padding-bottom:8px}
+.schedule-grid-clean{display:grid;grid-template-columns:112px repeat(var(--day-count),minmax(184px,1fr));align-items:stretch;min-width:1218px;border:1px solid #d8e6e0;border-radius:12px;background:#fff;overflow:clip}
+.schedule-grid-corner,.schedule-day-heading,.schedule-team-heading,.schedule-day-lane{border-right:1px solid #dbe7e2;border-bottom:1px solid #dbe7e2}
+.schedule-grid-corner{position:sticky;left:0;z-index:5;padding:12px;background:#174d3c;color:#fff;display:flex;flex-direction:column;justify-content:center}
+.schedule-grid-corner span{font-size:.68rem;opacity:.8}
+.schedule-day-heading{position:sticky;top:126px;z-index:4;padding:9px 8px;text-align:center;background:#eef3f1;display:grid;gap:2px;align-content:center}
+.schedule-day-heading strong{font-size:1rem;color:#203f35;font-weight:800}
+.schedule-day-heading span,.schedule-day-heading small{font-size:.72rem;color:#5f756d;font-weight:600}
+.schedule-day-heading.past{background:#f3f5f4}
+.schedule-team-heading{position:sticky;left:0;z-index:3;padding:12px 10px;background:#f5f9f7;border-left:5px solid var(--team-color);display:flex;flex-direction:column;justify-content:flex-start;gap:3px}
+.schedule-team-heading strong{font-size:.96rem;color:#103c30;font-weight:850}
+.schedule-team-heading span{font-size:.76rem;color:#415e54}
+.schedule-team-heading small{font-size:.7rem;color:#60766e;margin-top:5px;font-weight:650}
+
+.schedule-day-lane{position:relative;min-height:var(--lane-min);padding:0 8px 10px;background:#fff;transition:background .15s,border-color .15s,box-shadow .15s}
+.schedule-day-lane.past{background:#fafbfa}
+.schedule-day-lane.near{background:#fffdf7}
+.schedule-day-lane.full{background:#fffaf0}
+.schedule-day-lane.over{background:#fff4f3;box-shadow:inset 0 0 0 1px #d76a62}
+.schedule-lane-head{position:sticky;top:173px;z-index:2;margin:0 -8px 8px;padding:8px;background:inherit;border-bottom:1px solid #e2ebe7;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.schedule-lane-head>div:first-child{display:grid;min-width:0}
+.schedule-lane-head strong{font-size:.84rem;color:#103d31;white-space:normal;line-height:1.18;font-weight:850}
+.schedule-lane-head span{font-size:.69rem;color:#5c746b;font-weight:600}
+.schedule-lane-state{display:flex;align-items:center;gap:4px;min-height:24px;font-size:.72rem;font-weight:800;white-space:nowrap;color:#6d7e77}
+.schedule-lane-state.near,.schedule-lane-state.full{color:#956500}
+.schedule-lane-state.over{color:#b32d28}
+.schedule-lane-state button{width:22px;height:22px;border:1px solid #d6e3de;border-radius:7px;background:#fff;color:#546b62;cursor:pointer;padding:0}
+.schedule-lane-cards{display:flex;flex-direction:column;gap:4px;min-height:150px}
+.schedule-empty-lane{display:grid;place-items:center;min-height:100px;border:1px dashed #cbdad4;border-radius:9px;color:#879891;font-size:.72rem}
+
+.schedule-card-clean{position:relative;display:grid;grid-template-columns:18px minmax(0,1fr);column-gap:7px;align-items:center;width:100%;height:var(--card-height);min-height:52px;padding:7px 8px 10px 7px;border:1px solid #d8e5df;border-left:3px solid var(--team-color);border-radius:8px;background:#fff;text-align:left;box-shadow:none;cursor:pointer;overflow:hidden;color:#173c31}
+.schedule-card-clean:hover{border-color:color-mix(in srgb,var(--team-color) 55%,#d8e5df);box-shadow:0 3px 9px rgba(20,59,47,.07)}
+.schedule-card-clean.completed{opacity:1;background:#f5faf7;border-color:#cfe1d9}
+.schedule-card-copy{display:grid;gap:2px;min-width:0;width:100%}
+.schedule-card-clean strong{display:block;min-width:0;font-size:.82rem;line-height:1.15;color:#153d32;font-weight:850;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
+.schedule-card-meta{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.schedule-card-suburb{display:block;min-width:0;font-size:.66rem;line-height:1.15;color:#526a61;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal}
+.schedule-card-duration{flex:0 0 auto;font-size:.68rem;line-height:1;font-weight:900;color:#174d3c;background:#edf6f2;border-radius:999px;padding:3px 5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.schedule-card-resize{position:absolute;left:16px;right:16px;bottom:0;height:10px;cursor:ns-resize;touch-action:none}
+.schedule-card-resize:after{content:"";position:absolute;left:34%;right:34%;bottom:3px;height:3px;border-radius:99px;background:#c5d5cf}
+.schedule-resizing .schedule-card-clean{user-select:none}
+
+.schedule-destination-group{border:1px solid #dce7e3;border-radius:10px;background:#f8fbfa;padding:6px;display:grid;gap:5px}
+.schedule-destination-group>header{display:flex;justify-content:space-between;gap:8px;padding:2px 3px 5px;border-bottom:1px solid #e1ebe7}
+.schedule-destination-group>header>div{display:grid;min-width:0}
+.schedule-destination-group>header strong{font-size:.75rem;color:#174838}
+.schedule-destination-group>header span{font-size:.62rem;color:#6e837a}
+.schedule-destination-group>header>span{white-space:nowrap}
+.schedule-destination-group>div{display:grid;gap:5px}
+
+.schedule-drop-preview{display:none}
+.schedule-day-lane.drag-preview{outline:3px solid #2e8b68;outline-offset:-3px}
+.schedule-day-lane.drag-preview .schedule-drop-preview{display:grid;position:absolute;inset:42px 7px auto;z-index:8;padding:9px 10px;border-radius:9px;background:#eaf7f1;border:1px solid #63aa8f;box-shadow:0 6px 18px rgba(22,70,54,.16)}
+.schedule-drop-preview strong{font-size:.78rem}.schedule-drop-preview span{font-size:.68rem;color:#526c62}
+.schedule-day-lane.preview-near{outline-color:#d99a25}.schedule-day-lane.preview-near .schedule-drop-preview{background:#fff8e8;border-color:#dfb45d}
+.schedule-day-lane.preview-over,.schedule-day-lane.preview-blocked,.schedule-day-lane.resize-over{outline-color:#c94a44}.schedule-day-lane.preview-over .schedule-drop-preview,.schedule-day-lane.preview-blocked .schedule-drop-preview,.schedule-day-lane.resize-over .schedule-drop-preview{background:#fff0ef;border-color:#d66e68}
+
+.schedule-queue-drawer{position:fixed!important;top:126px!important;right:16px!important;bottom:16px!important;width:min(390px,calc(100vw - 32px));z-index:1200!important;display:flex!important;flex-direction:column;gap:10px;padding:14px;border:1px solid #cadbd4;border-radius:14px;background:#fff;box-shadow:0 18px 48px rgba(16,51,40,.24);overflow:hidden}
+.schedule-queue-drawer.hidden{display:none!important}
+.schedule-queue-drawer>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.schedule-queue-drawer h2{font-size:1.2rem;margin:2px 0 0}
+.schedule-queue-list{display:flex;flex-direction:column;gap:7px;overflow-y:auto;padding-right:2px}
+.schedule-queue-card{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:9px 10px;border:1px solid #d8e5df;border-left:4px solid #3f78b5;border-radius:9px;background:#fff;cursor:grab}
+.schedule-queue-card>div{display:grid;gap:1px;min-width:0}.schedule-queue-card strong{font-size:.78rem;white-space:normal}.schedule-queue-card span{font-size:.68rem;color:#4e665d}.schedule-queue-card small{font-size:.61rem;color:#82918b}
+.schedule-queue-estate{border:1px solid #d7e4df;border-radius:10px;padding:7px;background:#f7faf9;display:grid;gap:6px}
+.schedule-queue-estate>header{display:flex;justify-content:space-between;gap:8px}.schedule-queue-estate>header strong{font-size:.8rem}.schedule-queue-estate>header span{font-size:.66rem;color:#657970}
+.schedule-queue-empty{padding:28px 12px;text-align:center;color:#70837b}
+
+.schedule-soft-warning{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 10px;padding:9px 12px;border:1px solid #e7b562;border-radius:10px;background:#fff7e8;color:#674a16}
+.schedule-soft-warning>div{display:flex;gap:7px}
+
+.schedule-detail-panel{z-index:1250!important}
+#view-schedule .v552-cell-capacity,#view-schedule .capacity-meter,#view-schedule .v552-cell-risk,#view-schedule .schedule-parking-lot-v5537:not(.schedule-queue-drawer){display:none!important}
+
+@media(max-width:900px){
+  .schedule-attention-strip-clean{align-items:flex-start}.schedule-attention-main{display:grid;gap:2px}.schedule-attention-actions{flex-direction:column}
+  .schedule-filter-bar{overflow-x:auto;flex-wrap:nowrap!important}
+  .schedule-day-heading{top:118px}.schedule-lane-head{top:162px}
+}
+
+
+/* v55.4.2 readability correction */
+.schedule-day-lane.past .schedule-card-clean,.schedule-card-clean.completed{color:#153d32!important}
+.schedule-day-lane.past .schedule-card-suburb,.schedule-card-clean.completed .schedule-card-suburb{color:#526a61!important}
+.schedule-day-lane.past .schedule-card-duration,.schedule-card-clean.completed .schedule-card-duration{color:#174d3c!important}
+.schedule-card-clean:focus-visible{outline:3px solid color-mix(in srgb,var(--team-color) 75%,#fff);outline-offset:2px}
+.schedule-grid-corner strong{font-size:.96rem}
+.schedule-grid-corner span{font-size:.72rem}
+@media(max-width:1250px){.schedule-grid-clean{grid-template-columns:108px repeat(var(--day-count),minmax(178px,1fr));min-width:1180px}.schedule-card-clean strong{font-size:.79rem}}
+
+/* v55.4.3: keep calendar headings in normal document flow.
+   The previous vertical sticky offsets could place the Monday–Saturday strip
+   and route headings over the first booking cards when the app header wrapped
+   onto additional navigation rows. Horizontal team headings remain sticky. */
+.schedule-day-heading{
+  position:relative!important;
+  top:auto!important;
+  z-index:1!important;
+}
+.schedule-lane-head{
+  position:relative!important;
+  top:auto!important;
+  z-index:1!important;
+}
+@media(max-width:900px){
+  .schedule-day-heading,.schedule-lane-head{
+    position:relative!important;
+    top:auto!important;
+  }
+}
+
+/* v55.4.4 — Trial workflow consolidation */
+.nav-tab .nav-coming-soon,
+.nav-coming-soon{
+  display:inline-flex;
+  align-items:center;
+  margin-left:5px;
+  padding:2px 6px;
+  border-radius:999px;
+  font-size:.62rem;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:.02em;
+  color:#6c4f00;
+  background:#fff1bd;
+  border:1px solid #e8cf73;
+  vertical-align:middle;
+}
+.nav-count-v5544{
+  display:inline-flex;
+  min-width:20px;
+  height:20px;
+  padding:0 6px;
+  align-items:center;
+  justify-content:center;
+  margin-left:4px;
+  border-radius:999px;
+  background:#e9f5ef;
+  color:#1d694c;
+  font-size:.7rem;
+  font-weight:900;
+}
+.feature-coming-soon-view > :not(.coming-soon-panel){display:none!important}
+.coming-soon-panel{
+  max-width:720px;
+  margin:28px auto;
+  padding:42px;
+  text-align:center;
+  border:1px solid #d8e3dd;
+  background:linear-gradient(180deg,#ffffff,#f6faf8);
+}
+.coming-soon-panel h1{margin:.35rem 0 .65rem;font-size:2rem;color:#173d30}
+.coming-soon-panel p{max-width:560px;margin:0 auto;color:#61736b;font-size:1rem;line-height:1.55}
+.coming-soon-status{display:inline-flex;margin-top:20px;padding:7px 12px;border-radius:999px;background:#fff1bd;color:#6c4f00;font-weight:800;border:1px solid #e8cf73}
+
+.schedule-top-status-v5544{
+  display:grid;
+  grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  gap:12px;
+  margin:0 0 12px;
+}
+.week-status-strip-v5544,
+.queue-status-strip-v5544{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  min-height:84px;
+  padding:15px 18px;
+  border:1px solid #dbe5e0;
+  border-radius:14px;
+  background:#fff;
+  box-shadow:0 4px 16px rgba(24,58,44,.05);
+}
+.week-status-strip-v5544 > div:first-child,
+.queue-status-strip-v5544 > div:first-child{display:grid;gap:4px;min-width:0}
+.week-status-strip-v5544 strong,
+.queue-status-strip-v5544 strong{font-size:1rem;color:#163b2e}
+.week-status-strip-v5544 small,
+.queue-status-strip-v5544 small{color:#687971;font-size:.82rem}
+.queue-status-strip-v5544.attention{border-color:#e4c66e;background:#fffaf0}
+.queue-status-strip-v5544 > div:last-child{display:flex;gap:8px;flex:0 0 auto}
+
+.schedule-review-panel-v5535{
+  margin:0 0 12px;
+  border:1px solid #dbe5e0;
+  border-radius:14px;
+  box-shadow:none;
+  background:#fff;
+}
+.schedule-review-panel-v5535 > summary{padding:12px 16px;min-height:58px}
+.schedule-review-panel-v5535 > summary > div{display:grid;gap:2px}
+.schedule-review-panel-v5535 > summary strong{font-size:.94rem;color:#173d30}
+.schedule-review-panel-v5535 > summary span{font-size:.78rem;color:#718179}
+.schedule-review-panel-v5535[open]{padding-bottom:14px}
+.schedule-review-panel-v5535 .team-viewer-intro{padding:8px 16px 4px}
+.schedule-review-panel-v5535 .team-viewer-intro h2{margin:.2rem 0;font-size:1.1rem}
+.schedule-review-panel-v5535 .team-viewer-intro p{margin:0;color:#718179}
+.week-review-summary-v5544{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:8px;
+  padding:8px 16px 14px;
+}
+.week-review-summary-v5544 > div{
+  display:grid;
+  gap:3px;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#f4f8f6;
+  border:1px solid #e0e9e5;
+}
+.week-review-summary-v5544 strong{font-size:1.25rem;color:#173d30}
+.week-review-summary-v5544 span{font-size:.74rem;color:#6d7d75}
+.week-review-summary-v5544 .attention{background:#fff7e3;border-color:#e6c468}
+.week-review-table-v5544{margin:0 16px;border:1px solid #e0e8e4;border-radius:11px;overflow:hidden}
+.week-review-table-head,
+.week-review-table-row{display:grid;grid-template-columns:minmax(160px,1.5fr) repeat(5,minmax(72px,.65fr));align-items:center}
+.week-review-table-head{background:#edf4f1;color:#62746b;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em}
+.week-review-table-row{border-top:1px solid #e6ece9;font-size:.84rem;color:#40564d}
+.week-review-table-head span,
+.week-review-table-row > *{padding:10px 12px;text-align:center}
+.week-review-table-head span:first-child,
+.week-review-table-row > *:first-child{text-align:left}
+.week-review-table-row .attention{color:#9a5b00;font-weight:900;background:#fff7e3}
+
+.schedule-queue-drawer.schedule-queue-draggable-v5544{
+  position:fixed!important;
+  top:112px;
+  right:18px;
+  left:auto;
+  bottom:auto;
+  width:min(420px,calc(100vw - 24px));
+  max-height:calc(100vh - 132px);
+  z-index:1500;
+  overflow:auto;
+  resize:none;
+  box-shadow:0 22px 70px rgba(18,44,34,.25);
+}
+.schedule-queue-move-handle{
+  position:sticky;
+  top:0;
+  z-index:3;
+  cursor:move;
+  user-select:none;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:14px 16px;
+  background:#f2f7f4;
+  border-bottom:1px solid #d9e4de;
+}
+.schedule-queue-move-handle > div:first-child{display:grid;gap:2px}
+.schedule-queue-move-handle > div:last-child{display:flex;align-items:center;gap:7px}
+.schedule-queue-move-handle h2{margin:0;font-size:1.05rem;color:#173d30}
+.schedule-queue-group-v5544{padding:12px 14px;border-bottom:1px solid #e2e9e5}
+.schedule-queue-group-v5544 > header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px}
+.schedule-queue-group-v5544 > header strong{font-size:.92rem;color:#173d30}
+.schedule-queue-group-v5544 > header span{display:inline-flex;min-width:24px;height:24px;align-items:center;justify-content:center;border-radius:999px;background:#e9f1ed;font-weight:900;color:#355b4b}
+.schedule-queue-group-v5544 > p{margin:0 0 9px;color:#74847c;font-size:.76rem;line-height:1.35}
+.schedule-queue-card{align-items:flex-start;gap:10px}
+.schedule-queue-card-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.schedule-queue-card-title > span{display:inline-flex;padding:3px 7px;border-radius:999px;background:#edf3f0;color:#566d62;font-size:.68rem;font-weight:800}
+.schedule-queue-card.queue-could-not-fit .schedule-queue-card-title > span{background:#fff1bd;color:#765600}
+.schedule-queue-card.queue-catchup-waiting .schedule-queue-card-title > span,
+.schedule-queue-card.queue-missed-unresolved .schedule-queue-card-title > span{background:#fde8e3;color:#8a3d2c}
+.schedule-queue-card-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.schedule-queue-card-actions > span{font-size:1.15rem;color:#7d8c84;cursor:grab}
+
+.billing-stage-grid-v55{grid-template-columns:repeat(5,minmax(0,1fr))}
+
+@media(max-width:1050px){
+  .schedule-top-status-v5544{grid-template-columns:1fr}
+  .week-review-summary-v5544{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:720px){
+  .nav-coming-soon{display:none}
+  .week-status-strip-v5544,.queue-status-strip-v5544{align-items:flex-start;flex-direction:column}
+  .week-review-summary-v5544{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .week-review-table-v5544{overflow:auto}
+  .week-review-table-head,.week-review-table-row{min-width:680px}
+  .schedule-queue-drawer.schedule-queue-draggable-v5544{top:72px!important;left:8px!important;right:8px!important;width:auto!important;max-height:calc(100vh - 84px)}
+}
+
+
+/* v55.4.6 — Work to Schedule and compact week review */
+#weekReviewPanel{display:none!important}
+.schedule-top-status-v5546{margin-bottom:10px;gap:10px}
+.schedule-top-status-v5546 .week-status-strip-v5544,
+.schedule-top-status-v5546 .queue-status-strip-v5544{min-height:66px;padding:11px 14px;border-radius:12px;box-shadow:none}
+.schedule-top-status-v5546 .week-status-strip-v5544 strong,
+.schedule-top-status-v5546 .queue-status-strip-v5544 strong{font-size:.92rem}
+.schedule-top-status-v5546 .week-status-strip-v5544 small,
+.schedule-top-status-v5546 .queue-status-strip-v5544 small{font-size:.73rem}
+
+.schedule-work-marker,
+.queue-work-marker{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:22px;height:22px;border-radius:7px;font-size:.7rem;font-weight:950;line-height:1;border:1px solid #bbd4c8;background:#eaf5ef;color:#176044}
+.schedule-work-marker{position:static;grid-column:1;align-self:start;width:18px;height:18px;border-radius:5px;font-size:.61rem;z-index:1;margin-top:1px}
+.schedule-card-clean{position:relative}
+.schedule-card-clean.work-o .schedule-work-marker,
+.queue-work-marker.marker-o{background:#fff1c8;border-color:#e7cc78;color:#755500}
+.queue-work-marker.marker-r{background:#eaf5ef;border-color:#bbd4c8;color:#176044}
+
+.schedule-work-queue-v5546{overflow:hidden!important;display:flex;flex-direction:column;min-height:0}
+.schedule-work-queue-v5546 .schedule-queue-move-handle{flex:0 0 auto;touch-action:none}
+.schedule-work-queue-v5546 .schedule-queue-body-v5546{overflow:auto;min-height:0;max-height:calc(100vh - 205px)}
+.schedule-work-queue-v5546.minimised{width:min(360px,calc(100vw - 24px));max-height:none!important}
+.schedule-work-queue-v5546.minimised .schedule-queue-body-v5546{display:none}
+.schedule-work-queue-v5546.is-moving{opacity:.94;box-shadow:0 28px 85px rgba(18,44,34,.32)}
+.schedule-work-queue-v5546 .schedule-queue-card{display:grid;grid-template-columns:22px minmax(0,1fr) 18px;align-items:start;cursor:grab;padding:10px;border-left-width:1px}
+.schedule-work-queue-v5546 .schedule-queue-card:active{cursor:grabbing}
+.schedule-queue-card-copy{display:grid;gap:3px;min-width:0}
+.schedule-queue-card-copy>span{font-size:.73rem;color:#465d53;line-height:1.35}
+.schedule-queue-card-copy>small{font-size:.66rem;line-height:1.35;color:#76867e}
+.queue-drag-grip{font-size:1.05rem;color:#809087;cursor:grab;line-height:1.2;padding-top:2px}
+.schedule-queue-card.queue-accepted-quote .schedule-queue-card-title>span{background:#fff1c8;color:#755500}
+.schedule-queue-card.queue-could-not-fit .schedule-queue-card-title>span{background:#f7e9bc;color:#765600}
+.schedule-queue-card.queue-missed-unresolved .schedule-queue-card-title>span,
+.schedule-queue-card.queue-catchup-waiting .schedule-queue-card-title>span{background:#fde8e3;color:#8a3d2c}
+
+.week-review-dialog-v5546{width:min(920px,calc(100vw - 30px));max-height:calc(100vh - 50px);padding:0;border:0;border-radius:16px;box-shadow:0 28px 90px rgba(15,40,30,.3);overflow:auto}
+.week-review-dialog-v5546::backdrop{background:rgba(13,32,25,.42)}
+.week-review-dialog-head-v5546{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 18px;background:#f3f8f5;border-bottom:1px solid #dce7e1}
+.week-review-dialog-head-v5546 h2{margin:.18rem 0 0;color:#173d30;font-size:1.18rem}
+.week-review-dialog-v5546 .week-review-summary-v5544{padding-top:14px}
+.week-review-dialog-v5546 .week-review-table-v5544{margin-bottom:18px}
+
+.work-to-schedule-card-v5546{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:12px;align-items:start;padding:14px 15px;border:1px solid #dce6e1;border-radius:13px;background:#fff;box-shadow:0 3px 10px rgba(22,54,42,.04)}
+.work-to-schedule-main-v5546{display:grid;gap:5px;min-width:0}
+.work-to-schedule-title-v5546{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.work-to-schedule-title-v5546 h3{margin:0;color:#173d30;font-size:.92rem}
+.work-to-schedule-title-v5546>span{display:inline-flex;padding:3px 7px;border-radius:999px;background:#eef4f1;color:#566c62;font-size:.66rem;font-weight:850}
+.work-outstanding-age-v5546{font-size:.76rem;color:#9b4c2d}
+.work-to-schedule-main-v5546 p{margin:0;color:#566b61;font-size:.78rem;line-height:1.35}
+.work-to-schedule-meta-v5546{display:flex;flex-wrap:wrap;gap:6px}
+.work-to-schedule-meta-v5546 span{padding:3px 7px;border-radius:999px;background:#f2f6f4;color:#61736a;font-size:.66rem}
+.work-to-schedule-actions-v5546{display:flex;align-items:flex-start;gap:7px}
+.work-card-menu-v5546{position:relative}
+.work-card-menu-v5546 summary{cursor:pointer;list-style:none;padding:8px 10px;border:1px solid #d9e4de;border-radius:9px;background:#fff;color:#52685e;font-size:.7rem;font-weight:800}
+.work-card-menu-v5546 summary::-webkit-details-marker{display:none}
+.work-card-menu-v5546>div{position:absolute;right:0;top:calc(100% + 5px);z-index:10;display:grid;min-width:180px;padding:6px;border:1px solid #d8e3dd;border-radius:10px;background:#fff;box-shadow:0 14px 35px rgba(16,44,33,.18)}
+.work-card-menu-v5546 button{border:0;background:transparent;text-align:left;padding:8px;border-radius:7px;color:#355448;font:inherit;cursor:pointer}
+.work-card-menu-v5546 button:hover{background:#eef5f1}
+
+@media(max-width:720px){
+  .work-to-schedule-card-v5546{grid-template-columns:24px minmax(0,1fr)}
+  .work-to-schedule-actions-v5546{grid-column:2;justify-content:flex-start}
+  .schedule-work-queue-v5546 .schedule-queue-body-v5546{max-height:calc(100vh - 150px)}
+}
+
+
+/* v55.4.7 — simple opportunity review, exact mobile tasks and separate quote jobs */
+.opportunity-admin-card.opportunity-simple-v5547{cursor:pointer;transition:border-color .15s ease,box-shadow .15s ease;background:#fff}
+.opportunity-admin-card.opportunity-simple-v5547:hover,.opportunity-admin-card.opportunity-simple-v5547.open{border-color:#9cc8b4;box-shadow:0 6px 18px rgba(22,63,47,.08)}
+.opportunity-simple-v5547 .opportunity-admin-note.clamped{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden}
+.opportunity-review-detail-v5547{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:10px;padding-top:10px;border-top:1px solid #dfe8e3}
+.opportunity-review-detail-v5547 p{margin:0;color:#556b61;font-size:.78rem}
+.opportunity-card-open-hint-v5547{margin-top:7px;color:#1f6f54;font-size:.72rem;font-weight:850}
+
+.mobile-job-v5547{grid-template-columns:32px 26px minmax(0,1fr) auto!important;align-items:start!important}
+.mobile-work-marker-v5547{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:7px;border:1px solid #b8d3c6;background:#eaf5ef;color:#176044;font-size:.72rem;font-weight:950;line-height:1}
+.mobile-work-marker-v5547.marker-o{background:#fff1c8;border-color:#e7cc78;color:#755500}
+.mobile-job-v5547-kind{margin-top:3px;color:#1f6f54;font-size:.68rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+.mobile-job-v5547-scope{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin-top:3px;color:#52685e}
+.mobile-client-task-list-v5547{display:grid;gap:10px;padding:12px;border:1px solid #d8e5df;border-radius:14px;background:#fff}
+.mobile-client-task-list-v5547>header{display:flex;align-items:center;gap:10px;padding-bottom:9px;border-bottom:1px solid #e1e9e5}
+.mobile-client-task-list-v5547>header>div{display:grid;gap:2px}
+.mobile-client-task-list-v5547>header strong{color:#173d30;font-size:.94rem}
+.mobile-client-task-list-v5547>header small{color:#6c7f75;font-size:.7rem}
+.mobile-client-tasks-v5547{display:grid;gap:8px}
+.mobile-contract-task-v5547{padding:10px 11px!important;border:1px solid #dfe8e3!important;border-radius:11px!important;background:#f8fbf9!important}
+.mobile-contract-task-v5547 input:checked+label{text-decoration:line-through;color:#688078}
+.mobile-task-empty-v5547{padding:12px;border-radius:10px;background:#fff7e8;color:#7d5a14;font-size:.78rem;line-height:1.4}
+.mobile-active-work-type-v5547{display:flex;align-items:center;gap:8px;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid #dbe7e1}
+.mobile-active-work-type-v5547 strong{color:#173d30}.mobile-active-work-type-v5547 small{margin-left:auto;color:#6d7d75;font-size:.68rem}
+
+@media(max-width:720px){
+  .opportunity-review-detail-v5547{align-items:stretch;flex-direction:column}
+  .mobile-job-v5547{grid-template-columns:30px 24px minmax(0,1fr) auto!important}
+  .mobile-active-work-type-v5547{align-items:flex-start;flex-wrap:wrap}.mobile-active-work-type-v5547 small{width:100%;margin-left:32px}
+}
+
+/* v58.9.32 — authoritative six-destination desktop navigation.
+   This replaces the retired ten-tab geometry that compressed Quotes and Billing. */
+@media (min-width:1181px){
+  .desktop-body .admin-nav{
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(92px,1fr))!important;
+    align-items:stretch!important;
+    justify-content:stretch!important;
+    gap:6px!important;
+    overflow:visible!important;
+  }
+  .desktop-body .admin-nav .nav-tab{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    padding:9px 8px!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+}
+.desktop-body .admin-nav .nav-coming-soon{display:none!important}

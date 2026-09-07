@@ -1,0 +1,16 @@
+/* TuinBooks v60.3.1 — completed-work recurring billing */
+.billing-earned-strip-v6030{display:grid;grid-template-columns:repeat(4,minmax(74px,1fr));gap:6px;margin-top:7px;max-width:590px}
+.billing-earned-strip-v6030>span{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:5px 7px;border:1px solid #dce9e3;border-radius:8px;background:#f8fbf9;min-width:0}
+.billing-earned-strip-v6030 small{font-size:9px;line-height:1.1;color:#63756d;white-space:nowrap}
+.billing-earned-strip-v6030 strong{font-size:11px;line-height:1;color:#173f31;white-space:nowrap}
+.billing-earned-strip-v6030 .warning{background:#fff9e8;border-color:#efdfad}
+.billing-earned-strip-v6030 .invoice{background:#edf7f1;border-color:#cfe3d7}
+.billing-no-carry-v6030{display:block;margin-top:4px;color:#78652e;font-size:10px;font-weight:600}
+.billing-earned-detail-v6030{margin:10px 0;padding:12px;border:1px solid #d7e7df;border-radius:12px;background:#fbfdfc}
+.billing-earned-detail-v6030>div:first-child{margin-bottom:7px}.billing-earned-detail-v6030 h3{margin:1px 0 0;font-size:15px}
+.billing-earned-detail-v6030 .billing-earned-strip-v6030{max-width:none;margin-top:0}
+.billing-earned-detail-v6030 p{margin:8px 0 0;font-size:12px;color:#5f6d67}
+.billing-summary-earned-v6030 .billing-control-card-v59663 small{line-height:1.25}
+@media(max-width:900px){.billing-earned-strip-v6030{grid-template-columns:repeat(2,minmax(92px,1fr));max-width:360px}}
+/* v60.3.1 — clearer rate coverage without expanding the Billing page */
+.billing-rate-coverage-v6031{display:block;margin-top:4px;color:#557066;font-size:10px;font-weight:700}

@@ -1,0 +1,1751 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TuinBooks — Admin</title>
+  <link rel="stylesheet" href="styles.css?v=59.6.89-support-route-restore">
+  <link rel="stylesheet" href="schedule-foundation.css?v=59.6.9-quote-status-acceptance-cleanup">
+  <link rel="icon" type="image/png" href="tuinbooks-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="support-management-ui.css?v=59.6.9-quote-status-acceptance-cleanup">
+  <meta name="theme-color" content="#1f6f54">
+<style id="v58928-missed-schedule-styles">
+/* Past work with no final outcome must remain unmistakably visible. */
+.schedule-card-clean.missed-unresolved-v58928{
+  --team-color:#b42318!important;
+  background:#fff0ef!important;
+  border-color:#d92d20!important;
+  border-left:5px solid #b42318!important;
+  box-shadow:inset 0 0 0 1px rgba(180,35,24,.2),0 2px 7px rgba(180,35,24,.14)!important;
+  color:#741b16!important;
+}
+.schedule-card-clean.missed-unresolved-v58928:hover,
+.schedule-card-clean.missed-unresolved-v58928:focus-visible{
+  background:#ffe4e1!important;
+  border-color:#b42318!important;
+  box-shadow:0 0 0 3px rgba(180,35,24,.18),0 3px 9px rgba(180,35,24,.18)!important;
+}
+.schedule-card-clean.missed-unresolved-v58928 .schedule-work-marker{
+  background:#b42318!important;color:#fff!important;border-color:#b42318!important;
+}
+.schedule-card-clean.missed-unresolved-v58928 .schedule-card-duration,
+.schedule-card-clean.missed-unresolved-v58928 .schedule-card-suburb{
+  color:#8f231b!important;
+}
+.schedule-missed-word-v58928{font-size:.69rem;letter-spacing:.055em;color:#b42318;font-weight:900}
+.v55-detail-header.missed-v58928{border-bottom-color:#f4b8b2!important}
+.missed-resolution-panel-v58928{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  margin:0 0 16px;padding:14px 16px;border:1px solid #e87b70;border-radius:14px;
+  background:#fff1ef;color:#721c17;
+}
+.missed-resolution-panel-v58928>div:first-child{display:grid;gap:3px}
+.missed-resolution-panel-v58928 strong{font-size:1rem;color:#8f231b}
+.missed-resolution-panel-v58928 span{font-size:.83rem;line-height:1.35;color:#7d342e}
+.missed-resolution-actions-v58928{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;flex:0 0 auto}
+.missed-resolution-actions-v58928 .button:first-child{background:#b42318!important;border-color:#b42318!important;color:#fff!important}
+@media(max-width:760px){.missed-resolution-panel-v58928{align-items:stretch;flex-direction:column}.missed-resolution-actions-v58928{justify-content:stretch}.missed-resolution-actions-v58928 .button{width:100%}}
+
+  /* v59.3.69 role-based access */
+  .nav-tab.hidden,.header-settings-button.hidden,#addBusinessUserBtn.hidden{display:none!important}
+  body[data-access-profile="scheduler"] #view-clients .client-editor,body[data-access-profile="scheduler"] #view-clients form{pointer-events:none;opacity:.78}
+  body[data-access-profile="scheduler"] #view-clients .client-list{pointer-events:auto;opacity:1}
+  .user-access-explainer{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+
+/* v59.6.61 — routine billing control summary */
+.billing-summary-v58952{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:14px 0 16px}
+.billing-control-card-v59661{display:flex;flex-direction:column;gap:3px;min-width:0;padding:13px 14px;border:1px solid #d8e5de;border-radius:12px;background:#fff}
+.billing-control-card-v59661>span{font-size:.72rem;font-weight:900;letter-spacing:.045em;text-transform:uppercase;color:#416453}
+.billing-control-card-v59661>strong{font-size:1.3rem;line-height:1.15;color:#0e4c32}
+.billing-control-card-v59661>small{line-height:1.3;color:#66756d}
+.billing-control-card-v59661.attention{border-color:#e4c38a;background:#fffaf0}
+.billing-control-card-v59661.attention>span,.billing-control-card-v59661.attention>strong{color:#875a12}
+@media(max-width:900px){.billing-summary-v58952{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.billing-summary-v58952{grid-template-columns:1fr}}
+
+/* v59.6.63 — hard Billing layout. This applies even if an older renderer path
+   writes the summary markup before the final UI wrapper runs. */
+#view-invoices #billingSummaryV58952{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:10px!important;
+  align-items:stretch!important;
+  margin:12px 0 10px!important;
+}
+#view-invoices #billingSummaryV58952>article,
+#view-invoices .billing-control-card-v59663{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:3px!important;
+  min-width:0!important;
+  padding:13px 14px!important;
+  border:1px solid #d7e4dd!important;
+  border-radius:13px!important;
+  background:#fff!important;
+  box-shadow:0 1px 2px rgba(18,63,48,.03)!important;
+}
+#view-invoices #billingSummaryV58952>article>span{display:block!important;font-size:.72rem!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important;color:#526d61!important}
+#view-invoices #billingSummaryV58952>article>strong{display:block!important;margin:1px 0!important;font-size:1.35rem!important;line-height:1.15!important;color:#0f4d34!important}
+#view-invoices #billingSummaryV58952>article>small{display:block!important;font-size:.76rem!important;line-height:1.3!important;color:#718078!important}
+#view-invoices #commercialBillingStagesV59400{
+  display:grid!important;
+  grid-template-columns:repeat(6,minmax(0,1fr))!important;
+  gap:5px!important;
+  margin:0 0 12px!important;
+  padding:5px!important;
+  border:1px solid #d7e4dd!important;
+  border-radius:13px!important;
+  background:#edf5f1!important;
+}
+#view-invoices #commercialBillingStagesV59400>[data-commercial-billing-stage]{
+  display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:6px!important;min-width:0!important;padding:9px 10px!important;border:0!important;border-radius:9px!important;background:transparent!important;text-align:left!important
+}
+#view-invoices #commercialBillingStagesV59400>[data-commercial-billing-stage].active{background:#fff!important;box-shadow:0 1px 4px rgba(18,63,48,.10)!important}
+#view-invoices #commercialBillingStagesV59400>[data-commercial-billing-stage] span{font-size:.74rem!important;font-weight:800!important;line-height:1.15!important;white-space:normal!important}
+@media(max-width:950px){#view-invoices #billingSummaryV58952{grid-template-columns:repeat(2,minmax(0,1fr))!important}#view-invoices #commercialBillingStagesV59400{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+@media(max-width:620px){#view-invoices #billingSummaryV58952{grid-template-columns:1fr!important}#view-invoices #commercialBillingStagesV59400{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+
+</style>
+
+<style id="rolling-schedule-consolidation-styles-v58929">
+.rolling-plan-panel{margin:0 0 14px;padding:14px 16px;border:1px solid #cfe0d8;border-radius:18px;background:#f8fbfa;box-shadow:0 10px 28px rgba(23,71,55,.05)}
+.rolling-plan-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:12px}.rolling-plan-head>div{display:grid;gap:2px}.rolling-plan-head strong{font-size:1rem;color:#123d30}.rolling-plan-head small{color:#60746d}.rolling-plan-status{padding:7px 10px;border-radius:999px;background:#e6f3ed;color:#175a43;font-size:.78rem;font-weight:800;white-space:nowrap}.rolling-plan-status.error{background:#fdebea;color:#a93b34}
+.rolling-week-strip{display:grid;grid-template-columns:repeat(8,minmax(126px,1fr));gap:8px;overflow-x:auto;padding-bottom:3px}.rolling-week-card{min-width:126px;text-align:left;border:1px solid #d9e5df;border-radius:13px;background:#fff;padding:10px 11px;color:#183e32;cursor:pointer}.rolling-week-card span,.rolling-week-card small{display:block;color:#667a72;font-size:.72rem}.rolling-week-card strong{display:block;margin:4px 0 2px;font-size:.92rem}.rolling-week-card:hover{border-color:#7eb39e}.rolling-week-card.active{border-color:#217355;box-shadow:0 0 0 2px rgba(33,115,85,.12);background:#f1f8f5}.rolling-week-card.attention{border-color:#d66d65;background:#fff5f4}.schedule-week-actions{flex-wrap:wrap}
+@media(max-width:800px){.rolling-plan-head{align-items:flex-start;flex-direction:column}.rolling-week-strip{grid-template-columns:repeat(8,132px)}}
+</style>
+
+<style id="v58949-sticky-operations-billing-drafts">
+@media (min-width:901px){
+  #view-schedule #rollingScheduleOverview.rolling-plan-frozen-v58949{
+    position:sticky;
+    top:112px;
+    z-index:40;
+    background:#f8fbfa;
+    box-shadow:0 12px 30px rgba(23,71,55,.11);
+  }
+}
+</style>
+
+<style id="billing-minimal-styles-v58952">
+.billing-minimal-page-v58952{max-width:1180px;margin:0 auto}.billing-heading-v58952{margin-bottom:12px}.billing-heading-v58952 h1{margin-bottom:0}
+.billing-main-tabs-v58952{display:flex;gap:4px;width:max-content;padding:4px;margin:0 0 12px;border:1px solid #d7e3dd;border-radius:12px;background:#eef5f2}.billing-main-tabs-v58952 button,.billing-filter-row-v58952 button{border:0;background:transparent;color:#526a61;font:inherit;font-weight:800;cursor:pointer}.billing-main-tabs-v58952 button{padding:9px 18px;border-radius:9px}.billing-main-tabs-v58952 button.active{background:#fff;color:#164f3c;box-shadow:0 1px 5px rgba(24,78,61,.12)}
+.billing-summary-v58952{margin-bottom:12px}.billing-money-card-v58952{display:grid;grid-template-columns:1fr auto;align-items:end;gap:2px 16px;padding:16px 18px;border:1px solid #e2c9c5;border-left:5px solid #b5473f;border-radius:14px;background:#fff9f8}.billing-money-card-v58952>span{font-size:.76rem;font-weight:900;letter-spacing:.055em;text-transform:uppercase;color:#8b4c46}.billing-money-card-v58952>strong{grid-row:1/3;grid-column:2;font-size:1.9rem;color:#87332d}.billing-money-card-v58952>small{color:#6e5d59}.billing-money-card-v58952.paid-v58952{border-color:#c8ded3;border-left-color:#247555;background:#f8fcfa}.billing-money-card-v58952.paid-v58952>span,.billing-money-card-v58952.paid-v58952>strong{color:#1b644a}
+.billing-main-view-v58952{display:grid;gap:10px}.billing-toolbar-v58952{display:flex;align-items:center;justify-content:space-between;gap:12px}.billing-toolbar-v58952>.control{max-width:360px}.billing-filter-row-v58952{display:flex;gap:3px;flex-wrap:wrap}.billing-filter-row-v58952 button{padding:8px 11px;border-radius:9px}.billing-filter-row-v58952 button.active{background:#e2f0e9;color:#16523d}.billing-list-head-v58952{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:4px 2px;color:#36564a}.billing-list-head-v58952>div{display:flex;gap:12px}.text-button-v58952{padding:0;border:0;background:transparent;color:#1f6f54;font:inherit;font-size:.82rem;font-weight:800;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.billing-list-v58952{display:grid;gap:7px}.billing-row-v58952{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;border:1px solid #dce6e1;border-radius:12px;background:#fff;padding:10px 12px}.billing-row-v58952.overdue-v58952{border-left:4px solid #b42318;background:#fffafa}.billing-row-main-v58952{display:grid;grid-template-columns:minmax(210px,1fr) minmax(140px,.38fr) auto;align-items:center;gap:18px;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer}.billing-document-v58952,.billing-amount-v58952{display:grid;gap:2px}.billing-document-v58952 small,.billing-amount-v58952 small,.billing-payment-links-v58952 small{font-size:.75rem;color:#6a7c75}.billing-amount-v58952{text-align:right}.billing-row-actions-v58952{display:flex;gap:6px}.payment-row-v58952 .billing-row-main-v58952{grid-template-columns:minmax(220px,1fr) minmax(130px,.4fr) minmax(100px,.25fr)}
+.billing-detail-v58952{margin-top:8px;padding:12px;border:1px solid #cfded7;border-radius:15px;background:#f8fbfa}.billing-detail-head-v58952{display:flex;align-items:center;justify-content:space-between;padding:0 4px 8px}.billing-detail-v58952>details{margin:0;background:#fff}.billing-empty-v58952{display:grid;gap:3px;padding:28px;border:1px dashed #cadad2;border-radius:13px;background:#fafcfb;text-align:center;color:#5d7269}.billing-empty-v58952 span{font-size:.82rem}.billing-engine-hidden-v58952{display:none!important}
+.billing-payment-dialog-summary-v58952{display:grid;gap:3px;padding:15px;border-radius:12px;background:#f2f8f5}.billing-payment-dialog-summary-v58952 strong{font-size:1.6rem;color:#1f6f54}.billing-payment-allocation-v58952{display:grid;gap:7px;margin-top:12px}.billing-payment-allocation-v58952>div,.billing-register-v58952 article{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 12px;border:1px solid #dce6e1;border-radius:11px}.billing-payment-allocation-v58952 span,.billing-register-v58952 article>div:first-child{display:grid;gap:2px}.billing-payment-allocation-v58952 small,.billing-register-v58952 span,.billing-register-v58952 small{color:#6b7c75;font-size:.76rem}.billing-register-v58952{display:grid;gap:7px;max-height:58vh;overflow:auto}.billing-register-v58952 article>div:last-child{display:flex;align-items:center;gap:10px}
+.statement-document-v58952{color:#173c31}.statement-document-v58952 header,.statement-party-v58952,.statement-document-v58952 footer{display:flex;justify-content:space-between;gap:24px}.statement-document-v58952 header{padding-bottom:14px;border-bottom:2px solid #1f6f54}.statement-document-v58952 header>div,.statement-party-v58952>div{display:grid;gap:3px}.statement-party-v58952{margin:18px 0}.statement-table-wrap-v58952{overflow:auto}.statement-document-v58952 table{width:100%;border-collapse:collapse;font-size:.78rem}.statement-document-v58952 th,.statement-document-v58952 td{padding:9px;border-bottom:1px solid #dce5e1;text-align:left}.statement-document-v58952 th:nth-last-child(-n+3),.statement-document-v58952 td:nth-last-child(-n+3){text-align:right}.statement-document-v58952 footer{align-items:end;margin-top:16px;padding-top:12px;border-top:2px solid #1f6f54}.statement-document-v58952 footer>div{display:grid;gap:3px}.statement-document-v58952 footer strong{font-size:1.4rem}
+@media(max-width:760px){.billing-heading-v58952,.billing-toolbar-v58952,.billing-list-head-v58952{align-items:stretch;flex-direction:column}.billing-heading-v58952 .heading-actions{width:100%}.billing-heading-v58952 .heading-actions .button{flex:1}.billing-main-tabs-v58952{width:100%}.billing-main-tabs-v58952 button{flex:1}.billing-toolbar-v58952>.control{max-width:none;width:100%}.billing-row-v58952{grid-template-columns:1fr}.billing-row-main-v58952,.payment-row-v58952 .billing-row-main-v58952{grid-template-columns:1fr auto}.billing-row-main-v58952 .status-badge{grid-column:1/-1;width:max-content}.billing-amount-v58952{text-align:right}.billing-payment-links-v58952{display:none}.billing-row-actions-v58952{justify-content:flex-end}.billing-money-card-v58952{grid-template-columns:1fr}.billing-money-card-v58952>strong{grid-row:auto;grid-column:auto}.statement-party-v58952,.statement-document-v58952 header,.statement-document-v58952 footer{flex-direction:column}}
+</style>
+
+<style id="billing-invoice-detail-fix-v58956">
+/* The invoice summary has six items after the ageing badge is added. Let them wrap instead of clipping. */
+.billing-detail-v58952 .invoiced-item>summary{
+  display:flex!important;
+  align-items:center!important;
+  flex-wrap:wrap!important;
+  gap:8px 10px!important;
+  overflow:visible!important;
+}
+.billing-detail-v58952 .invoiced-item>summary>div:first-child{
+  flex:1 1 360px;
+  min-width:220px;
+}
+.billing-detail-v58952 .invoiced-item>summary>strong:nth-child(2),
+.billing-detail-v58952 .invoiced-item>summary>.status-badge,
+.billing-detail-v58952 .invoiced-item>summary>.invoice-age-badge-v5545,
+.billing-detail-v58952 .invoiced-item>summary>span:last-child{
+  flex:0 0 auto;
+}
+.billing-detail-v58952 .invoice-age-badge-v5545{
+  max-width:none!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  white-space:nowrap!important;
+}
+.billing-detail-v58952 .invoice-actions{justify-content:flex-start}
+@media(max-width:760px){
+  .billing-detail-v58952 .invoiced-item>summary>div:first-child{flex-basis:100%;min-width:0}
+}
+</style>
+
+
+  <style id="invoiceCycleStylesV58963">
+    .invoice-cycle-toggle-v58963{display:flex!important;align-items:center;gap:10px;padding:11px 13px;border:1px solid #dbe6e1;border-radius:12px;background:#f8fbfa}.invoice-cycle-toggle-v58963 input{width:auto}.invoice-cycle-summary-v58963{font-weight:700}.client-cycle-inline-v58963{min-width:0}
+  </style>
+
+<style id="v5968-quick-quote-single-scroll">
+/* Quick Quote: use the viewport instead of stacking a page scrollbar and a dialog scrollbar. */
+html:has(#quickQuoteDialogV59400[open]),
+body:has(#quickQuoteDialogV59400[open]){overflow:hidden!important}
+#quickQuoteDialogV59400[open]{
+  position:fixed!important;
+  inset:14px 0 auto 0!important;
+  margin:0 auto!important;
+  width:min(920px,calc(100vw - 30px))!important;
+  max-width:920px!important;
+  height:calc(100dvh - 28px)!important;
+  max-height:calc(100dvh - 28px)!important;
+  padding:0!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#quickQuoteDialogV59400 .dialog-shell{
+  display:flex!important;
+  flex-direction:column!important;
+  width:100%!important;
+  height:100%!important;
+  max-height:none!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+}
+#quickQuoteDialogV59400 .dialog-heading{
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:5!important;
+  background:#fff!important;
+}
+#quickQuoteDialogV59400 [data-v56-body]{
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  scrollbar-gutter:stable!important;
+  padding-bottom:0!important;
+}
+#quickQuoteDialogV59400 .quick-commercial-form-v59400{min-height:100%;display:flex;flex-direction:column}
+#quickQuoteDialogV59400 .quick-commercial-form-v59400>.dialog-actions{
+  position:sticky!important;
+  bottom:0!important;
+  z-index:6!important;
+  margin-top:auto!important;
+  padding:14px 0 12px!important;
+  border-top:1px solid #dce6e0!important;
+  background:#fff!important;
+  box-shadow:0 -10px 18px rgba(18,61,48,.04)!important;
+}
+@media(max-width:760px){
+  #quickQuoteDialogV59400[open]{inset:6px 0 auto 0!important;width:calc(100vw - 12px)!important;height:calc(100dvh - 12px)!important;max-height:calc(100dvh - 12px)!important}
+  #quickQuoteDialogV59400 .quick-commercial-form-v59400>.dialog-actions{gap:7px!important;flex-wrap:wrap!important}
+}
+</style>
+
+
+<style id="v5969-sent-indicator">
+.commercial-sent-on-v5969{display:block!important;margin-top:3px!important;color:#176347!important;font-weight:850!important;font-size:.75rem!important}
+.commercial-detail-summary-v59400{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))!important}
+</style>
+
+<style id="billing-top-cleanup-v59662">
+/* v59.6.62 — clean Billing hierarchy; UI only */
+#view-invoices .billing-heading-v58952{display:flex;align-items:flex-start;justify-content:space-between;gap:28px;margin-bottom:14px}
+#view-invoices .billing-heading-v58952>div:first-child{max-width:760px}
+#view-invoices .billing-heading-v58952 p{max-width:720px;margin-top:5px;line-height:1.42;color:#60736a}
+#view-invoices .billing-heading-v58952 .heading-actions{display:flex;gap:9px;flex:0 0 auto}
+
+#view-invoices .billing-summary-v58952.billing-summary-clean-v59662{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important;margin:12px 0 10px!important}
+#view-invoices .billing-summary-v58952>article,
+#view-invoices .billing-control-card-v59662{display:grid!important;grid-template-columns:1fr!important;align-content:start!important;gap:3px!important;min-width:0!important;padding:13px 14px!important;border:1px solid #d7e4dd!important;border-radius:13px!important;background:#fff!important;box-shadow:0 1px 2px rgba(18,63,48,.03)!important}
+#view-invoices .billing-summary-v58952>article>span,
+#view-invoices .billing-control-card-v59662>span{display:block!important;font-size:.72rem!important;font-weight:850!important;letter-spacing:.045em!important;text-transform:uppercase!important;color:#526d61!important}
+#view-invoices .billing-summary-v58952>article>strong,
+#view-invoices .billing-control-card-v59662>strong{display:block!important;margin:1px 0!important;font-size:1.35rem!important;line-height:1.15!important;color:#0f4d34!important;overflow-wrap:anywhere}
+#view-invoices .billing-summary-v58952>article>small,
+#view-invoices .billing-control-card-v59662>small{display:block!important;font-size:.76rem!important;line-height:1.3!important;color:#718078!important}
+
+#view-invoices .billing-work-check-v59662{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 10px;padding:10px 12px;border:1px solid #e4c78f;border-radius:12px;background:#fffaf0;color:#704b12}
+#view-invoices .billing-work-check-v59662>div{display:grid;gap:2px}
+#view-invoices .billing-work-check-v59662 strong{font-size:.86rem}
+#view-invoices .billing-work-check-v59662 span{font-size:.76rem;line-height:1.3;color:#85652d}
+#view-invoices .billing-work-check-v59662.hidden{display:none!important}
+
+#view-invoices .commercial-pipeline-v59400.billing-v59400.billing-stage-clean-v59662{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:5px!important;margin:0 0 12px!important;padding:5px!important;border:1px solid #d7e4dd!important;border-radius:13px!important;background:#edf5f1!important;overflow:visible!important}
+#view-invoices .billing-stage-clean-v59662>[data-commercial-billing-stage]{display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;gap:6px!important;min-width:0!important;padding:9px 10px!important;border:0!important;border-radius:9px!important;background:transparent!important;color:#39594c!important;text-align:left!important;cursor:pointer!important}
+#view-invoices .billing-stage-clean-v59662>[data-commercial-billing-stage] span{min-width:0!important;font-size:.74rem!important;font-weight:800!important;line-height:1.15!important;white-space:normal!important}
+#view-invoices .billing-stage-clean-v59662>[data-commercial-billing-stage] strong{font-size:.88rem!important;color:#183f31!important}
+#view-invoices .billing-stage-clean-v59662>[data-commercial-billing-stage].active{background:#fff!important;color:#104f35!important;box-shadow:0 1px 4px rgba(18,63,48,.10)!important}
+#view-invoices .billing-stage-clean-v59662>[data-commercial-billing-stage].active strong{color:#0c5b3a!important}
+
+#view-invoices .billing-toolbar-v58952.billing-toolbar-clean-v59662{display:block!important;margin:0 0 8px!important}
+#view-invoices .billing-toolbar-clean-v59662 .commercial-toolbar-v59400{display:grid!important;grid-template-columns:minmax(260px,1fr) minmax(190px,260px)!important;gap:9px!important;align-items:center!important;width:100%!important}
+#view-invoices .billing-toolbar-clean-v59662 .commercial-toolbar-v59400 input,
+#view-invoices .billing-toolbar-clean-v59662 .commercial-toolbar-v59400 select{width:100%!important;min-width:0!important}
+
+@media(max-width:980px){
+  #view-invoices .billing-summary-v58952.billing-summary-clean-v59662{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #view-invoices .commercial-pipeline-v59400.billing-v59400.billing-stage-clean-v59662{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:700px){
+  #view-invoices .billing-heading-v58952{flex-direction:column;gap:12px}
+  #view-invoices .billing-heading-v58952 .heading-actions{width:100%}
+  #view-invoices .billing-heading-v58952 .heading-actions .button{flex:1}
+  #view-invoices .billing-summary-v58952.billing-summary-clean-v59662{grid-template-columns:1fr!important}
+  #view-invoices .commercial-pipeline-v59400.billing-v59400.billing-stage-clean-v59662{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #view-invoices .billing-toolbar-clean-v59662 .commercial-toolbar-v59400{grid-template-columns:1fr!important}
+  #view-invoices .billing-work-check-v59662{align-items:stretch;flex-direction:column}
+}
+</style>
+
+  <script>
+  // v59.6.89: remove the retired v59.6.86 warm-start state.
+  try { localStorage.removeItem('tuinbooks_desktop_warm_context_v59686'); } catch (_) {}
+  document.documentElement.classList.remove('desktop-warm-start-pending');
+  </script>
+
+  <link rel="stylesheet" href="stability-repair-v59694.css?v=60.0.4-schedule-stage-1a-scope-bind">
+  <link rel="stylesheet" href="consolidation-v6000.css?v=60.0.5-schedule-stage-1b-operations">
+  <link rel="stylesheet" href="consolidation-v6002.css?v=60.0.5-schedule-stage-1b-operations">
+  <link rel="stylesheet" href="consolidation-v6003.css?v=60.0.5-schedule-stage-1b-operations">
+  <link rel="stylesheet" href="consolidation-v6005.css?v=60.0.5-schedule-stage-1b-operations">
+  <link rel="stylesheet" href="consolidation-v6011.css?v=60.0.11-schedule-action-permission-fix">
+</head>
+<body class="desktop-body" data-app="desktop">
+  <section id="backendGate" class="backend-gate" aria-live="polite">
+    <div class="backend-gate-card">
+      <div class="backend-gate-brand">
+        <img src="tuinbooks-logo.png" alt="TuinBooks">
+        <span>Garden-service business management</span>
+      </div>
+
+      <div id="backendConnectionStep" class="backend-gate-step backend-unavailable-step hidden">
+        <span class="eyebrow">Temporarily unavailable</span>
+        <h1>TuinBooks is not ready on this site</h1>
+        <p>Please try again shortly or contact your TuinBooks administrator.</p>
+        <button type="button" class="button backend-retry-button" onclick="window.location.reload()">Try again</button>
+        <p id="backendConnectionError" class="backend-gate-error" role="alert"></p>
+      </div>
+
+      <div id="backendAuthStep" class="backend-gate-step backend-auth-step hidden">
+        <span class="eyebrow">Secure account</span>
+        <h1 id="backendAuthTitle">Sign in to TuinBooks</h1>
+        <p id="backendAuthHelp">Use your email address and password.</p>
+        <div class="backend-auth-toggle" role="tablist" aria-label="Account access">
+          <button type="button" class="active" data-backend-auth-mode="signin">Sign in</button>
+          <button type="button" data-backend-auth-mode="signup">Create account</button>
+        </div>
+        <form id="backendAuthForm" class="backend-gate-form">
+          <label id="backendDisplayNameWrap" class="hidden">Your name<input id="backendDisplayName" autocomplete="name"></label>
+          <label>Email address<input id="backendAuthEmail" type="email" required autocomplete="email" placeholder="name@example.com"></label>
+          <label>Password<input id="backendAuthPassword" type="password" minlength="8" required autocomplete="current-password" placeholder="At least 8 characters"></label>
+          <label id="backendPasswordConfirmWrap" class="hidden">Confirm password<input id="backendAuthPasswordConfirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter the same password again"></label>
+          <button id="backendAuthSubmit" class="button backend-auth-submit" type="submit">Sign in</button>
+        </form>
+        <p id="backendAuthMessage" class="backend-gate-message" role="status"></p>
+        <div class="backend-gate-secondary-actions backend-auth-help-row">
+          <span>Field users receive access from the business owner.</span>
+        </div>
+      </div>
+
+      <div id="backendLoadingStep" class="backend-gate-step hidden">
+        <div class="backend-loader" aria-hidden="true"></div>
+        <h1>Opening TuinBooks</h1>
+        <p id="backendLoadingMessage">Checking your account and loading the business…</p>
+      </div>
+    </div>
+  </section>
+  <header class="admin-header">
+    <div class="admin-brand">
+      <img class="admin-product-logo" src="tuinbooks-logo.png" alt="TuinBooks">
+      <strong id="businessNameHeader" class="brand-title">TuinBooks</strong>
+    </div>
+    <nav class="admin-nav admin-nav-final" aria-label="Admin sections">
+      <button data-view="schedule" class="nav-tab">Schedule</button>
+      <button data-view="records" class="nav-tab active">Work</button>
+      <button data-view="clients" class="nav-tab">Clients</button>
+      <button data-view="quotes" class="nav-tab">Quotes</button>
+      <button data-view="invoices" class="nav-tab">Billing</button>
+      <button data-view="business" class="nav-tab">Business</button>
+    </nav>
+    <div class="header-actions">
+      <button type="button" class="icon-button header-settings-button" id="headerSettingsBtnV58930" aria-label="Open Settings" title="Settings">⚙</button>
+      <div id="backendAccountBar" class="backend-account-bar hidden">
+        <span id="backendSyncState" class="backend-sync-state saved">Workspace ready</span>
+        <button type="button" class="button secondary compact" id="backendSignOutBtn">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div id="appToast" class="toast" aria-live="polite"></div>
+
+    <section id="view-schedule" class="app-view">
+      <div class="schedule-runtime-controls hidden" aria-hidden="true" style="display:none!important">
+        <input type="date" id="scheduleWeekPicker" tabindex="-1">
+        <button type="button" id="previousWeekBtn" tabindex="-1">Previous week</button>
+        <button type="button" id="nextWeekBtn" tabindex="-1">Next week</button>
+        <button type="button" id="currentWeekBtn" tabindex="-1">Current week</button>
+      </div>
+
+      <section id="rollingScheduleOverview" class="rolling-plan-panel" aria-label="Rolling eight-week schedule"></section>
+
+      <section id="schedulePrioritySummaryV5535" class="hidden" aria-hidden="true"></section>
+
+      <details id="weekReviewPanel" class="panel schedule-review-panel schedule-review-panel-v5535">
+        <summary>
+          <div><strong>Week status</strong><span>See what was scheduled, logged, missed and still needs office attention.</span></div>
+          <span class="status-badge neutral">Open review</span>
+        </summary>
+        <div id="teamViewerIntro" class="team-viewer-intro">
+          <div><span class="eyebrow">Selected week</span><h2>Detailed week review</h2><p>One compact comparison for every team. Open only when you need the detail.</p></div>
+        </div>
+        <div id="teamScheduleBoard" class="week-review-board"></div>
+      </details>
+
+      <div class="schedule-workspace-toolbar panel v26 schedule-toolbar-compact-v5535 schedule-toolbar-hidden-v5536">
+        <div class="schedule-toolbar-copy">
+          <span class="eyebrow">Live scheduling board</span>
+          <strong id="scheduleModeTitle">Visual weekly plan</strong>
+          <span id="scheduleModeHelp" class="schedule-mode-help">Client type, frequency and services stay visible. Open a visit only for the full detail.</span>
+        </div>
+        <div class="toolbar-meta" id="scheduleWeekSummary"></div>
+      </div>
+
+      <section class="schedule-filter-bar panel schedule-filter-bar-v5535 schedule-filter-bar-v5536 hidden" aria-label="Schedule filters" aria-hidden="true" style="display:none!important">
+        <select id="scheduleTeamFilter" class="control compact-control" aria-label="Filter by team"><option value="all">All teams</option></select>
+        <select id="scheduleStatusFilter" class="control compact-control" aria-label="Filter by status"><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="attention">Needs attention</option></select>
+        <details class="schedule-more-filters-v5536">
+          <summary>More filters</summary>
+          <div class="schedule-advanced-filters-v5536">
+            <select id="scheduleClientTypeFilter" class="control compact-control" aria-label="Filter by client type"><option value="all">All client types</option></select>
+            <select id="scheduleFrequencyFilter" class="control compact-control" aria-label="Filter by service frequency"><option value="all">All frequencies</option></select>
+            <select id="scheduleServiceFilter" class="control compact-control" aria-label="Filter by service"><option value="all">All services</option></select>
+            <select id="scheduleClusterFilter" class="control compact-control" aria-label="Filter by service area"><option value="all">All service areas</option></select>
+          </div>
+        </details>
+        <button type="button" class="button secondary compact" id="clearScheduleFiltersBtn">Clear filters</button>
+      </section>
+
+      <div id="scheduleActionAlerts" class="schedule-action-alerts hidden" aria-live="polite"></div>
+
+      <div class="schedule-control-room">
+        <div class="schedule-board-and-parking-v5537">
+          <div id="weeklyScheduleBoard" class="schedule-board"></div>
+          <aside id="scheduleParkingLotV5537" class="schedule-basket-panel-v58930" aria-label="Schedule basket" ondragover="scheduleBasketDragOverV58930(event)" ondragleave="scheduleBasketDragLeaveV58930(event)" ondrop="scheduleBasketDropV58930(event)"></aside>
+          <button type="button" id="scheduleBasketLauncherV58931" class="schedule-basket-launcher-v58931 hidden" onclick="openScheduleQueue()" aria-label="Open Schedule basket">Basket <span id="scheduleBasketLauncherCountV58931">0</span></button>
+        </div>
+        <aside id="scheduleDetailPanel" class="schedule-detail-panel hidden" aria-live="polite">
+          <div class="schedule-detail-head">
+            <div><span id="scheduleDetailEyebrow" class="eyebrow">Team-day route</span><h2 id="scheduleDetailTitle">Select a team-day</h2></div>
+            <button type="button" class="icon-button" id="closeScheduleDetail" aria-label="Close schedule detail">×</button>
+          </div>
+          <div id="scheduleDetailContent" class="schedule-detail-content"></div>
+        </aside>
+      </div>
+
+      <div id="weeklyOperationsBoard" class="weekly-operations-board hidden"></div>
+
+
+    </section>
+
+    <section id="view-unscheduled" class="app-view legacy-subview-v58930">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Scheduling exceptions</span>
+          <h1>Work to schedule</h1>
+          <p>Missed work, accepted quotes and jobs that could not fit stay here until the owner places them on a team-day.</p>
+        </div>
+        <div class="heading-actions">
+          <button type="button" class="button" id="quickJobBtnV59396">+ Quick job</button>
+          <button type="button" class="button secondary" id="backFromUnscheduledV5535">Back to Schedule</button>
+        </div>
+      </div>
+      <div id="unscheduledQueueSummaryV5535" class="metric-grid four"></div>
+      <section class="panel unscheduled-queue-toolbar-v5535">
+        <input id="unscheduledSearchV5535" class="control grow" placeholder="Search client, suburb, complex or service">
+        <select id="unscheduledTypeFilterV5535" class="control compact-control"><option value="all">All client types</option></select>
+        <select id="unscheduledFrequencyFilterV5535" class="control compact-control"><option value="all">All frequencies</option></select>
+        <select id="unscheduledServiceFilterV5535" class="control compact-control"><option value="all">All services</option></select>
+        <select id="unscheduledAreaFilterV5535" class="control compact-control"><option value="all">All service areas</option></select>
+        <button type="button" class="button secondary compact" id="clearUnscheduledFiltersV5535">Clear filters</button>
+      </section>
+      <section class="panel unscheduled-selection-bar-v5535">
+        <label class="check-row"><input type="checkbox" id="selectAllUnscheduledV5535"> Select all visible</label>
+        <span id="unscheduledSelectionCountV5535">0 selected</span>
+        <button type="button" class="button" id="scheduleSelectedUnscheduledV5535">Schedule selected</button>
+      </section>
+      <div id="unscheduledQueueListV5535" class="unscheduled-queue-list-v5535"></div>
+    </section>
+
+
+    <section id="view-marketing" class="app-view legacy-subview-v58930 feature-coming-soon-view">
+      <section class="coming-soon-panel panel"><span class="eyebrow">Feature preview</span><h1>Marketing — Coming soon</h1><p>Client campaigns and WhatsApp booking are being tested before they are enabled for trial businesses.</p><span class="coming-soon-status">Not yet active</span></section>
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Existing-client growth</span>
+          <h1>Marketing</h1>
+          <p>Build relevant campaigns from active clients, protect consent, check delivery capacity and turn accepted offers into scheduled work.</p>
+        </div>
+        <div class="heading-actions">
+          <button type="button" class="button secondary" id="reviewMarketingAudienceBtnV553">Review audience</button>
+          <button type="button" class="button" id="newMarketingCampaignBtnV553">New campaign</button>
+        </div>
+      </div>
+
+      <div id="marketingConnectionBannerV553" class="v553-connection-banner"></div>
+      <div id="marketingSummaryV553" class="metric-grid six"></div>
+
+      <section class="panel v553-audience-builder">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Audience builder</span><h2>Start with active clients, then remove ineligible contacts</h2><p>The system excludes invalid numbers, opt-outs, missing permission, recent promotions and duplicate phones before estimating paid deliveries.</p></div>
+          <span id="marketingAudienceStatusV553" class="status-badge neutral">Not calculated</span>
+        </div>
+        <div class="v553-filter-grid">
+          <label>Audience mode<select id="marketingAudienceModeV553"><option value="all">All active clients</option><option value="targeted">Targeted active clients</option></select></label>
+          <label>Service<select id="marketingServiceFilterV553"><option value="all">All services</option></select></label>
+          <label>Client type<select id="marketingClientTypeFilterV553"><option value="all">All client types</option></select></label>
+          <label>Cluster<select id="marketingClusterFilterV553"><option value="all">All clusters</option></select></label>
+          <label>Language<select id="marketingLanguageFilterV553"><option value="all">All languages</option><option value="en">English</option><option value="af">Afrikaans</option></select></label>
+          <label>Minimum days since promotion<input id="marketingCooldownDaysV553" type="number" min="0" max="365" value="30"></label>
+        </div>
+        <div id="marketingAudienceBreakdownV553" class="v553-audience-breakdown"></div>
+      </section>
+
+      <section class="panel v553-capacity-check">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Capacity-aware promotion</span><h2>Can the teams deliver the likely bookings?</h2><p>Estimate likely bookings and compare the required service hours with suitable capacity before the message is sent.</p></div>
+        </div>
+        <div class="v553-filter-grid">
+          <label>Offer service<select id="marketingCapacityServiceV553"></select></label>
+          <label>Estimated response rate<input id="marketingResponseRateV553" type="number" min="0" max="100" step="0.5" value="10"><small>Percentage of recipients expected to book.</small></label>
+          <label>Minutes per booking<input id="marketingDurationV553" type="number" min="15" max="1440" step="15" value="60"></label>
+          <label>Fulfilment starts<input id="marketingWindowStartV553" type="date"></label>
+          <label>Fulfilment ends<input id="marketingWindowEndV553" type="date"></label>
+          <label>Estimated message rate (R)<input id="marketingMessageRateV553" type="number" min="0" max="50" step="0.01" value="0.85"><small>Editable estimate; actual Meta billing remains separate.</small></label>
+        </div>
+        <div id="marketingCapacityImpactV553" class="v553-capacity-impact"></div>
+      </section>
+
+      <div class="v553-two-column">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Campaign pipeline</span><h2>Campaigns</h2><p>Draft, approve, send and track the work generated.</p></div></div>
+          <div id="marketingCampaignListV553" class="v553-card-list"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Replies to work</span><h2>Accepted work</h2><p>Convert interested replies into the next visit, a separate job or an office follow-up.</p></div><button type="button" class="button secondary compact" id="recordMarketingAcceptanceBtnV553">Record accepted response</button></div>
+          <div id="marketingAcceptedListV553" class="v553-card-list"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Permission review</span><h2>Marketing eligibility</h2><p>Visit-report communication stays separate. Promotional messages require a recorded marketing basis and may be withdrawn at any time.</p></div></div>
+        <div class="v553-consent-toolbar"><input id="marketingConsentSearchV553" class="control" type="search" placeholder="Search clients"><select id="marketingConsentFilterV553" class="control compact-control"><option value="all">All clients</option><option value="allowed">Allowed</option><option value="not-allowed">Not allowed</option><option value="opted-out">Opted out</option><option value="invalid">Invalid number</option></select></div>
+        <div id="marketingConsentListV553" class="v553-consent-list"></div>
+      </section>
+    </section>
+
+    <section id="view-mileage" class="app-view legacy-subview-v58930 feature-coming-soon-view">
+      <section class="coming-soon-panel panel"><span class="eyebrow">Feature preview</span><h1>Mileage — Coming soon</h1><p>Route distance, odometer and fuel-cost tools are being tested before they are enabled for trial businesses.</p><span class="coming-soon-status">Not yet active</span></section>
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Route and fleet control</span>
+          <h1>Mileage &amp; Fleet</h1>
+          <p>Compare planned and actual kilometres, estimate fuel cost and identify expensive routes without permanent phone tracking.</p>
+        </div>
+        <div class="heading-actions">
+          <input id="mileageMonthV553" type="month" class="control compact-control">
+          <button type="button" class="button secondary" id="newVehicleBtnV553">Add vehicle</button>
+          <button type="button" class="button" id="newRouteLogBtnV553">Log team route</button>
+        </div>
+      </div>
+
+      <div id="mileageSummaryV553" class="metric-grid six"></div>
+
+      <section class="panel v553-route-settings">
+        <div class="section-title-row"><div><span class="eyebrow">Planning assumptions</span><h2>Fuel and route settings</h2><p>Actual kilometres come from odometer readings. Route estimates use saved map pins where available, otherwise the optional per-stop planning fallback.</p></div></div>
+        <form id="mileageSettingsFormV553" class="v553-filter-grid">
+          <label>Fuel price per litre (R)<input id="mileageFuelPriceV553" type="number" min="0" step="0.01" required></label>
+          <label>Planning fallback km per visit<input id="mileageFallbackKmV553" type="number" min="0" step="0.1"><small>Used only when route map pins are incomplete.</small></label>
+          <label>Business base latitude<input id="mileageBaseLatV553" type="number" min="-90" max="90" step="0.000001"></label>
+          <label>Business base longitude<input id="mileageBaseLngV553" type="number" min="-180" max="180" step="0.000001"></label>
+          <label>Default fuel type<select id="mileageFuelTypeV553"><option value="petrol_95">Petrol 95</option><option value="petrol_93">Petrol 93</option><option value="diesel_50ppm">Diesel 50ppm</option><option value="diesel_500ppm">Diesel 500ppm</option><option value="other">Other</option></select></label>
+          <div class="v553-form-action"><button class="button" type="submit">Save route settings</button></div>
+        </form>
+        <div id="mileagePinStatusV553" class="persistent-inline-note"></div>
+      </section>
+
+      <div class="v553-two-column mileage-columns-v553">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Vehicles</span><h2>Fleet profiles</h2><p>Assign a vehicle to each team and record its realistic working fuel consumption.</p></div></div>
+          <div id="vehicleListV553" class="v553-card-list"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Monthly mileage</span><h2>Team totals</h2><p>Actual odometer distance takes priority; planned distance remains visible for comparison.</p></div></div>
+          <div id="mileageTeamTotalsV553" class="v553-team-totals"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Daily evidence</span><h2>Route logs</h2><p>Record starting and ending odometer readings after each team-day. Fuel and per-visit costs calculate automatically.</p></div></div>
+        <div id="routeLogListV553" class="v553-route-log-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Route intelligence</span><h2>What is costing the business?</h2><p>Surface large variances, expensive routes and days with high kilometres per completed visit.</p></div></div>
+        <div id="mileageInsightsV553" class="v553-insight-grid"></div>
+      </section>
+    </section>
+
+    <section id="view-invoices" class="app-view billing-minimal-page-v58952">
+      <div class="page-heading billing-heading-v58952">
+        <div>
+          <span class="eyebrow">Routine billing control</span>
+          <h1>Billing</h1>
+          <p>Every active routine client carries a full-value control draft. Work records reconcile the draft; issuing or sending creates the accounting invoice.</p>
+        </div>
+        <div class="heading-actions">
+          <button type="button" class="button secondary" id="billingCreateInvoiceBtnV58954">+ Quick invoice</button>
+          <button type="button" class="button" id="billingCreateStatementBtnV58954">Create statement</button>
+        </div>
+      </div>
+
+      <nav class="billing-main-tabs-v58952" aria-label="Billing">
+        <button type="button" class="active" data-billing-main-v58952="invoices">Invoices</button>
+        <button type="button" data-billing-main-v58952="payments">Payments</button>
+      </nav>
+
+      <div id="billingSummaryV58952" class="billing-summary-v58952"></div>
+
+      <section id="billingInvoicesViewV58952" class="billing-main-view-v58952">
+        <div class="billing-toolbar-v58952">
+          <div class="billing-filter-row-v58952" aria-label="Invoice status">
+            <button type="button" class="active" data-invoice-filter-v58952="all">All</button>
+            <button type="button" data-invoice-filter-v58952="draft">Drafts</button>
+            <button type="button" data-invoice-filter-v58952="unpaid">Unpaid</button>
+            <button type="button" data-invoice-filter-v58952="overdue">Overdue</button>
+            <button type="button" data-invoice-filter-v58952="paid">Paid</button>
+          </div>
+          <select id="billingProfileFilterV59396" class="control compact-control" aria-label="Billing Profile"><option value="all">All Billing Profiles</option></select><input id="billingInvoiceSearchV58952" class="control" type="search" placeholder="Search invoices or clients">
+        </div>
+        <div class="billing-list-head-v58952"><strong id="billingInvoiceCountV58952">0 invoices</strong><div><button type="button" class="text-button-v58952" id="billingCreditNotesBtnV58954">Credit notes</button><button type="button" class="text-button-v58952" data-billing-statements-v58954>Statements</button></div></div>
+        <div id="billingInvoiceListV58952" class="billing-list-v58952"></div>
+        <section id="billingInvoiceDetailV58952" class="billing-detail-v58952 hidden"></section>
+      </section>
+
+      <section id="billingPaymentsViewV58952" class="billing-main-view-v58952 hidden">
+        <div class="billing-toolbar-v58952">
+          <select id="billingPaymentProfileFilterV59396" class="control compact-control" aria-label="Billing Profile"><option value="all">All Billing Profiles</option></select><input id="billingPaymentSearchV58952" class="control" type="search" placeholder="Search payments, clients or references">
+          <button type="button" class="button" id="customerPaymentBtnV56">Record payment</button>
+        </div>
+        <div class="billing-list-head-v58952"><strong id="billingPaymentCountV58952">0 payments</strong><div><button type="button" class="text-button-v58952" data-billing-statements-v58954>Statements</button></div></div>
+        <div id="billingPaymentListV58952" class="billing-list-v58952"></div>
+      </section>
+
+      <div id="billingLegacyEngineV58952" class="billing-engine-hidden-v58952" aria-hidden="true">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Accounting workflow</span>
+          <h1>Billing</h1>
+          <p>Review completed work and prepare controlled billing drafts for the accounting workflow.</p>
+        </div>
+        <div class="heading-actions billing-current-actions-v5604">
+          <input type="month" id="invoiceMonth" class="control compact-control billing-hidden-month-v5604" aria-hidden="true" tabindex="-1">
+          <span id="billingCurrentPeriodV5604" class="billing-current-period-v5604">Current billing</span>
+          <button type="button" class="button secondary" id="billingHistoryBtnV5604">Invoice history</button>
+        </div>
+      </div>
+
+      <nav class="page-subtabs" aria-label="Billing status">
+        <button type="button" class="page-subtab" data-billing-tab-v58930="drafts">Drafts</button>
+        <button type="button" class="page-subtab" data-billing-tab-v58930="sent">Sent</button>
+        <button type="button" class="page-subtab" data-billing-tab-v58930="overdue">Overdue</button>
+        <button type="button" class="page-subtab" data-billing-tab-v58930="paid">Paid</button>
+        <button type="button" class="page-subtab active" data-billing-tab-v58930="all">All</button>
+      </nav>
+
+      <div id="billingTimingAlertV5545" class="billing-timing-alert-host-v5545" aria-live="polite"></div>
+      <div id="invoiceExceptionSummary" class="exception-summary-grid"></div>
+      <div id="invoiceClosedNotice"></div>
+      <section id="missingWorkLogSection" class="missing-work-log panel hidden">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Operational resolution</span><h2>Needs resolution</h2><p>Add the missing outcome, move the visit into catch-up, or close it with a final reason.</p></div>
+          <span id="missingWorkLogCount" class="status-badge review">0</span>
+        </div>
+        <div id="missingWorkLogList" class="missing-work-list"></div>
+      </section>
+      <section id="catchUpQueueSection" class="catch-up-queue panel hidden">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Waiting to be rescheduled</span><h2>Catch-up queue</h2><p>Missed visits stay here until the office chooses a new date and team.</p></div>
+          <span id="catchUpQueueCount" class="status-badge review">0</span>
+        </div>
+        <div id="catchUpQueueList" class="catch-up-queue-list"></div>
+      </section>
+
+      <div id="invoiceSummaryCards" class="metric-grid five"></div>
+
+      <section class="section-block">
+        <div class="section-title-row">
+          <div>
+            <span class="eyebrow">Primary workflow</span>
+            <h2>Completed work to invoice</h2>
+            <p>Review the draft and send it. Only exceptions stop in Needs review.</p>
+          </div>
+          <div class="legend"><span class="dot review"></span> Needs review</div>
+        </div>
+        <div id="invoiceDraftQueue" class="invoice-draft-list"></div>
+      </section>
+
+      <details class="panel compact-section" id="alreadyInvoicedSection">
+        <summary>
+          <div><strong>Already invoiced</strong><span>Compact sent-invoice history for this month.</span></div>
+          <span id="alreadyInvoicedCount" class="status-badge neutral">0</span>
+        </summary>
+        <div id="alreadyInvoicedList" class="compact-invoice-list"></div>
+      </details>
+
+      <details class="panel compact-section" id="noWorkSection">
+        <summary>
+          <div><strong>No work this month</strong><span>Hidden from the main invoice workflow.</span></div>
+          <span id="noWorkCount" class="status-badge neutral">0</span>
+        </summary>
+        <div id="noWorkList" class="simple-list"></div>
+      </details>
+      </div>
+    </section>
+
+    <section id="view-capacity" class="app-view legacy-subview-v58930 capacity-retired-v5538 hidden" aria-hidden="true">
+      <div class="page-heading capacity-page-heading-v552">
+        <div>
+          <span class="eyebrow">Capacity protection</span>
+          <h1>Capacity &amp; Commitments</h1>
+          <p>Compare the services promised to clients with the realistic time and capability available to deliver them.</p>
+        </div>
+        <div class="heading-actions capacity-period-controls-v552">
+          <label><span>Month</span><input id="capacityMonthV552" class="control compact-control" type="month"></label>
+          <button id="generateCommitmentsBtnV552" type="button" class="button secondary">Refresh commitments</button>
+          <button id="openNewAgreementBtnV552" type="button" class="button">New service agreement</button>
+        </div>
+      </div>
+
+      <section id="capacityScheduleContextV5537" class="capacity-schedule-context-v5537 panel hidden" aria-live="polite"></section>
+
+      <section id="capacityStatusBannerV552" class="capacity-status-banner-v552 panel" aria-live="polite"></section>
+
+      <section class="capacity-summary-grid-v552" aria-label="Capacity summary">
+        <article><span>Promised work</span><strong id="capacityPromisedV552">0h</strong><small id="capacityCommitmentCountV552">0 commitments</small></article>
+        <article><span>Realistic capacity</span><strong id="capacityAvailableV552">0h</strong><small>After travel, breaks and buffer</small></article>
+        <article><span>Scheduled</span><strong id="capacityScheduledV552">0h</strong><small id="capacityScheduledCountV552">0 visits</small></article>
+        <article><span>Unscheduled paid-for work</span><strong id="capacityUnscheduledV552">0h</strong><small>Still needs a suitable slot</small></article>
+        <article class="attention"><span>Commitments at risk</span><strong id="capacityRiskCountV552">0</strong><small id="capacityRiskHoursV552">0h exposed</small></article>
+        <article><span>Catch-up load</span><strong id="capacityCatchupV552">0h</strong><small>Recovery work also uses capacity</small></article>
+        <article id="capacityForecastCardV552"><span>Month-end forecast</span><strong id="capacityFulfilmentForecastV552">On track</strong><small id="capacityFulfilmentForecastHelpV552">Paid-for commitments are covered</small></article>
+      </section>
+
+      <div class="capacity-layout-v552">
+        <section class="panel capacity-team-panel-v552">
+          <div class="section-heading-v552">
+            <div><span class="eyebrow">This week</span><h2>Team capacity</h2><p>Realistic service hours, scheduled load and remaining recovery buffer.</p></div>
+            <div class="capacity-team-heading-actions-v552"><label><span>Week starting</span><input id="capacityWeekV552" class="control compact-control" type="date"></label><button id="openCapacityExceptionBtnV552" type="button" class="button secondary compact">Add absence / capacity change</button></div>
+          </div>
+          <div id="capacityTeamGridV552" class="capacity-team-grid-v552"></div>
+        </section>
+
+        <section class="panel capacity-risk-panel-v552">
+          <div class="section-heading-v552">
+            <div><span class="eyebrow">Protect client promises</span><h2>At-risk commitments</h2><p>These services may miss their fulfilment window without intervention.</p></div>
+            <button id="openRecoveryPlanBtnV552" type="button" class="button">Open recovery plan</button>
+          </div>
+          <div class="capacity-filter-row-v552">
+            <select id="capacityRiskFilterV552" class="control"><option value="all">All risk levels</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+            <select id="capacityServiceFilterV552" class="control"><option value="all">All services</option></select>
+            <input id="capacitySearchV552" class="control grow" placeholder="Search client or service">
+          </div>
+          <div id="capacityRiskListV552" class="capacity-risk-list-v552"></div>
+        </section>
+      </div>
+
+      <section id="capacityRecoveryPanelV552" class="panel capacity-recovery-panel-v552 hidden">
+        <div class="section-heading-v552">
+          <div><span class="eyebrow">Guided recovery</span><h2>Capacity Recovery Plan</h2><p>Review practical moves in order: rebalance, add capacity, catch up, then resolve the client obligation.</p></div>
+          <button id="closeRecoveryPlanBtnV552" type="button" class="button secondary">Close</button>
+        </div>
+        <div id="capacityRecoveryListV552" class="capacity-recovery-list-v552"></div>
+      </section>
+
+      <section class="panel capacity-agreements-panel-v552">
+        <div class="section-heading-v552">
+          <div><span class="eyebrow">What each client bought</span><h2>Service agreements</h2><p>Only active, confirmed agreements generate enforceable commitments. Imported suggestions remain draft until reviewed.</p></div>
+          <div class="capacity-agreement-actions-v552">
+            <button id="reviewDraftAgreementsBtnV552" type="button" class="button secondary">Review draft suggestions</button>
+          </div>
+        </div>
+        <div class="capacity-filter-row-v552">
+          <select id="capacityAgreementStatusV552" class="control"><option value="all">All statuses</option><option value="Active">Active</option><option value="Draft">Draft</option><option value="Paused">Paused</option><option value="Needs review">Needs review</option></select>
+          <input id="capacityAgreementSearchV552" class="control grow" placeholder="Search client or agreement">
+        </div>
+        <div id="capacityAgreementListV552" class="capacity-agreement-list-v552"></div>
+      </section>
+    </section>
+
+    <section id="view-catchup" class="app-view legacy-subview-v58930">
+      <div class="page-heading">
+        <div><span class="eyebrow">Scheduling exceptions</span><h1>Work to schedule</h1><p>Missed work, accepted quotes and jobs that could not fit still need a date and team.</p></div>
+        <div class="heading-actions"><button type="button" class="button" id="openWorkQueueScheduleBtnV5546">Open scheduling board</button><button type="button" class="button secondary" id="backFromCatchUpBtn">Back to Schedule</button></div>
+      </div>
+      <section class="catchup-overview-v55">
+        <article><span>Catch-up work</span><strong id="catchupNeedsOutcomeV55">0</strong><small>Missed or incomplete visits waiting for recovery</small></article>
+        <article><span>Accepted quotes</span><strong id="catchupWaitingV55">0</strong><small>Approved once-off work waiting for a date</small></article>
+        <article><span>Could not fit</span><strong id="catchupScheduledV55">0</strong><small>Generated work moved out of an overfull day</small></article>
+      </section>
+      <section class="panel catchup-workspace-v55">
+        <div class="catchup-filter-bar-v55">
+          <select id="catchupAgeFilterV55" class="control"><option value="all">All ages</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="2-7">2–7 days outstanding</option><option value="older">More than 7 days outstanding</option></select>
+          <select id="catchupTeamFilterV55" class="control"><option value="all">All teams</option></select>
+          <select id="catchupStatusFilterV55" class="control"><option value="all">All work types</option><option value="catchup">Catch-up work</option><option value="accepted-quote">Accepted quotes</option><option value="could-not-fit">Could not fit</option><option value="recurring">Recurring (R)</option><option value="once-off">Once-off (O)</option></select>
+          <input id="catchupSearchV55" class="control grow" placeholder="Search client, suburb, quote or service">
+        </div>
+        <div id="catchupListV55" class="catchup-list-v55"></div>
+      </section>
+    </section>
+
+    <section id="view-clients" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Customer records</span>
+          <h1>Clients</h1>
+          <p>Manage recurring service, contact details, billing and site notes.</p>
+        </div>
+        <div class="heading-actions">
+          <button class="button secondary" id="bulkBillingProfileBtnV59396">Bulk Billing Profile</button>
+          <button class="button secondary" id="openSpreadsheetImporterBtn">Import spreadsheet</button>
+          <button class="button secondary" id="openImporterBtn">Import from photo</button>
+        </div>
+      </div>
+
+      <div id="clientSummaryCards" class="metric-grid four"></div>
+      <div id="incompleteClientAlert"></div>
+      <section id="clientSetupPanel" class="client-setup-panel panel"></section>
+      <div class="split-layout clients-layout">
+        <div class="panel list-panel">
+          <div class="toolbar client-filter-toolbar">
+            <input id="clientSearch" class="control grow" placeholder="Search client, address, suburb, contact or tag">
+            <select id="clientStatusFilter" class="control compact-control">
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="archived">Closed / archived</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
+            <select id="clientTypeFilter" class="control compact-control"><option value="all">All client types</option></select>
+            <select id="clientFrequencyFilter" class="control compact-control"><option value="all">All frequencies</option></select>
+            <select id="clientServiceFilter" class="control compact-control"><option value="all">All services</option></select>
+          </div>
+          <div id="clientList" class="client-admin-list"></div>
+        </div>
+        <form id="clientForm" class="panel form-panel">
+          <div class="form-heading">
+            <div><span class="eyebrow">Client record</span><h2 id="clientFormTitle">New client</h2></div>
+            <button type="button" class="icon-button" id="clearClientFormBtn" aria-label="Clear form">×</button>
+          </div>
+          <input type="hidden" id="clientId">
+          <p class="required-note-v58930"><span aria-hidden="true">*</span> Required information</p>
+          <div class="form-grid two client-form-grid-v58930">
+            <div class="form-section-title span-two"><span class="eyebrow">Basic details</span><h3>Client and contact</h3></div>
+            <label>Client name <span class="required-marker">*</span><input id="clientName" required></label>
+            <label>Client type<select id="clientCustomerType"><option value="Residential">Residential</option><option value="Business">Business</option><option value="Body corporate">Body corporate</option><option value="Estate">Estate</option><option value="School or institution">School or institution</option><option value="Government or municipal">Government or municipal</option><option value="Other">Other</option><option value="Not classified">Not classified</option></select></label>
+            <label>Contact person<input id="clientContact"></label>
+            <div class="form-section-title span-two"><span class="eyebrow">Service site</span><h3>Where the work happens</h3></div><label class="span-two">Property address <span class="required-marker">*</span><input id="clientAddress" required></label>
+            <label>Confirmed suburb <span class="required-marker">*</span><input id="clientSuburb" list="clientSuburbOptions" required autocomplete="off"><datalist id="clientSuburbOptions"></datalist><small id="clientSuburbStatus">Choose an existing suburb or type the suburb the office uses for this site.</small></label>
+            <label>Location description<input id="clientLocationDescription"><small>Use this for smallholdings, mini-suburbs or properties between recognised areas.</small></label>
+            <label>Complex / estate<input id="clientSiteGroupName" placeholder="e.g. Seaview Estate"><small>Jobs with the same name are grouped as one destination on a team-day.</small></label>
+            <label>Main entrance address<input id="clientSiteGroupEntrance" placeholder="Gate or entrance address"></label>
+            <label class="span-two">Complex access / internal directions<textarea id="clientSiteGroupNotes" placeholder="Gate instructions, parking point or directions to this unit"></textarea></label>
+            <div id="clientSuburbSuggestion" class="span-two client-reporting-editor hidden" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px">
+              <div><strong id="clientSuburbSuggestionTitle">Suggested suburb</strong><small id="clientSuburbSuggestionText" style="display:block;margin-top:3px"></small></div>
+              <button type="button" class="button secondary compact" id="useClientSuburbSuggestionBtn">Use suggestion</button>
+            </div>
+            <label>WhatsApp<input id="clientWhatsapp" placeholder="+27..."></label>
+            <label>Email<input id="clientEmail" type="email"></label>
+            <label>Preferred communication<select id="clientCommunicationPreference"><option value="WhatsApp">WhatsApp</option><option value="Email">Email</option><option value="Both">Both</option><option value="None">No routine message</option></select></label>
+            <label>Completion update<select id="clientCompletionReport"><option value="yes">Send after completed visit</option><option value="no">Do not send routine update</option></select></label>
+            <section id="clientReportingPanel" class="span-two client-reporting-editor hidden">
+              <div class="section-title-row compact-title-row"><div><span class="eyebrow">Corporate reporting</span><h3>Email reports for this customer</h3><p>Used for body corporates, property managers, commercial clients and subcontract principals. TuinBooks prepares the report; the office decides whether to send.</p></div></div>
+              <div class="reporting-toggle-grid">
+                <label class="check-card"><input id="clientReportDaily" type="checkbox"> Daily completion email</label>
+                <label class="check-card"><input id="clientReportWeekly" type="checkbox"> Weekly work summary</label>
+                <label class="check-card"><input id="clientReportMonthly" type="checkbox"> Monthly work summary</label>
+              </div>
+              <div class="form-grid two compact-reporting-fields">
+                <label>Report recipients<input id="clientReportRecipients" type="email" multiple></label>
+                <label>CC recipients<input id="clientReportCc" type="email" multiple></label>
+                <label>Report grouping<select id="clientReportGrouping"><option value="combined">Combine this customer’s sites</option><option value="site">Separate by service site</option></select></label>
+                <label>Incomplete visits<select id="clientReportIncludeIncomplete"><option value="yes">Include with explanation</option><option value="no">Hold report for office review</option></select></label>
+                <label>Extras recorded<select id="clientReportIncludeExtras"><option value="yes">Include extras recorded</option><option value="no">Leave extras out</option></select></label>
+                <label>Reporting notes<input id="clientReportNotes"></label>
+              </div>
+            </section>
+            <div class="form-section-title span-two"><span class="eyebrow">Billing</span><h3>Charges and invoice timing</h3></div><label class="span-two">Billing Profile <span class="required-marker">*</span><select id="clientBillingProfileV59396" required></select><small>The legal entity that issues this customer’s quotes, invoices and statements.</small></label><label>Monthly fee<input id="clientMonthlyFee" type="number" min="0" step="1"></label>
+            <label>Billing arrangement<select id="clientBillingArrangement"><option value="Per visit">Per visit</option><option value="Monthly fixed fee">Monthly fixed fee</option><option value="Recurring package">Recurring package</option><option value="Quote-based">Quote-based</option><option value="Ad hoc">Ad hoc</option><option value="Not classified">Not classified</option></select></label>
+            <label class="hidden" aria-hidden="true">Service start date<input id="clientServiceStartDate" type="date" tabindex="-1"></label>
+            <label>Invoice cycle<select id="clientInvoiceCycleMode"><option value="business_default">Use business invoice cycle</option><option value="custom_monthly">Custom monthly cycle</option><option value="on_completion">Invoice on completion</option></select><small>Monthly cycles prepare a draft for office review. They never send automatically.</small></label>
+            <label id="clientInvoiceCycleSummaryWrapV58963">Cycle summary<input id="clientInvoiceCycleSummaryV58963" readonly tabindex="-1"><small id="clientInvoiceCycleHelpV58963">Uses the business default.</small></label>
+            <label id="clientCustomInvoiceDayWrapV58963" class="hidden">Draft day of month<input id="clientCustomInvoiceDayV58963" type="number" min="1" max="31" step="1"><small>If the month is shorter, month-end is used.</small></label>
+            <label id="clientCustomPaymentDueDayWrapV58963" class="hidden">Payment due day<input id="clientCustomPaymentDueDayV58963" type="number" min="1" max="31" step="1"><small>If this is before the draft day, it falls in the next month.</small></label>
+            <select id="clientInvoiceTiming" class="hidden" tabindex="-1" aria-hidden="true"><option value="business_default">Business default</option><option value="on_completion">On completion</option></select>
+            <input id="clientPaymentTermsDays" type="hidden" tabindex="-1" aria-hidden="true">
+            <label>First billing period<select id="clientFirstBillingRule"><option value="prorate_visits">Prorate by scheduled visits (recommended)</option><option value="full_month">Charge the full monthly amount</option><option value="per_completed_visit">Charge for completed visits only</option><option value="carry_next_month">Carry the partial period into next month</option><option value="custom_amount">Use a custom first invoice amount</option></select></label>
+            <label id="clientFirstInvoiceAmountWrap" class="hidden">Custom first invoice amount (R)<input id="clientFirstInvoiceAmount" type="number" min="0" step="0.01"><small>Used only for the client’s first service month.</small></label>
+            <div class="form-section-title span-two"><span class="eyebrow">Service arrangement</span><h3>Recurring schedule</h3></div><label>Service frequency<select id="clientFrequency"><option>Weekly</option><option>Fortnightly</option><option>Monthly</option><option>Ad hoc</option><option>Seasonal</option><option>Custom</option><option>Not classified</option></select></label>
+            <label id="clientRecurrenceAnchorWrap" data-recurring-field-v58930>Service starting date<input id="clientRecurrenceAnchor" type="date"><small>The earliest date from which this service may be scheduled. It does not lock a weekday.</small></label>
+            <label class="hidden" aria-hidden="true"><select id="clientPreferredDay" tabindex="-1"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></label>
+            <label class="hidden" aria-hidden="true"><input id="clientFixedDay" type="checkbox" tabindex="-1"></label>
+            <label data-recurring-field-v58930>Estimated hours<input id="clientEstimatedHours" type="number" min="0.25" step="0.25"><small>Use 15-minute increments, for example 1.25, 1.5 or 2 hours.</small></label>
+            <label data-recurring-field-v58930>Service area override<select id="clientCluster"></select><small>Leave this unchanged to use the service area assigned to the confirmed suburb.</small></label>
+            <label class="hidden" aria-hidden="true"><select id="clientPreferredTeam" tabindex="-1"><option value="">No preference</option></select></label>
+            <label>Status<select id="clientStatus"><option value="active">Active</option><option value="paused">Paused</option></select></label>
+            <div class="form-section-title span-two"><span class="eyebrow">Site instructions</span><h3>Regular visit tasks and access</h3></div>
+            <div class="span-two field-group legacy-work-picker"><span class="field-label">Regular visit tasks</span><div id="clientWorkTypePicker" class="work-type-picker"></div><small>Select the tasks the team must complete at each routine visit. TuinBooks derives the schedule and mobile service indicators from this list.</small></div>
+            <label class="span-two">Custom tags<input id="clientCustomTags" placeholder="Key client, dog on property, gate code"><small>Comma-separated. Important tags appear in job detail, not on every schedule card.</small></label>
+            <label class="span-two">Custom site tasks<textarea id="clientCustomTasks" placeholder="One custom task per line, for example: Weed the rose bed by hand"></textarea></label>
+            <textarea id="clientServiceDescription" class="hidden" aria-hidden="true"></textarea>
+            <label class="span-two">Access notes<textarea id="clientAccessNotes"></textarea></label>
+            <label class="span-two">Garden / pet notes<textarea id="clientGardenNotes"></textarea></label>
+          </div>
+          <div class="form-actions">
+            <button class="button" type="submit">Save client</button>
+            <button class="button danger secondary" type="button" id="archiveClientBtn">Archive</button>
+          </div>
+        </form>
+      </div>
+
+      <dialog id="clientImporterDialog" class="dialog photo-import-dialog">
+        <form method="dialog" class="dialog-shell">
+          <div class="dialog-heading"><div><span class="eyebrow">Photo onboarding</span><h2>Import clients from photographed lists</h2></div><button class="icon-button" value="cancel" aria-label="Close photo importer">×</button></div>
+          <p>Choose one or more clear photos. TuinBooks reads the actual images, identifies likely client details, and holds every row for review before import.</p>
+          <label class="drop-upload" for="clientImportPhoto"><input id="clientImportPhoto" type="file" accept="image/*" multiple><span>Choose or drop one or more photos</span><small>Printed or clearly handwritten lists work best. Nothing is imported automatically.</small></label>
+          <div id="clientImportPreview" class="photo-import-preview-grid"></div>
+          <div class="photo-import-toolbar">
+            <button type="button" class="button" id="extractClientsBtn">Read photos</button>
+            <button type="button" class="button secondary" id="rebuildPhotoRowsBtn">Rebuild rows from corrected text</button>
+            <span id="clientImportFileCount" class="import-file-count"></span>
+          </div>
+          <div id="photoOcrStatus" class="ocr-status hidden" role="status" aria-live="polite">
+            <div class="ocr-status-top"><strong id="photoOcrStatusText">Preparing OCR…</strong><span id="photoOcrPercent">0%</span></div>
+            <progress id="photoOcrProgress" max="100" value="0"></progress>
+            <small id="photoOcrDetail">The first run may take a little longer while the recognition engine loads.</small>
+          </div>
+          <details id="photoOcrRawPanel" class="ocr-raw-panel hidden">
+            <summary>Review or correct the extracted text</summary>
+            <textarea id="clientImportRawText" spellcheck="false" placeholder="Recognised text will appear here."></textarea>
+          </details>
+          <div id="clientImportMeta" class="import-meta"></div>
+          <div id="clientImportRows" class="photo-import-review"></div>
+          <div class="dialog-actions"><button value="cancel" class="button secondary">Cancel</button><button type="button" class="button" id="importSelectedClientsBtn">Import selected rows</button></div>
+        </form>
+      </dialog>
+
+      <dialog id="spreadsheetImporterDialog" class="dialog large-dialog">
+        <form method="dialog" class="dialog-shell">
+          <div class="dialog-heading"><div><span class="eyebrow">Spreadsheet importer</span><h2>Import clients from a spreadsheet</h2></div><button class="icon-button" value="cancel">×</button></div>
+          <p>Upload a CSV exported from Excel or Google Sheets. Rows are reviewed and editable before import.</p>
+          <div class="spreadsheet-import-actions">
+            <label class="drop-upload" for="clientSpreadsheetFile"><input id="clientSpreadsheetFile" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values"><span>Choose or drop a CSV / TSV file</span></label>
+            <button type="button" class="button secondary" id="downloadClientTemplateBtn">Download template</button>
+          </div>
+          <div id="spreadsheetImportMeta" class="import-meta"></div>
+          <div id="spreadsheetImportRows" class="import-rows spreadsheet-rows"></div>
+          <div class="dialog-actions"><button value="cancel" class="button secondary">Cancel</button><button type="button" class="button" id="importSpreadsheetClientsBtn">Import selected</button></div>
+        </form>
+      </dialog>
+    </section>
+
+    <section id="view-records" class="app-view active">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Daily operations</span>
+          <h1>Work</h1>
+          <p>Control today first, then open earlier workdays when their full operational evidence is needed.</p>
+        </div>
+        <div class="heading-actions month-navigation">
+          <button class="button secondary compact" data-month-shift="-1" data-target="recordsMonth">←</button>
+          <input type="month" id="recordsMonth" class="control compact-control">
+          <button class="button secondary compact" data-month-shift="1" data-target="recordsMonth">→</button>
+        </div>
+      </div>
+      <nav class="page-subtabs" aria-label="Work sections">
+        <button type="button" class="page-subtab active" data-work-tab-v58930="recent">Today &amp; recent</button>
+        <button type="button" class="page-subtab" data-work-tab-v58930="needs-review">Needs Review <span id="needsReviewCountV58930" class="subtab-count">0</span></button>
+        <button type="button" class="page-subtab" data-work-tab-v58930="all">All Work</button>
+      </nav>
+      <section id="needsReviewInlineV58930" class="panel needs-review-inline-v58930 hidden" aria-live="polite"></section>
+      <div class="panel toolbar">
+        <input id="recordSearch" class="control grow" placeholder="Search client, address, suburb, work or notes">
+        <select id="recordTeamFilter" class="control compact-control"><option value="all">All teams</option></select>
+        <select id="recordStatusFilter" class="control compact-control"><option value="all">All records</option><option value="extra">Extras only</option><option value="photos">With photos</option><option value="scheduled">Scheduled</option></select>
+        <button class="button secondary" id="exportRecordsBtn">Export CSV</button>
+      </div>
+      <div id="workRecordCards" class="work-record-list"></div>
+    </section>
+
+    <section id="view-quotes" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Quote-to-work pipeline</span>
+          <h1>Quotes</h1>
+          <p>Create the quote, record the customer decision, then schedule or invoice the accepted work.</p>
+        </div>
+        <button class="button" id="newQuoteBtn">+ Quick quote</button>
+      </div>
+      <nav class="page-subtabs" aria-label="Quote status">
+        <button type="button" class="page-subtab active" data-quote-tab-v58930="open">Open</button>
+        <button type="button" class="page-subtab" data-quote-tab-v58930="accepted">Accepted</button>
+        <button type="button" class="page-subtab" data-quote-tab-v58930="declined">Declined</button>
+        <button type="button" class="page-subtab" data-quote-tab-v58930="all">All</button>
+      </nav>
+      <section class="panel opportunity-inbox-panel">
+        <div class="opportunity-inbox-heading">
+          <div><span class="eyebrow">Field observations</span><h2>Opportunity inbox</h2><p>Open an opportunity to review it. Create a quote when the scope and price are clear.</p></div>
+          <span id="opportunityInboxCount" class="status-badge neutral">0 open</span>
+        </div>
+        <div id="opportunityAdminList" class="opportunity-admin-list"></div>
+      </section>
+      <div id="quoteEmailStatus" class="quote-email-status panel"></div>
+      <div id="quoteSummaryCards" class="metric-grid four"></div>
+      <div id="quoteList" class="quote-list"></div>
+    </section>
+
+    <section id="view-reports" class="app-view business-health-view-v59410">
+      <div class="page-heading business-health-heading-v59410">
+        <div>
+          <span class="eyebrow">Monthly business review</span>
+          <h1>Monthly Review</h1>
+          <p>Understand how the month performed, what changed, and how it compares with the previous month and the same month last year.</p>
+        </div>
+        <div class="heading-actions month-navigation business-review-controls-v59410">
+          <select id="reportBillingProfileV59396" class="control compact-control" aria-label="Billing Profile"><option value="all">All Billing Profiles</option></select>
+          <button class="button secondary compact" data-month-shift="-1" data-target="reportMonth" aria-label="Previous month">←</button>
+          <input type="month" id="reportMonth" class="control compact-control">
+          <button class="button secondary compact" data-month-shift="1" data-target="reportMonth" aria-label="Next month">→</button>
+          <button class="button secondary" data-current-month="reportMonth">Current month</button>
+        </div>
+      </div>
+      <nav class="page-subtabs business-subtabs-v58930" aria-label="Business sections">
+        <button type="button" class="page-subtab" data-business-tab-v58930="overview">Overview</button>
+        <button type="button" class="page-subtab active" data-business-tab-v58930="reports">Monthly Review</button>
+      </nav>
+
+      <section id="monthlyReviewHeaderV59410" class="panel business-review-hero-v59410"></section>
+      <div id="reportMetricCards" class="business-health-card-grid-v59410"></div>
+      <section id="monthlyReviewInterpretationV59410" class="panel business-interpretation-v59410"></section>
+
+      <div class="business-two-column-v59410">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Money movement</span><h2>Financial performance</h2><p>Sales, VAT, collection and the month-end customer balance.</p></div></div>
+          <div id="monthlyReviewFinancialV59410"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Client base</span><h2>Client movement</h2><p>How the recurring client base changed during the month.</p></div></div>
+          <div id="monthlyReviewClientsV59410"></div>
+        </section>
+      </div>
+
+      <div class="business-two-column-v59410">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Work delivered</span><h2>Work and service trend</h2><p>Completed work and the mix of recurring, add-on and once-off activity.</p></div></div>
+          <div id="monthlyReviewWorkV59410"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Growth journey</span><h2>Opportunities to collected revenue</h2><p>How commercial activity progressed through the month.</p></div></div>
+          <div id="monthlyReviewGrowthV59410"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Legal entities</span><h2>Billing Profile comparison</h2><p>Compare sales, cash collected and balances without splitting the operational business.</p></div></div>
+        <div id="monthlyReviewProfilesV59410"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Reliability</span><h2>Data confidence</h2><p>See which insights are strong and which still depend on incomplete source data.</p></div></div>
+        <div id="monthlyReviewConfidenceV59410"></div>
+      </section>
+
+      <div class="report-export-actions">
+        <button class="button secondary" id="printReportBtn">Print / Save monthly review</button>
+        <button class="button secondary" id="exportInvoiceRegisterBtn">Invoice register CSV</button>
+        <button class="button secondary" id="exportClientRevenueBtn">Client revenue CSV</button>
+        <button class="button" id="exportQuickBooksBtn">Accounting export</button>
+      </div>
+      <div class="business-legacy-hooks-v59410" aria-hidden="true">
+        <span id="reportMonthTitle"></span><span id="monthCloseChecks"></span><span id="monthCloseActions"></span>
+        <span id="financialReport"></span><span id="workReport"></span><span id="clientReport"></span><span id="operationsReport"></span>
+        <span id="clientReportsQueueSummary"></span><span id="clientReportQueue"></span><span id="v553IntelligenceReport"></span>
+      </div>
+    </section>
+
+    <section id="view-year" class="app-view business-health-view-v59410">
+      <div class="page-heading business-health-heading-v59410">
+        <div>
+          <span class="eyebrow">Business health over time</span>
+          <h1>Business</h1>
+          <p>Review how sales, cash, clients, work and growth are changing across weeks, months and years.</p>
+        </div>
+        <div class="heading-actions business-period-controls-v59410">
+          <select id="overviewPeriodMode" class="control compact-control" aria-label="Review period">
+            <option value="this-week">This week</option>
+            <option value="last-week">Last week</option>
+            <option value="last-4">Last 4 weeks</option>
+            <option value="this-month" selected>This month</option>
+            <option value="last-month">Last month</option>
+            <option value="this-quarter">This quarter</option>
+            <option value="last-quarter">Last quarter</option>
+            <option value="ytd">Year to date</option>
+            <option value="last-12">Last 12 months</option>
+            <option value="previous-year">Previous year</option>
+            <option value="custom">Custom dates</option>
+          </select>
+          <select id="overviewComparisonModeV59410" class="control compact-control" aria-label="Comparison period">
+            <option value="auto">Automatic comparison</option>
+            <option value="previous-period">Previous equivalent period</option>
+            <option value="previous-month">Previous month</option>
+            <option value="same-last-year">Same period last year</option>
+            <option value="none">No comparison</option>
+          </select>
+          <select id="overviewBillingProfileV59410" class="control compact-control" aria-label="Billing Profile"><option value="all">All Billing Profiles</option></select>
+          <div id="overviewCustomDates" class="business-custom-dates hidden">
+            <label>From<input id="overviewStartDate" type="date" class="control compact-control"></label>
+            <label>To<input id="overviewEndDate" type="date" class="control compact-control"></label>
+          </div>
+          <label id="overviewYearWrap" class="hidden">Year<input id="overviewYear" type="number" min="2020" max="2100" class="control compact-control"></label>
+          <label id="overviewEndMonthWrap" class="hidden">Ending month<input id="overviewEndMonth" type="month" class="control compact-control"></label>
+        </div>
+      </div>
+      <nav class="page-subtabs business-subtabs-v58930" aria-label="Business sections">
+        <button type="button" class="page-subtab active" data-business-tab-v58930="overview">Overview</button>
+        <button type="button" class="page-subtab" data-business-tab-v58930="reports">Monthly Review</button>
+      </nav>
+
+      <div id="businessPeriodLabel" class="business-period-context-v59410"></div>
+      <div id="yearSummaryCards" class="business-health-card-grid-v59410"></div>
+      <section id="businessInterpretationV59410" class="panel business-interpretation-v59410"></section>
+
+      <section class="panel business-trend-panel-v59410">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Movement over time</span><h2>Trend</h2><p>Follow one measure clearly rather than trying to interpret several charts at once.</p></div>
+          <select id="businessTrendMetricV59410" class="control compact-control" aria-label="Trend measure">
+            <option value="sales">Sales issued excluding VAT</option>
+            <option value="cash">Cash collected</option>
+            <option value="outstanding">Closing outstanding balance</option>
+            <option value="clients">Active recurring clients</option>
+            <option value="visits">Completed visits</option>
+            <option value="additional">Additional and once-off sales</option>
+            <option value="accepted">Accepted quote value</option>
+          </select>
+        </div>
+        <div id="businessTrendChartV59410" class="business-trend-chart-v59410"></div>
+      </section>
+
+      <div class="business-two-column-v59410">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Money movement</span><h2>Sales, cash and customer balances</h2><p>Understand whether new sales are becoming cash and whether debt is improving.</p></div></div>
+          <div id="businessFinancialMovementV59410"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Client base</span><h2>Recurring-client health</h2><p>See growth, loss, conversion and dependency within the client base.</p></div></div>
+          <div id="businessClientMovementV59410"></div>
+          <div id="businessClientConcentrationV59410"></div>
+        </section>
+      </div>
+
+      <div class="business-two-column-v59410">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Sales mix</span><h2>Where sales are coming from</h2><p>Compare recurring work, existing-client add-ons, once-off projects and subcontract work.</p></div></div>
+          <div id="businessRevenueMixV59410"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Growth journey</span><h2>From opportunity to collected revenue</h2><p>Follow unique commercial opportunities through quoting, completion, invoicing and payment.</p></div></div>
+          <div id="businessGrowthFunnelV59410"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Operational pattern</span><h2>Work and route trends</h2><p>Longer-term delivery and route patterns. Today’s operational work remains in Work and Schedule.</p></div></div>
+        <div id="businessOperationalTrendsV59410"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Legal entities</span><h2>Billing Profile comparison</h2><p>Compare the issuing entities while keeping one combined operating business.</p></div></div>
+        <div id="businessProfileComparisonV59410"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Reliability</span><h2>Data confidence</h2><p>Understand which conclusions are strong and where incomplete records limit the insight.</p></div></div>
+        <div id="businessDataConfidenceV59410"></div>
+      </section>
+
+      <details class="panel business-period-detail-v59410">
+        <summary><div><strong>Period detail</strong><span>Open the underlying period-by-period figures.</span></div><span class="status-badge neutral">Detail</span></summary>
+        <div class="table-scroll"><table class="year-overview-table business-period-table-v59410"><thead><tr><th>Period</th><th>Sales excl. VAT</th><th>Cash collected</th><th>Closing outstanding</th><th>Active clients</th><th>Completed visits</th><th>Additional sales</th></tr></thead><tbody id="yearOverviewTable"></tbody></table></div>
+      </details>
+
+      <div class="report-export-actions"><button class="button secondary" id="exportYearOverviewBtn">Export Business CSV</button><button class="button" id="exportQuickBooksYearBtn">Accounting export</button></div>
+      <div class="business-legacy-hooks-v59410" aria-hidden="true">
+        <span id="businessClientReportAlert"></span><span id="businessWorkMix"></span><span id="businessWorkLegend"></span><span id="yearOverviewTitle"></span><span id="yearOverviewChart"></span><span id="businessOpportunitySummary"></span><span id="businessOpportunityCategories"></span>
+      </div>
+    </section>
+
+    <section id="view-settings" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Business setup</span>
+          <h1>Settings</h1>
+          <p>Configure service clusters first, then teams, capacity and business details.</p>
+        </div>
+      </div>
+      <section class="panel backend-settings-card" id="backendSettingsPanel">
+        <div><span class="eyebrow">Cloud account</span><h2>Secure online saving</h2><p id="backendSettingsStatus">Checking account…</p></div>
+        <div><button type="button" class="button secondary compact" id="backendSettingsSyncBtn">Save changes now</button></div>
+      </section>
+      <nav class="settings-quick-nav panel" aria-label="Settings sections">
+        <a href="#serviceCatalogSettings">Services</a>
+        <a href="#serviceClusterSettings">Service clusters</a>
+        <a href="#teamCapacitySettings">Teams & capacity</a>
+        <a href="#userAccessSettings">Users & access</a>
+        <a href="#businessDetailSettings">Business details</a>
+        <a href="#clientCommunicationSettings">Client communications</a>
+        <a href="#fieldWorkflowSettingsV59386">Field workflow</a>
+        <a href="#invoiceSettingPanel">Invoices & email</a>
+        <a href="#billingProfilesSettingsV59396">Billing Profiles</a>
+        <a href="#accountingExportSettingsV59385">Accounting export</a>
+      </nav>
+      <form id="settingsForm" class="settings-grid">
+        <section class="panel span-two-panel service-catalog-panel" id="serviceCatalogSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Shared visual language</span><h2>Service catalogue</h2><p>Each service has one symbol, short label and default duration. The same service appears on the scheduler, field phone, Work Records and billing detail.</p></div><div class="dialog-actions"><button type="button" class="button secondary" id="openServiceGuideSettingsBtn">View guide</button><button type="button" class="button" id="addServiceBtnV55">+ Add service</button></div></div>
+          <div id="serviceCatalogListV55" class="service-catalog-list-v55"></div>
+        </section>
+        <section class="panel span-two-panel cluster-config-panel" id="serviceClusterSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Routing foundation</span><h2>Service areas & clusters</h2><p>Create the actual areas used by Smart Week. Add the suburbs that belong together, choose a colour and rank the nearest neighbouring clusters. Changes save automatically.</p></div><button type="button" class="button" id="addClusterBtn">+ Add cluster</button></div>
+          <div id="clusterCoverageSummary" class="cluster-coverage-summary"></div>
+          <div id="clusterSettingsList" class="cluster-settings-list"></div>
+        </section>
+        <section class="panel" id="businessDetailSettings">
+          <div class="section-title-row"><div><h2>Business details</h2></div></div>
+          <div class="form-grid two">
+            <label>Business name<input id="settingBusinessName"></label>
+            <label>Phone<input id="settingPhone"></label>
+            <label>Email<input id="settingEmail" type="email"></label>
+            <label>Address<input id="settingAddress"></label>
+            <label>VAT registered<select id="settingVatRegistered"><option value="no">No</option><option value="yes">Yes</option></select></label>
+            <label>VAT number<input id="settingVatNumber"></label>
+            <label>VAT rate (%)<input id="settingVatRate" type="number" min="0" max="100" step="0.01" value="15"></label>
+          </div>
+        </section>
+        <section class="panel span-two-panel" id="clientCommunicationSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Client communications</span><h2>WhatsApp updates and corporate reports</h2><p>Set the default wording. TuinBooks prepares messages from completed work records; the office still chooses whether to send client reports.</p></div></div>
+          <div class="form-grid two">
+            <label class="span-two">Visit completed WhatsApp template<textarea id="settingVisitCompleteTemplate"></textarea></label>
+            <label class="span-two">Daily corporate email template<textarea id="settingCorporateDailyTemplate"></textarea></label>
+            <label class="span-two">Weekly corporate email template<textarea id="settingCorporateWeeklyTemplate"></textarea></label>
+            <label class="span-two">Monthly corporate email template<textarea id="settingCorporateMonthlyTemplate"></textarea></label>
+            <label class="span-two">Email signature<textarea id="settingCorporateReportSignature"></textarea></label>
+          </div>
+        </section>
+
+        <section class="panel span-two-panel field-workflow-settings-v59386" id="fieldWorkflowSettingsV59386">
+          <div class="section-title-row"><div><span class="eyebrow">Field workflow</span><h2>Internal job photos</h2><p>Choose whether field teams capture photos as part of completing a job. Job photos remain on the Work record for the organiser and are never automatically attached to client messages or reports.</p></div></div>
+          <div class="form-grid two">
+            <label>Job photo workflow<select id="settingJobPhotoModeV59386"><option value="off">Off — do not request job photos</option><option value="optional">Optional — teams may add photos</option><option value="required">Required — at least one photo before completion</option></select><small>Changing this setting does not delete existing historical photos.</small></label>
+            <div class="internal-photo-rule-v59386"><strong>Internal only</strong><span>Photos stay attached to the specific visit in Work. Client WhatsApp updates and corporate reports remain text-only.</span></div>
+          </div>
+        </section>
+        <section class="panel span-two-panel billing-profiles-panel-v59396" id="billingProfilesSettingsV59396">
+          <div class="section-title-row"><div><span class="eyebrow">Legal issuing entities</span><h2>Billing Profiles</h2><p>Keep one operational workspace while each legal entity uses its own document details, banking information and numbering.</p></div><button type="button" class="button" id="addBillingProfileBtnV59396">+ Add Billing Profile</button></div>
+          <div id="billingProfilesNoticeV59396" class="persistent-inline-note">Loading Billing Profiles…</div>
+          <div id="billingProfilesListV59396" class="billing-profile-card-grid-v59396"></div>
+        </section>
+        <section class="panel span-two-panel accounting-export-panel-v59385" id="accountingExportSettingsV59385">
+          <div class="section-title-row">
+            <div><span class="eyebrow">Accounting hand-off</span><h2>Accounting export</h2><p>Create a package formatted for the accounting system used by the business or bookkeeper. Payments remain in the accounting package or bank feed and are not exported here.</p></div>
+            <button type="button" class="button" id="createAccountingExportBtnV59385">Create export package</button>
+          </div>
+          <div class="accounting-export-controls-v59385">
+            <label>Accounting package<select id="accountingPackageV59385"><option value="pastel">Sage 50cloud Pastel</option><option value="sage">Sage Accounting</option><option value="xero">Xero</option><option value="quickbooks">QuickBooks Online</option><option value="general">General accountant CSV</option></select></label>
+            <label>From<input id="accountingFromV59385" type="date"></label>
+            <label>To<input id="accountingToV59385" type="date"></label>
+            <label class="check-card"><input id="accountingCreditsV59385" type="checkbox" checked> Include credit notes</label>
+            <label class="check-card"><input id="accountingOnlyNewV59385" type="checkbox" checked> Only new or changed documents</label>
+          </div>
+          <div id="accountingProfileFieldsV59385"></div>
+          <div id="accountingValidationV59385" class="accounting-validation-v59385" aria-live="polite"></div>
+          <details class="accounting-history-details-v59385"><summary>Previous export batches</summary><div id="accountingHistoryV59385" class="accounting-history-v59385"></div></details>
+        </section>
+        <section class="panel" id="invoiceSettingPanel">
+          <div class="section-title-row"><div><h2>Invoice settings</h2></div></div>
+          <div class="form-grid two">
+            <label>Invoice prefix<input id="settingInvoicePrefix"></label>
+            <label>Next invoice number<input id="settingNextInvoice" type="number"></label>
+            <label>Quote prefix<input id="settingQuotePrefix" value="QUO"><small>Quote numbers use this format: QUO-2026-0001.</small></label>
+            <label>Next quote number<input id="settingNextQuote" type="number" min="1" value="1"><small>The sequence resets automatically when the year changes.</small></label>
+            <label>Monthly draft day<input id="settingInvoiceCycleDayV58963" type="number" min="1" max="31" step="1"><small>TuinBooks prepares recurring invoice drafts on this day.</small></label>
+            <label>Payment due day<input id="settingPaymentDueDayV58963" type="number" min="1" max="31" step="1"><small>If this day is earlier than the draft day, it falls in the next month.</small></label>
+            <label class="span-two check-card invoice-cycle-toggle-v58963"><input id="settingAutoCreateInvoiceDraftsV58963" type="checkbox"> Prepare recurring invoice drafts automatically</label>
+            <div id="settingInvoiceCycleSummaryV58963" class="span-two persistent-inline-note">Drafts will be prepared for office review. They will never be sent automatically.</div>
+            <input id="settingPaymentTermsDays" type="hidden" aria-hidden="true" tabindex="-1">
+            <select id="settingDefaultInvoiceTiming" class="hidden" aria-hidden="true" tabindex="-1"><option value="month_end">Monthly cycle</option><option value="on_completion">On completion</option></select>
+            <label class="span-two">Payment terms wording<input id="settingPaymentTerms"><small>This wording appears on the invoice. The numeric days above control the due-date counter.</small></label>
+            <label class="span-two">Banking details<textarea id="settingBanking"></textarea></label>
+            <label class="span-two">Default invoice note<textarea id="settingInvoiceNote"></textarea></label>
+            <label class="span-two">Default WhatsApp / email message<textarea id="settingClientMessage"></textarea></label>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><h2>Email delivery</h2><p>TuinBooks sends invoices securely through Brevo and attaches a generated PDF. The client sees the garden-service business name, while replies return to the business email below.</p></div></div>
+          <div class="form-grid two">
+            <label>Sender display name<input id="settingEmailSenderName"><small>Normally the garden-service business name.</small></label>
+            <label>Business contact email<input id="settingSendingEmail" type="email"><small>Used for contact details and connection tests.</small></label>
+            <label>Reply-to email<input id="settingReplyTo" type="email"><small>Client replies are sent here.</small></label>
+            <label>Delivery mode<select id="settingEmailMode"><option value="connected">Send directly through TuinBooks</option></select></label>
+          </div>
+          <div id="emailConnectionStatus" class="email-connection-status"></div>
+          <button type="button" class="button secondary compact" id="testEmailBtn">Send test email</button>
+        </section>
+
+
+        <section class="panel span-two-panel" id="teamCapacitySettings">
+          <div class="section-title-row"><div><h2>Teams and capacity</h2><p>Teams are movable resources. Set a planning anchor and safe buffer, not permanent client ownership.</p></div><button type="button" class="button secondary" id="addTeamBtn">+ Add team</button></div>
+          <div id="teamSettingsList" class="team-settings-list"></div>
+        </section>
+        <section class="panel span-two-panel user-access-panel" id="userAccessSettings">
+          <div class="section-title-row">
+            <div><span class="eyebrow">Secure access</span><h2>Users & field phones</h2><p>The office controls every field phone. Name the phone, assign its team, and give the phone the one-time code.</p></div>
+            <div class="dialog-actions">
+              <button type="button" class="button secondary" id="addBusinessUserBtn">Invite office user</button>
+            </div>
+          </div>
+          <div class="field-phone-controller">
+            <div>
+              <span class="eyebrow">Field phones</span>
+              <h3>Pair a team phone</h3>
+              <p>The office chooses both the phone name and assigned team. The phone only enters the generated code.</p>
+            </div>
+            <button type="button" class="button" id="pairFieldPhoneBtn">Add field phone</button>
+          </div>
+          <div class="user-access-explainer">
+            <div><strong>Owner / Office administrator</strong><span>Full office workspace, including Billing</span></div>
+            <div><strong>Scheduler</strong><span>Schedule, clients and team activity · no financial access</span></div>
+            <div><strong>Estimator</strong><span>Quotes and lightweight contacts · no Billing</span></div>
+            <div><strong>Team leader</strong><span>Assigned mobile route only · no Quotes or Billing</span></div>
+          </div>
+          <div id="businessUsersStatus" class="persistent-inline-note">Loading users…</div>
+          <div id="businessUsersList" class="business-user-list"></div>
+          <div class="pending-invite-heading"><div><h3>Email invitations</h3><p>Use email invitations for named office users. Shared team phones can still be paired with a one-time PIN.</p></div></div>
+          <div id="businessInvitesList" class="business-invite-list"></div>
+        </section>
+        <div class="settings-save-bar"><button class="button" type="submit">Save settings</button><button class="button danger secondary" type="button" id="resetDemoBtn">Clear all business data</button></div>
+      </form>
+    </section>
+    <aside id="recordHistoryDrawerV58930" class="record-history-drawer-v58930 hidden" aria-live="polite" aria-label="Record history">
+      <header><div><span class="eyebrow">Connected history</span><h2 id="recordHistoryTitleV58930">Record details</h2></div><button type="button" class="icon-button" onclick="closeRecordHistoryV58930()" aria-label="Close record history"><span aria-hidden="true">×</span></button></header>
+      <div id="recordHistoryBodyV58930" class="record-history-body-v58930"></div>
+    </aside>
+  </main>
+
+
+
+  <dialog id="businessUserDialog" class="dialog user-access-dialog">
+    <form id="businessUserForm" class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Users & teams</span><h2 id="businessUserDialogTitle">Create access link</h2></div>
+        <button type="button" class="icon-button" id="closeBusinessUserDialog" aria-label="Close">×</button>
+      </div>
+      <input type="hidden" id="businessUserId">
+      <div id="businessUserInviteHelp" class="persistent-inline-note">TuinBooks creates a secure invitation link. Share it with the user; no password is created by the office.</div>
+      <div class="form-grid two">
+        <label>Display name<input id="businessUserDisplayName" autocomplete="name" placeholder="e.g. Team Green phone"></label>
+        <label>Email address<input id="businessUserEmail" type="email" autocomplete="email" required placeholder="teamgreen@example.com"></label>
+        <label>Access role<select id="businessUserRole" required>
+          <option value="scheduler">Scheduler — no finances</option>
+          <option value="estimator">Estimator — quotes, no finances</option>
+          <option value="office_admin">Office administrator — full office access</option>
+          <option value="team_leader">Team leader — assigned mobile route only</option>
+        </select><small id="businessUserRoleHelpV59369">Choose the job this person performs. Owners always retain full access.</small></label>
+        <label id="businessUserTeamWrap">Assigned team<select id="businessUserTeam"></select><small>Required for field users.</small></label>
+        <label id="businessUserActiveWrap" class="checkbox-setting hidden"><input id="businessUserActive" type="checkbox" checked><span>Access enabled</span></label>
+      </div>
+      <p id="businessUserError" class="backend-gate-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelBusinessUserDialog">Cancel</button><button type="submit" class="button" id="saveBusinessUserBtn">Create link</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="mobilePairingDialog" class="dialog invite-link-dialog">
+    <form id="mobilePairingForm" class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Field phone access</span><h2>Pair a field phone</h2></div>
+        <button type="button" class="icon-button" id="closeMobilePairingDialog" aria-label="Close">×</button>
+      </div>
+      <p>The office sets the phone name and team. The field phone enters a four-digit setup PIN once and then stays linked until the office changes or disables access.</p>
+      <div class="form-grid two">
+        <label>Phone name<input id="mobilePairingName" autocomplete="off" required><small>For example: Team Green phone or Sipho's phone.</small></label>
+        <label>Assigned team<select id="mobilePairingTeam" required></select><small>The phone cannot change this team.</small></label>
+      </div>
+      <div id="mobilePairingCodePanel" class="persistent-inline-note hidden">
+        <span id="mobilePairingAssignment">Field phone setup PIN</span>
+        <strong id="mobilePairingCode" style="display:block;font-size:2.2rem;letter-spacing:.28em;margin:.45rem 0"></strong>
+        <small id="mobilePairingExpiry"></small>
+      </div>
+      <p id="mobilePairingError" class="backend-gate-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="button secondary" id="cancelMobilePairingDialog">Done</button>
+        <button type="submit" class="button" id="generateMobilePairingCodeBtn">Generate PIN</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="inviteLinkDialog" class="dialog invite-link-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Access link ready</span><h2>Send this link to the user</h2></div><button type="button" class="icon-button" id="closeInviteLinkDialog" aria-label="Close">×</button></div>
+      <p>The user must open this link and create or sign in to the account using the invited email address.</p>
+      <label>Invitation link<textarea id="generatedInviteLink" readonly rows="4"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="closeInviteLinkBtn">Done</button><button type="button" class="button" id="copyInviteLinkBtn">Copy link</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="suburbClusterDialog" class="dialog large-dialog suburb-cluster-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Service-area setup</span><h2>Organise your suburbs</h2><p>Suburbs come from real client addresses. You decide which ones should be worked together.</p></div>
+        <button type="button" class="icon-button" id="closeSuburbClusterDialog" aria-label="Close">×</button>
+      </div>
+      <div class="cluster-organiser-layout">
+        <section class="cluster-organiser-create">
+          <h3>Create a service area</h3>
+          <div class="form-grid two">
+            <label>Service-area name<input id="newClusterName"></label>
+            <label>Colour<input id="newClusterColor" type="color" value="#2e8b68"></label>
+          </div>
+          <button type="button" class="button secondary compact" id="addClusterFromSuburbsBtn">Add service area</button>
+          <div id="clusterOrganiserAreas" class="cluster-organiser-areas"></div>
+        </section>
+        <section>
+          <div class="section-title-row"><div><h3>Suburbs found in client addresses</h3><p>Assign each suburb to a service area, or leave it unassigned for now.</p></div></div>
+          <div id="suburbAssignmentList" class="suburb-assignment-list"></div>
+        </section>
+      </div>
+      <p id="suburbClusterError" class="onboarding-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelSuburbClusterDialog">Close</button><button type="button" class="button" id="saveSuburbClustersBtn">Save organisation</button></div>
+    </div>
+  </dialog>
+  <dialog id="teamDayDetailDialog" class="dialog large-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Team-day detail</span><h2 id="teamDayDetailTitle">Planned work</h2></div><button class="icon-button" value="cancel" aria-label="Close team-day detail">×</button></div>
+      <div id="teamDayDetailContent" class="team-day-detail-content"></div>
+      <div class="dialog-actions"><button value="cancel" class="button secondary">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="moveScheduleJobDialog" class="dialog">
+    <form id="moveScheduleJobForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Schedule adjustment</span><h2>Move job</h2></div><button type="button" class="icon-button" onclick="document.getElementById('moveScheduleJobDialog').close()" aria-label="Close move job">×</button></div>
+      <p id="moveScheduleJobSummary" class="dialog-note"></p>
+      <input type="hidden" id="moveScheduleJobId">
+      <div class="form-grid two">
+        <label>Day<select id="moveScheduleJobDate"></select></label>
+        <label>Team<select id="moveScheduleJobTeam"></select></label>
+      </div>
+      <div id="moveScheduleCapacityNote" class="persistent-inline-note"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" onclick="document.getElementById('moveScheduleJobDialog').close()">Cancel</button><button type="submit" class="button">Move job</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="missingWorkRecordDialog" class="dialog">
+    <form id="missingWorkRecordForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Add work record</span><h2 id="missingWorkRecordTitle">Confirm completed visit</h2></div><button type="button" class="icon-button" id="closeMissingWorkRecordDialog" aria-label="Close">×</button></div>
+      <input type="hidden" id="missingWorkRecordJobId">
+      <div id="missingWorkRecordSummary" class="missing-work-dialog-summary"></div>
+      <div class="form-grid two">
+        <label>Work date<input class="control" type="date" id="missingWorkRecordDate" required></label>
+        <label>Team<select class="control" id="missingWorkRecordTeam" required></select></label>
+        <label>Actual hours<input class="control" type="number" min="0" step="0.1" id="missingWorkRecordHours" required></label>
+        <label class="span-two">Work completed<textarea class="control" id="missingWorkRecordTasks" rows="5" required></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMissingWorkRecord">Cancel</button><button type="submit" class="button">Save work record</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="capacityAgreementDialogV552" class="dialog capacity-agreement-dialog-v552">
+    <form id="capacityAgreementFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Client promise</span><h2 id="capacityAgreementTitleV552">Service agreement</h2></div><button type="button" class="icon-button" id="closeCapacityAgreementBtnV552">×</button></div>
+      <input id="capacityAgreementIdV552" type="hidden">
+      <div class="form-grid two">
+        <label>Client<select id="capacityAgreementClientV552" required></select></label>
+        <label>Agreement name<input id="capacityAgreementNameV552" required maxlength="120"></label>
+        <label>Status<select id="capacityAgreementStatusFieldV552"><option>Draft</option><option>Active</option><option>Paused</option><option>Ending</option><option>Ended</option><option>Needs review</option></select></label>
+        <label>Billing arrangement<select id="capacityAgreementBillingV552"><option>Monthly fixed fee</option><option>Per visit</option><option>Recurring package</option><option>Quote-based</option><option>Ad hoc</option></select></label>
+        <label>Start date<input id="capacityAgreementStartV552" type="date" required></label>
+        <label>Monthly fee<input id="capacityAgreementFeeV552" type="number" min="0" step="1"></label>
+        <label>Default team<select id="capacityAgreementTeamV552"></select></label>
+        <label>Catch-up policy<select id="capacityAgreementCatchupV552"><option value="required">Catch-up required</option><option value="credit">Credit if not recovered</option><option value="review">Manager review</option></select></label>
+      </div>
+      <section class="capacity-agreement-lines-v552">
+        <div class="section-heading-v552 compact"><div><strong>Included services</strong><small>Define quantity, period, duration and flexibility for each paid-for service.</small></div><button id="addAgreementLineBtnV552" type="button" class="button secondary compact">Add service</button></div>
+        <div id="capacityAgreementLinesV552"></div>
+      </section>
+      <section id="capacityAgreementImpactV552" class="capacity-agreement-impact-v552" aria-live="polite"></section>
+      <label id="capacityAgreementOverrideWrapV552" class="capacity-agreement-override-v552 hidden">Capacity override reason<textarea id="capacityAgreementOverrideReasonV552" maxlength="500" placeholder="Explain how this client promise will be protected despite the shortage."></textarea></label>
+      <div id="capacityAgreementErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityAgreementBtnV552">Cancel</button><button type="submit" class="button">Save agreement</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityProfileDialogV552" class="dialog capacity-profile-dialog-v552">
+    <form id="capacityProfileFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Realistic team capacity</span><h2>Edit capacity profile</h2></div><button type="button" class="icon-button" id="closeCapacityProfileBtnV552">×</button></div>
+      <p>Set the usable service time after breaks, loading, travel and a recovery buffer. These values drive scheduler warnings.</p>
+      <div class="form-grid two">
+        <label>Team<select id="capacityProfileTeamV552" required></select></label>
+        <label>Workday<select id="capacityProfileDayV552"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option></select></label>
+        <label>Paid workday hours<input id="capacityProfilePaidHoursV552" type="number" min="1" max="16" step="0.25" required></label>
+        <label>Break minutes<input id="capacityProfileBreakV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Loading / admin minutes<input id="capacityProfileAdminV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Expected travel minutes<input id="capacityProfileTravelV552" type="number" min="0" max="360" step="5" required></label>
+        <label>Recovery buffer minutes<input id="capacityProfileBufferV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Maximum service hours<input id="capacityProfileMaxHoursV552" type="number" min="0.5" max="16" step="0.25" required></label>
+      </div>
+      <fieldset class="capacity-capability-fieldset-v552"><legend>Team capabilities</legend><div class="capacity-capability-grid-v552">
+        <label><input type="checkbox" value="general" data-capability-v552> General maintenance</label>
+        <label><input type="checkbox" value="irrigation" data-capability-v552> Irrigation</label>
+        <label><input type="checkbox" value="tree-work" data-capability-v552> Tree work</label>
+        <label><input type="checkbox" value="landscaping" data-capability-v552> Landscaping</label>
+        <label><input type="checkbox" value="waste-removal" data-capability-v552> Waste removal</label>
+        <label><input type="checkbox" value="all-services" data-capability-v552> All services</label>
+      </div></fieldset>
+      <label class="check-row capacity-apply-week-v552"><input id="capacityProfileApplyWeekV552" type="checkbox"><span>Apply these time and capability settings to Monday–Saturday</span></label>
+      <div id="capacityProfileErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityProfileBtnV552">Cancel</button><button type="submit" class="button">Save capacity profile</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityExceptionDialogV552" class="dialog capacity-exception-dialog-v552">
+    <form id="capacityExceptionFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Temporary capacity</span><h2>Add absence or capacity change</h2></div><button type="button" class="icon-button" id="closeCapacityExceptionBtnV552">×</button></div>
+      <div class="form-grid two">
+        <label>Team<select id="capacityExceptionTeamV552" required></select></label>
+        <label>Change type<select id="capacityExceptionTypeV552"><option>Team unavailable</option><option>Reduced workday</option><option>Vehicle breakdown</option><option>Equipment unavailable</option><option>Overtime approved</option><option>Cover team</option><option>Subcontractor capacity</option></select></label>
+        <label>Start date<input id="capacityExceptionStartV552" type="date" required></label>
+        <label>End date<input id="capacityExceptionEndV552" type="date" required></label>
+        <label>Capacity change in hours<input id="capacityExceptionHoursV552" type="number" step="0.25" min="-16" max="16" required><small>Use a negative number for lost time and a positive number for added capacity.</small></label>
+        <label>Reason<textarea id="capacityExceptionReasonV552" required maxlength="500"></textarea></label>
+      </div>
+      <div id="capacityExceptionErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityExceptionBtnV552">Cancel</button><button type="submit" class="button">Save capacity change</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityOverrideDialogV552" class="dialog capacity-override-dialog-v552">
+    <form id="capacityOverrideFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Owner decision</span><h2>Accept capacity overload</h2></div><button type="button" class="icon-button" id="closeCapacityOverrideBtnV552">×</button></div>
+      <p id="capacityOverrideMessageV552"></p>
+      <input id="capacityOverrideJobV552" type="hidden"><input id="capacityOverrideTeamV552" type="hidden"><input id="capacityOverrideDateV552" type="hidden">
+      <label>Reason<textarea id="capacityOverrideReasonV552" required maxlength="500" placeholder="Explain why this overload is acceptable and how the work will be protected."></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityOverrideBtnV552">Cancel move</button><button type="submit" class="button danger">Accept overload</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="desktopOpportunityDialogV551" class="dialog desktop-opportunity-dialog-v551">
+    <form id="desktopOpportunityFormV551" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Visit observation</span><h2>Opportunity Spotter</h2></div><button type="button" class="icon-button" id="closeDesktopOpportunityV551">×</button></div>
+      <p>Spot additional work, maintenance needs or improvement opportunities noticed on site.</p>
+      <input id="desktopOpportunityJobV551" type="hidden">
+      <div id="desktopOpportunityCategoriesV551" class="opportunity-category-buttons"></div>
+      <input id="desktopOpportunityCategoryV551" type="hidden">
+      <label>Short description<textarea id="desktopOpportunityNoteV551" required maxlength="500"></textarea></label>
+      <div class="form-grid two"><label>Urgency<select id="desktopOpportunityUrgencyV551"><option>Routine</option><option>Soon</option><option>Urgent</option></select></label><label>Recommended next step<select id="desktopOpportunityNextV551"><option>Quote now</option><option>Site visit needed</option><option>Design consultation</option><option>Add to next visit</option><option>Defer</option><option>Close</option></select></label></div>
+      <label class="opportunity-photo-picker" for="desktopOpportunityPhotosV551"><input id="desktopOpportunityPhotosV551" type="file" accept="image/*" multiple hidden><strong>Take or add opportunity photos</strong><span>Photos stay linked to this visit and opportunity.</span></label>
+      <div id="desktopOpportunityPreviewV551" class="opportunity-photo-preview"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelDesktopOpportunityV551">Cancel</button><button type="submit" class="button">Save opportunity</button></div>
+    </form>
+  </dialog>
+
+
+
+  <dialog id="marketingAudienceDialogV553" class="dialog large-dialog v553-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Paid audience review</span><h2>Marketing audience</h2></div><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <div id="marketingAudienceDialogSummaryV553" class="v553-audience-dialog-summary"></div>
+      <div id="marketingAudienceRowsV553" class="v553-audience-rows"></div>
+      <div class="dialog-actions"><button value="cancel" class="button">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="marketingCampaignDialogV553" class="dialog large-dialog v553-dialog">
+    <form id="marketingCampaignFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Capacity-aware campaign</span><h2>New marketing campaign</h2></div><button type="button" class="icon-button" id="closeMarketingCampaignBtnV553">×</button></div>
+      <div class="form-grid two">
+        <label>Campaign name<input id="marketingCampaignNameV553" required maxlength="120"></label>
+        <label>Offer name<input id="marketingOfferNameV553" required maxlength="120"></label>
+        <label>Offer price (R)<input id="marketingOfferPriceV553" type="number" min="0" step="0.01"></label>
+        <label>Service<select id="marketingCampaignServiceV553" required></select></label>
+        <label>Template<select id="marketingTemplateV553"><option value="">No approved template loaded</option></select><small>Sending is blocked until an approved Meta template is available.</small></label>
+        <label>Language<select id="marketingCampaignLanguageV553"><option value="auto">Match client language</option><option value="en">English</option><option value="af">Afrikaans</option></select></label>
+        <label>Expected response rate<input id="marketingCampaignResponseRateV553" type="number" min="0" max="100" step="0.5" required></label>
+        <label>Minutes per booking<input id="marketingCampaignDurationV553" type="number" min="15" step="15" required></label>
+        <label>Fulfilment starts<input id="marketingCampaignStartV553" type="date" required></label>
+        <label>Fulfilment ends<input id="marketingCampaignEndV553" type="date" required></label>
+        <label class="span-two">Message preview<textarea id="marketingCampaignMessageV553" maxlength="1000" placeholder="Approved template variables and the customer-facing offer summary."></textarea></label>
+      </div>
+      <div id="marketingCampaignReviewV553" class="v553-campaign-review"></div>
+      <label id="marketingCapacityOverrideWrapV553" class="hidden">Capacity override reason<textarea id="marketingCapacityOverrideV553" maxlength="500" placeholder="Explain how likely bookings will be delivered despite the shortage."></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMarketingCampaignBtnV553">Cancel</button><button type="submit" class="button">Save campaign</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="marketingAcceptanceDialogV553" class="dialog v553-dialog">
+    <form id="marketingAcceptanceFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Reply to operational work</span><h2 id="marketingAcceptanceTitleV553">Record accepted response</h2></div><button type="button" class="icon-button" id="closeMarketingAcceptanceBtnV553">×</button></div>
+      <input id="marketingAcceptanceLinkV553" type="hidden">
+      <div class="form-grid two">
+        <label>Campaign<select id="marketingAcceptanceCampaignV553" required></select></label>
+        <label>Client<select id="marketingAcceptanceClientV553" required></select></label>
+        <label>Action<select id="marketingAcceptanceActionV553"><option value="next-visit">Add to next visit</option><option value="separate-job">Create separate job</option><option value="contact">Office must contact client</option></select></label>
+        <label>Team<select id="marketingAcceptanceTeamV553"></select></label>
+        <label>Target date<input id="marketingAcceptanceDateV553" type="date"></label>
+        <label>Accepted value (R)<input id="marketingAcceptanceValueV553" type="number" min="0" step="0.01"></label>
+        <label class="span-two">Office note<textarea id="marketingAcceptanceNoteV553" maxlength="500"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMarketingAcceptanceBtnV553">Cancel</button><button type="submit" class="button" id="marketingAcceptanceSubmitV553">Create work link</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="vehicleDialogV553" class="dialog v553-dialog">
+    <form id="vehicleFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Fleet profile</span><h2 id="vehicleDialogTitleV553">Add vehicle</h2></div><button type="button" class="icon-button" id="closeVehicleBtnV553">×</button></div>
+      <input id="vehicleIdV553" type="hidden">
+      <div class="form-grid two">
+        <label>Vehicle name<input id="vehicleNameV553" required maxlength="100"></label>
+        <label>Registration<input id="vehicleRegistrationV553" maxlength="30"></label>
+        <label>Assigned team<select id="vehicleTeamV553"><option value="">Unassigned</option></select></label>
+        <label>Fuel type<select id="vehicleFuelTypeV553"><option value="petrol_95">Petrol 95</option><option value="petrol_93">Petrol 93</option><option value="diesel_50ppm">Diesel 50ppm</option><option value="diesel_500ppm">Diesel 500ppm</option><option value="other">Other</option></select></label>
+        <label>Working litres / 100 km<input id="vehicleConsumptionV553" type="number" min="1" max="100" step="0.1" required></label>
+        <label>Current odometer km<input id="vehicleOdometerV553" type="number" min="0" step="0.1"></label>
+        <label class="check-row span-two"><input id="vehicleActiveV553" type="checkbox" checked><span>Vehicle is active</span></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelVehicleBtnV553">Cancel</button><button type="submit" class="button">Save vehicle</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="routeLogDialogV553" class="dialog large-dialog v553-dialog">
+    <form id="routeLogFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Team-day mileage</span><h2 id="routeLogDialogTitleV553">Log route</h2></div><button type="button" class="icon-button" id="closeRouteLogBtnV553">×</button></div>
+      <input id="routeLogIdV553" type="hidden">
+      <div class="form-grid two">
+        <label>Date<input id="routeLogDateV553" type="date" required></label>
+        <label>Team<select id="routeLogTeamV553" required></select></label>
+        <label>Vehicle<select id="routeLogVehicleV553" required></select></label>
+        <label>Planned distance km<input id="routeLogPlannedKmV553" type="number" min="0" step="0.1"></label>
+        <label>Planned travel minutes<input id="routeLogTravelMinutesV553" type="number" min="0" step="1"></label>
+        <div class="v553-form-action"><button type="button" class="button secondary" id="estimateRouteBtnV553">Calculate planning estimate</button></div>
+        <label>Starting odometer km<input id="routeLogStartOdometerV553" type="number" min="0" step="0.1"></label>
+        <label>Ending odometer km<input id="routeLogEndOdometerV553" type="number" min="0" step="0.1"></label>
+        <label>Fuel price per litre (R)<input id="routeLogFuelPriceV553" type="number" min="0" step="0.01"></label>
+        <label>Fuel purchased litres<input id="routeLogFuelPurchasedV553" type="number" min="0" step="0.01"></label>
+        <label class="span-two">Notes<textarea id="routeLogNotesV553" maxlength="500"></textarea></label>
+      </div>
+      <div id="routeLogEstimateNoteV553" class="persistent-inline-note"></div>
+      <div id="routeLogCalculationV553" class="v553-route-calculation"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelRouteLogBtnV553">Cancel</button><button type="submit" class="button">Save route log</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceGuideDialogV55" class="dialog large-dialog service-guide-dialog-v55">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Visual language</span><h2>Service guide</h2></div><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <p>Icons are always paired with service names while teams learn the system.</p>
+      <div id="serviceGuideListV55" class="service-guide-list-v55"></div>
+      <div class="dialog-actions"><button value="cancel" class="button">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="invoicePreviewDialog" class="dialog large-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Document preview</span><h2 id="invoicePreviewTitle">Invoice</h2></div><button class="icon-button" value="cancel">×</button></div>
+      <div id="invoicePreviewContent"></div>
+      <div class="dialog-actions"><button value="cancel" class="button secondary">Close</button><button type="button" class="button" id="printInvoiceBtn">Print / Save PDF</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="invoiceEmailDialogV5609" class="dialog invoice-email-dialog-v5609">
+    <form id="invoiceEmailFormV5609" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Direct email</span><h2 id="invoiceEmailTitleV5609">Email invoice</h2></div><button type="button" class="icon-button" id="closeInvoiceEmailDialogV5609" aria-label="Close">×</button></div>
+      <input type="hidden" id="invoiceEmailDocumentIdV5609">
+      <input type="hidden" id="invoiceEmailDocumentTypeV5609" value="invoice">
+      <input type="hidden" id="invoiceEmailModeV5609" value="initial">
+      <div class="email-attachment-note-v5609"><span>PDF</span><div><strong id="invoiceEmailAttachmentV5609">Document PDF attached</strong><small id="invoiceEmailDeliveryHelpV58934">The recipient email is taken from the client record and cannot be changed here.</small></div></div>
+      <div class="form-grid">
+        <label>To<input id="invoiceEmailToV5609" type="email" readonly></label>
+        <label>Subject<input id="invoiceEmailSubjectV5609" maxlength="180" required></label>
+        <label>Message<textarea id="invoiceEmailMessageV5609" maxlength="3000" required></textarea></label>
+      </div>
+      <div id="invoiceEmailStatusV5609" class="email-send-status-v5609" role="status"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelInvoiceEmailV5609">Cancel</button><button type="submit" class="button" id="invoiceEmailSendBtnV5609">Send invoice</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="quoteEditorDialog" class="dialog large-dialog">
+    <form id="quoteEditorForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Quote editor</span><h2 id="quoteEditorTitle">New quote</h2></div><button type="button" class="icon-button" id="closeQuoteDialogBtn">×</button></div>
+      <input type="hidden" id="quoteId">
+      <div class="form-grid two quote-top-grid-v58953">
+        <label class="quote-client-label-v58953">Client or contact
+          <div id="quoteContactPickerRowV58951" class="quote-contact-picker-row-v58951 quote-contact-inline-v58953">
+            <select id="quoteClient" onchange="refreshQuoteContactSelectionV58951()"></select>
+            <button type="button" class="button secondary compact" onclick="openQuoteContactDialogV58951()">+ Contact</button>
+          </div>
+          <small id="quoteContactPickerSummaryV58951" class="quote-contact-summary-v58953"></small>
+        </label>
+        <label>Issuing entity <span class="required-marker">*</span><select id="quoteBillingProfileV59396" required></select><small id="quoteBillingProfileSummaryV59396"></small></label>
+        <label>Date<input type="date" id="quoteDate"></label>
+        <label class="quote-note-label-v58953">Quote note <span class="optional-inline-v58953">optional</span><textarea id="quoteNotes" rows="1" placeholder="Short note for the client"></textarea></label>
+      </div>
+      <div class="line-editor-heading"><strong>Quote line items</strong><button type="button" class="button secondary compact" id="addQuoteLineBtn">+ Add line</button></div>
+      <div id="quoteLineEditor" class="line-editor"></div>
+      <div class="invoice-total-bar"><span>Total</span><strong id="quoteEditorTotal">R0</strong></div>
+      <div id="quoteEditorStatusV58934" class="quote-editor-status-v58934" role="status"></div>
+      <div class="dialog-actions quote-editor-actions-v58934"><button type="button" class="button secondary" id="previewQuoteBtn">Preview</button><button type="submit" class="button secondary">Save quote</button><button type="button" class="button" id="quoteSaveSendBtnV58934">Save &amp; email quote</button></div>
+    </form>
+  </dialog>
+
+  <script>
+  (()=>{
+    const reveal=(message,detail='')=>{
+      if(window.__TUINBOOKS_APP_RUNTIME_READY__)return;
+      const gate=document.getElementById('backendGate');
+      const connection=document.getElementById('backendConnectionStep');
+      const error=document.getElementById('backendConnectionError');
+      if(gate)gate.classList.remove('hidden');
+      document.body?.classList.add('backend-locked');
+      ['backendAuthStep','backendLoadingStep'].forEach(id=>document.getElementById(id)?.classList.add('hidden'));
+      connection?.classList.remove('hidden');
+      if(error)error.textContent=message;
+      if(detail)console.error('TuinBooks startup detail:',detail);
+    };
+    window.__TUINBOOKS_STARTUP_GUARD_TIMER__=setTimeout(()=>reveal(
+      'TuinBooks did not finish starting. Reload once. If this repeats, close all older TuinBooks tabs first.'
+    ),15000);
+    window.addEventListener('error',event=>reveal(
+      'TuinBooks could not start because one of its application files failed.',
+      event?.error||event?.message||''
+    ),{once:true});
+    window.addEventListener('unhandledrejection',event=>reveal(
+      'TuinBooks could not finish starting its secure session.',
+      event?.reason||''
+    ),{once:true});
+  })();
+  </script>
+  <script src="assets/ocr/tesseract.min.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>window.__TUINBOOKS_CONSOLIDATION_CANARY__={build:"60.0.11-schedule-action-permission-fix",startedAt:new Date().toISOString()};</script>
+  <script src="app-consolidated-v6007.js?v=60.0.11-schedule-action-permission-fix"></script>
+  <script src="ui-hotfix-58949.js?v=59.6.9-quote-status-acceptance-cleanup"></script>
+  <script src="ui-refine-58953.js?v=59.6.9-quote-status-acceptance-cleanup"></script>
+  <script src="billing-controls-58954.js?v=59.6.9-quote-status-acceptance-cleanup"></script>
+  <script src="fictitious-test-data-58958.js?v=59.6.9-quote-status-acceptance-cleanup"></script>
+  <script src="stability-repair-v59694.js?v=60.0.4-schedule-stage-1a-scope-bind"></script>
+  <script src="consolidation-v6004.js?v=60.0.5-schedule-stage-1b-operations"></script>
+  <script src="consolidation-v6011.js?v=60.0.11-schedule-action-permission-fix"></script>
+</body>
+</html>

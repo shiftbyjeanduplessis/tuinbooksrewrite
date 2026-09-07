@@ -1,0 +1,421 @@
+/* TuinBooks v60.7.39 — final Schedule runtime authority
+   Scope: Schedule UI only. No Supabase writes, no Work/Billing/Management changes.
+   Loaded last by app/index.html.
+
+   Fixes:
+   - removes the Schedule "Import onboarding workbook" entry without fighting the
+     onboarding observer (a hidden sentinel keeps the legacy observer satisfied)
+   - makes Rearrange / Drag mode always show the large high-density Basket on LEFT
+   - removes the obsolete fixed/overlay basket geometry and reserved blank gutter
+   - makes the full week fit the available board width in Rearrange mode
+   - removes the stray horizontal page/calendar scrollbar in Rearrange mode
+*/
+(()=>{
+  'use strict';
+
+  const BUILD='60.7.39-final-schedule-runtime-authority';
+  let syncQueued=false;
+  let syncing=false;
+
+  function dragModeActive(){
+    const body=document.body;
+    return !!body && (
+      body.classList.contains('schedule-drag-mode-active-v6061') ||
+      body.classList.contains('schedule-drag-mode-active-v6059')
+    );
+  }
+
+  function ensureOnboardingSentinel(){
+    const root=document.getElementById('view-schedule');
+    if(!root)return;
+
+    // Remove every visible Schedule onboarding shortcut first.
+    root.querySelectorAll('[data-open-onboarding-workbook],[data-onboarding-import-shortcut]').forEach(node=>node.remove());
+    root.querySelectorAll('button,a').forEach(node=>{
+      const text=String(node.textContent||'').replace(/\s+/g,' ').trim().toLowerCase();
+      if(text==='import onboarding workbook' && node.id!=='openScheduleOnboardingMasterImportV60420'){
+        node.closest('.onboarding-import-entry-v60420')?.remove();
+        node.remove?.();
+      }
+    });
+
+    // onboarding-master-import-v60423 observes Schedule and recreates the button
+    // whenever the expected ID disappears. Keep one invisible sentinel so that
+    // observer has nothing to recreate. It is never displayed or keyboard-focusable.
+    let button=document.getElementById('openScheduleOnboardingMasterImportV60420');
+    let bar=button?.closest?.('.onboarding-import-entry-v60420')||null;
+
+    if(!button){
+      bar=document.createElement('div');
+      bar.className='onboarding-import-entry-v60420 tuinbooks-schedule-onboarding-sentinel-v60739';
+      bar.hidden=true;
+      button=document.createElement('button');
+      button.type='button';
+      button.id='openScheduleOnboardingMasterImportV60420';
+      button.tabIndex=-1;
+      button.setAttribute('aria-hidden','true');
+      button.textContent='Import onboarding workbook';
+      bar.appendChild(button);
+      root.insertBefore(bar,root.firstChild);
+    }
+
+    if(bar){
+      bar.hidden=true;
+      bar.setAttribute('aria-hidden','true');
+      bar.classList.add('tuinbooks-schedule-onboarding-sentinel-v60739');
+    }
+    if(button){
+      button.tabIndex=-1;
+      button.setAttribute('aria-hidden','true');
+    }
+
+    // Remove duplicate wrappers the historical observer may have created.
+    root.querySelectorAll(':scope > .onboarding-import-entry-v60420').forEach(node=>{
+      if(node!==bar)node.remove();
+    });
+  }
+
+  function ensureBasketOpenForRearrange(){
+    if(!dragModeActive())return;
+    const drawer=document.getElementById('scheduleParkingLotV5537');
+    if(!drawer)return;
+
+    // Use the existing basket renderer/lifecycle only when it is actually closed
+    // or empty. Calling openScheduleQueue on every MutationObserver pass can itself
+    // trigger another render/mutation loop.
+    const needsOpen=drawer.classList.contains('hidden') || drawer.hasAttribute('hidden') || !drawer.innerHTML.trim();
+    if(needsOpen){
+      try{
+        if(!drawer.innerHTML.trim())window.renderScheduleQueue?.();
+        window.openScheduleQueue?.();
+      }catch(error){
+        console.warn('[TuinBooks v60.7.39] Basket open fallback',error);
+      }
+    }
+
+    // A historical close/render can run in the same tick. Rearrange mode owns the
+    // Basket and keeps it open, so reassert the visible state after rendering.
+    drawer.classList.remove('hidden','minimised-v58931');
+    drawer.removeAttribute('hidden');
+    drawer.setAttribute('aria-hidden','false');
+    const launcher=document.getElementById('scheduleBasketLauncherV58931');
+    if(launcher){
+      launcher.classList.add('hidden');
+      launcher.setAttribute('aria-hidden','true');
+    }
+    document.body?.classList.add('v60739-rearrange-authority');
+  }
+
+  function leaveRearrangeLayout(){
+    document.body?.classList.remove('v60739-rearrange-authority');
+    const launcher=document.getElementById('scheduleBasketLauncherV58931');
+    if(launcher)launcher.removeAttribute('aria-hidden');
+    // Normal Schedule basket state is deliberately left to the existing controls.
+  }
+
+  function sync(){
+    syncQueued=false;
+    if(syncing)return;
+    syncing=true;
+    try{
+      ensureOnboardingSentinel();
+      if(dragModeActive())ensureBasketOpenForRearrange();
+      else leaveRearrangeLayout();
+    }finally{
+      syncing=false;
+    }
+  }
+
+  function queueSync(){
+    if(syncQueued)return;
+    syncQueued=true;
+    requestAnimationFrame(sync);
+  }
+
+  function installStyles(){
+    if(document.getElementById('scheduleRuntimeAuthorityStylesV60739'))return;
+    const style=document.createElement('style');
+    style.id='scheduleRuntimeAuthorityStylesV60739';
+    style.textContent=`
+      /* Schedule onboarding shortcut is intentionally retired from Schedule. */
+      #view-schedule>.onboarding-import-entry-v60420,
+      #view-schedule #openScheduleOnboardingMasterImportV60420,
+      #view-schedule [data-open-onboarding-workbook],
+      #view-schedule [data-onboarding-import-shortcut]{
+        display:none!important;
+        width:0!important;height:0!important;min-height:0!important;
+        margin:0!important;padding:0!important;border:0!important;
+        overflow:hidden!important;pointer-events:none!important;
+      }
+
+      /* Retired toolbar must never reserve space above the real calendar. */
+      #view-schedule #scheduleToolbarV6006{
+        display:none!important;height:0!important;min-height:0!important;
+        margin:0!important;padding:0!important;border:0!important;overflow:hidden!important;
+      }
+
+      /* ------------------------------------------------------------
+         REARRANGE MODE — one predictable two-column workspace
+         Basket left, full week right. Nothing fixed over the page.
+         ------------------------------------------------------------ */
+      body.v60739-rearrange-authority #view-schedule{
+        max-width:none!important;
+        overflow:visible!important;
+      }
+      body.v60739-rearrange-authority #view-schedule .schedule-control-room{
+        display:block!important;
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+        overflow:visible!important;
+      }
+      body.v60739-rearrange-authority #view-schedule .schedule-board-and-parking-v5537{
+        display:grid!important;
+        grid-template-columns:clamp(310px,27vw,350px) minmax(0,1fr)!important;
+        grid-template-rows:auto!important;
+        gap:10px!important;
+        align-items:start!important;
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+        margin:0!important;
+        padding:0!important;
+        overflow:visible!important;
+      }
+
+      /* Calendar is explicitly the RIGHT column. */
+      body.v60739-rearrange-authority #weeklyScheduleBoard{
+        grid-column:2!important;
+        grid-row:1!important;
+        width:100%!important;
+        min-width:0!important;
+        max-width:100%!important;
+        margin:0!important;
+        overflow:hidden!important;
+      }
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-board-scroll{
+        width:100%!important;
+        min-width:0!important;
+        max-width:100%!important;
+        overflow-x:hidden!important;
+        overflow-y:visible!important;
+        padding-bottom:0!important;
+        scrollbar-width:none!important;
+      }
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-board-scroll::-webkit-scrollbar{
+        display:none!important;
+      }
+
+      /* The normal calendar enforces a 1180–1218px minimum width. That is useful
+         in detail mode but causes the strange bottom scroller in Rearrange mode.
+         Fit the full week to the remaining width instead. */
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-grid-clean{
+        display:grid!important;
+        grid-template-columns:86px repeat(var(--day-count),minmax(0,1fr))!important;
+        width:100%!important;
+        min-width:0!important;
+        max-width:100%!important;
+        overflow:visible!important;
+      }
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-grid-corner,
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-day-heading,
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-team-heading,
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-day-lane{
+        min-width:0!important;
+        box-sizing:border-box!important;
+      }
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-team-heading{
+        left:0!important;
+      }
+      body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-card-clean{
+        max-width:100%!important;
+        min-width:0!important;
+      }
+
+      /* Basket is explicitly the LEFT column and stays in normal document flow.
+         This replaces the old fixed-overlay + fake left padding arrangement. */
+      body.v60739-rearrange-authority #scheduleParkingLotV5537.schedule-basket-panel-v58930,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537.schedule-basket-panel-v58930.floating-v58931,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537.schedule-basket-panel-v58930.minimised-v58931{
+        display:flex!important;
+        grid-column:1!important;
+        grid-row:1!important;
+        position:relative!important;
+        left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+        transform:none!important;
+        width:100%!important;
+        min-width:0!important;
+        max-width:none!important;
+        height:min(620px,calc(100vh - 290px))!important;
+        min-height:430px!important;
+        max-height:620px!important;
+        margin:0!important;
+        padding:0!important;
+        border-radius:14px!important;
+        overflow:hidden!important;
+        z-index:10!important;
+        box-shadow:0 8px 24px rgba(18,57,44,.12)!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-head-v58930{
+        flex:0 0 auto!important;
+        padding:7px 9px!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-head-v58930 .eyebrow,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-head-v58930 p,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-window-actions-v58931{
+        display:none!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-head-v58930 h2{
+        margin:0!important;
+        font-size:.86rem!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-body-v58931{
+        display:flex!important;
+        flex-direction:column!important;
+        flex:1 1 auto!important;
+        min-height:0!important;
+        max-height:none!important;
+        overflow-y:auto!important;
+        overflow-x:hidden!important;
+        gap:2px!important;
+        padding:4px 6px 6px!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-drop-hint-v58930{
+        padding:4px 6px!important;
+        font-size:.58rem!important;
+        line-height:1.05!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .control{
+        min-height:24px!important;
+        padding:3px 6px!important;
+        font-size:.59rem!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-groups-v58930,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-group-v58930,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-group-v58930>div{
+        gap:2px!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-group-v58930>header{
+        min-height:14px!important;
+        padding:0 1px!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-group-v58930>header strong{
+        font-size:.58rem!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-group-v58930>header small{
+        display:none!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .schedule-basket-card-v58930{
+        display:grid!important;
+        grid-template-columns:14px minmax(0,1fr) 10px!important;
+        align-items:center!important;
+        min-height:19px!important;
+        padding:1px 4px!important;
+        gap:3px!important;
+        border-radius:5px!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930>div:first-child{
+        display:block!important;
+        min-width:0!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930 strong{
+        display:block!important;
+        font-size:.62rem!important;
+        line-height:1!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:ellipsis!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930 small,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930 p,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-main-v58930 .ui-pill,
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .basket-card-info-v58931{
+        display:none!important;
+      }
+      body.v60739-rearrange-authority #scheduleParkingLotV5537 .queue-work-marker{
+        width:12px!important;height:12px!important;min-width:12px!important;font-size:.46rem!important;
+      }
+      body.v60739-rearrange-authority #scheduleBasketLauncherV58931{
+        display:none!important;
+      }
+
+      /* Keep drag controls and week controls on one clean row. */
+      body.v60739-rearrange-authority #view-schedule .rolling-plan-panel{
+        margin-bottom:8px!important;
+      }
+      body.v60739-rearrange-authority #view-schedule .v6059-schedule-nav{
+        width:100%!important;
+        min-width:0!important;
+      }
+
+      /* Narrow screens: still no overlay. Stack Basket above the board. */
+      @media(max-width:900px){
+        body.v60739-rearrange-authority #view-schedule .schedule-board-and-parking-v5537{
+          grid-template-columns:minmax(0,1fr)!important;
+        }
+        body.v60739-rearrange-authority #scheduleParkingLotV5537.schedule-basket-panel-v58930{
+          grid-column:1!important;grid-row:1!important;
+          height:360px!important;min-height:300px!important;max-height:360px!important;
+        }
+        body.v60739-rearrange-authority #weeklyScheduleBoard{
+          grid-column:1!important;grid-row:2!important;
+        }
+        body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-grid-clean{
+          grid-template-columns:78px repeat(var(--day-count),minmax(92px,1fr))!important;
+          min-width:720px!important;
+        }
+        body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-board-scroll{
+          overflow-x:auto!important;
+          scrollbar-width:thin!important;
+        }
+        body.v60739-rearrange-authority #weeklyScheduleBoard .schedule-board-scroll::-webkit-scrollbar{
+          display:block!important;height:8px!important;
+        }
+      }
+
+      #tuinbooksBuildMarkerV60739{
+        position:fixed;right:8px;bottom:8px;z-index:2147482000;
+        padding:4px 7px;border:1px solid rgba(18,63,43,.18);border-radius:7px;
+        background:rgba(255,255,255,.94);color:#315b49;
+        font:700 10px/1.1 system-ui,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.08)
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function installMarker(){
+    document.querySelectorAll('[id^="tuinbooksBuildMarkerV"]').forEach(node=>node.remove());
+    const marker=document.createElement('div');
+    marker.id='tuinbooksBuildMarkerV60739';
+    marker.textContent='BUILD v60.7.39';
+    marker.title='TuinBooks Schedule authority v60.7.39';
+    document.body?.appendChild(marker);
+  }
+
+  function installObserver(){
+    const target=document.getElementById('view-schedule')||document.documentElement;
+    if(target.__tuinbooksScheduleRuntimeAuthorityObserverV60739)return;
+    const observer=new MutationObserver(queueSync);
+    observer.observe(target,{childList:true,subtree:true,attributes:true,attributeFilter:['class','hidden']});
+    if(document.body)observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+    target.__tuinbooksScheduleRuntimeAuthorityObserverV60739=observer;
+  }
+
+  function boot(){
+    installStyles();
+    installMarker();
+    installObserver();
+    sync();
+    // A Schedule render can be queued after DOMContentLoaded/runtime hydration.
+    setTimeout(sync,80);
+    setTimeout(sync,350);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+  else boot();
+
+  window.__tuinbooksScheduleRuntimeAuthorityV60739={build:BUILD,sync,ensureBasket:ensureBasketOpenForRearrange};
+  window.__tuinbooksBuild=BUILD;
+  window.__TUINBOOKS_RELEASE__='60.7.39';
+})();

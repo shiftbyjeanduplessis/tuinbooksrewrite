@@ -1,0 +1,13 @@
+TUINBOOKS v56.0.4 — REQUIRED SETUP
+
+This build assumes the v56.0.0 master-hardening migration has already been installed.
+
+Before deploying:
+1. Back up Supabase.
+2. Run ../migration-v56-0-4-operational-sync-compatibility.sql.
+3. Confirm both verification columns contain function names rather than null.
+4. Keep the existing Supabase project URL and PUBLISHABLE key in supabase-config.js.
+5. Never place the service_role or secret key in browser files.
+6. Upload the complete app folder only after the migration succeeds.
+
+See ../DEPLOY-FIRST.md and ../LIVE-CHECKLIST.md.

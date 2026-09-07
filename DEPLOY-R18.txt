@@ -1,0 +1,13 @@
+TUINBOOKS R18 DEPLOY
+====================
+
+1. Put the complete R18 release into the tuinbooksrewrite repository.
+2. Commit and push main.
+3. Wait for Render build to finish.
+4. Confirm build log says:
+   TUINBOOKS UI-RESTORED RELEASE R18: full established office UI published to /app/; rewrite isolated at /rewrite/.
+5. Hard refresh once: Ctrl+Shift+R.
+6. Open /app/.
+7. FIRST CHECK ONLY: normal TuinBooks header + navigation + Schedule/Clients/Billing/Work surfaces are visibly back.
+
+Do not run R17 audit SQL merely to fix the UI. It is unrelated to the R17 bare-shell problem.

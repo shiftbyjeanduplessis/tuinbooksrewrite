@@ -1,0 +1,53 @@
+/* TuinBooks v60.5.2 — one Business > Needs attention control centre */
+(()=>{
+'use strict';
+const BUILD='60.5.2-business-needs-attention';
+const runtime=()=>window.__tuinbooksOnboardingRuntimeV60423||null;
+const state=()=>runtime()?.getState?.()||null;
+const clean=v=>String(v??'').trim();
+const key=v=>clean(v).toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,' ').trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const validDay=v=>{const n=Number(v);return Number.isInteger(n)&&n>=1&&n<=31?n:0};
+const validFrequency=v=>['Weekly','Fortnightly','Monthly','Custom'].includes(clean(v));
+const expectedVisits=v=>clean(v)==='Weekly'?4:clean(v)==='Fortnightly'?2:clean(v)==='Monthly'?1:null;
+function dateAdd(iso,n){const d=new Date(`${iso}T12:00:00`);if(Number.isNaN(d.getTime()))return'';d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+function clickView(name){const btn=document.querySelector(`[data-view="${name}"]`);if(btn){btn.click();return true;}try{window.showView?.(name);return true}catch(_){return false}}
+function openClient(id){clickView('clients');setTimeout(()=>{try{window.editClient?.(id)}catch(_){}document.getElementById('clientForm')?.scrollIntoView({behavior:'smooth',block:'start'});},120);}
+function openSettings(anchor){clickView('settings');setTimeout(()=>document.querySelector(anchor)?.scrollIntoView({behavior:'smooth',block:'start'}),120);}
+function openImport(){window.open('business-workbook.html?v=60.5.2-business-workbook-replace-attention','tuinbooksBusinessWorkbook','width=1240,height=860,resizable=yes,scrollbars=yes');}
+function openSchedule(){clickView('schedule');}
+function issueGroup(id,title,names,detail,steps,action,label='Fix now'){
+ const unique=[...new Set((names||[]).filter(Boolean))];return {id,title,count:Math.max(unique.length,1),names:unique,detail,steps,action,label};
+}
+function collect(){
+ const s=state();if(!s)return[];
+ const clients=(s.clients||[]).filter(c=>String(c.status||'active').toLowerCase()==='active'),teams=new Set((s.teams||[]).filter(t=>t.active!==false).map(t=>String(t.id)));
+ const groups=[];
+ const detailClients=clients.filter(c=>!clean(c.address)||!clean(c.suburb));
+ if(detailClients.length)groups.push(issueGroup('client-details','Client details incomplete',detailClients.map(c=>c.name),'A client cannot be treated as fully ready until the service address and suburb are confirmed.',['Open the client.','Enter Property address and Confirmed suburb.','Save the client.'],()=>openClient(detailClients[0].id),'Open first client'));
+ const serviceClients=clients.filter(c=>!Array.isArray(c.serviceIds)||c.serviceIds.length===0);
+ if(serviceClients.length)groups.push(issueGroup('client-services','Routine services missing',serviceClients.map(c=>c.name),'These clients have no normal service attached to their recurring work.',['Open the client.','Choose the regular services/tasks performed at the property.','Save the client.'],()=>openClient(serviceClients[0].id),'Open first client'));
+ const planningClients=clients.filter(c=>!validFrequency(c.frequency)||!teams.has(String(c.teamId||c.preferredTeamId||'')));
+ if(planningClients.length)groups.push(issueGroup('client-planning','Client planning setup incomplete',planningClients.map(c=>c.name),'Frequency or team setup is missing or no longer valid.',['Open the client.','Confirm the recurring frequency and assigned team.','Save the client.'],()=>openClient(planningClients[0].id),'Open first client'));
+ const wb=s.business?.businessWorkbookV60426||{},week1=clean(wb.week1);if(/^\d{4}-\d{2}-\d{2}$/.test(week1)){
+   const end=dateAdd(week1,27),scheduleClients=[];
+   clients.forEach(c=>{const expected=expectedVisits(c.frequency);if(expected===null)return;const count=(s.schedules||[]).filter(j=>String(j.clientId)===String(c.id)&&clean(j.date)>=week1&&clean(j.date)<=end&&(j.workKind==='recurring'||j.workMarker==='R')&&!['cancelled','canceled'].includes(key(j.status))).length;if(count!==expected)scheduleClients.push(c);});
+   if(scheduleClients.length)groups.push(issueGroup('schedule','Standard schedule needs attention',scheduleClients.map(c=>c.name),'The four-week schedule does not match the recurring frequency for these clients.',['Open Schedule.','Find the client.','Add or remove standard visits until the four-week pattern matches the agreed frequency.'],openSchedule,'Open Schedule'));
+ }
+ const full=clean(wb.mode||s.business?.workbookModeV60426).toUpperCase()==='FULL SERVICE';
+ if(full){
+   const day=validDay(s.business?.invoiceCycleDayV58963||s.business?.invoiceCycleDay);if(!day)groups.push(issueGroup('invoice-day','Business invoice day not set',['Business'],'There is one business-wide monthly invoice/draft day. It is not imported per client.',['Open Settings.','Go to Invoices & email.','Enter the Monthly draft day (1–31).','Save settings.'],()=>openSettings('#invoiceSettingPanel'),'Open invoice settings'));
+   const billingClients=clients.filter(c=>c.billingSetupNeedsAttentionV6052===true||!['per visit','monthly fixed'].includes(key(c.priceBasis||c.billingArrangement)));
+   if(billingClients.length)groups.push(issueGroup('client-billing','Routine billing needs confirmation',billingClients.map(c=>c.name),'The agreed amount or whether the charge is Per Visit / Monthly Fixed is not confirmed for these clients.',['Open Import / Export.','Export the current business workbook.','On Client Billing, choose Per Visit or Monthly Fixed and enter the agreed Routine Charge.','Re-import the corrected workbook.'],openImport,'Open Import / Export'));
+ }
+ const contactMissing=!clean(s.business?.phone)&&!clean(s.business?.email);if(contactMissing)groups.push(issueGroup('business-contact','Business contact details incomplete',['Business'],'A phone number or email address is required for a complete business record.',['Open Settings.','Go to Business details.','Add a phone number or email address.','Save settings.'],()=>openSettings('#businessDetailSettings'),'Open Business details'));
+ return groups;
+}
+function ensureStyles(){if(document.getElementById('businessNeedsAttentionStylesV6052'))return;const style=document.createElement('style');style.id='businessNeedsAttentionStylesV6052';style.textContent=`
+.business-needs-attention-v6052{margin:16px 0 18px;border:1px solid #d7dfda;background:#fff}.business-needs-attention-v6052 .na-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:12px}.business-needs-attention-v6052 .na-head h2{margin:2px 0 4px}.business-needs-attention-v6052 .na-head p{margin:0;color:#64716a}.business-needs-attention-v6052 .na-count{min-width:42px;text-align:center;border-radius:999px;background:#f5e5c9;color:#70551f;padding:7px 10px;font-weight:800}.business-needs-attention-v6052 .na-clear{padding:14px;border:1px solid #bcd4c5;background:#f0f8f3;border-radius:12px;color:#315d43}.business-needs-attention-v6052 .na-list{display:grid;gap:10px}.business-needs-attention-v6052 .na-item{border:1px solid #e0e4e1;border-radius:12px;padding:14px;background:#fafbfa}.business-needs-attention-v6052 .na-item-top{display:flex;justify-content:space-between;gap:12px}.business-needs-attention-v6052 .na-item h3{font-size:16px;margin:0 0 4px}.business-needs-attention-v6052 .na-item p{margin:0;color:#65716b}.business-needs-attention-v6052 .na-pill{white-space:nowrap;border-radius:999px;background:#fff1d6;color:#74591f;padding:4px 8px;font-size:12px;font-weight:800}.business-needs-attention-v6052 details{margin-top:10px}.business-needs-attention-v6052 summary{cursor:pointer;color:#425148}.business-needs-attention-v6052 .na-names{margin:8px 0 0;padding-left:19px;columns:2}.business-needs-attention-v6052 .na-steps{margin:10px 0 0;padding:10px 12px 10px 30px;background:#f3f5f4;border-radius:9px}.business-needs-attention-v6052 .na-actions{display:flex;justify-content:flex-end;margin-top:10px}@media(max-width:760px){.business-needs-attention-v6052 .na-head,.business-needs-attention-v6052 .na-item-top{flex-direction:column}.business-needs-attention-v6052 .na-names{columns:1}}`;
+document.head.appendChild(style);}
+function ensurePanel(){const view=document.getElementById('view-year');if(!view)return null;let panel=document.getElementById('businessNeedsAttentionV6052');if(panel)return panel;panel=document.createElement('section');panel.id='businessNeedsAttentionV6052';panel.className='panel business-needs-attention-v6052';const tabs=view.querySelector('.business-subtabs-v58930');if(tabs)tabs.insertAdjacentElement('afterend',panel);else view.prepend(panel);return panel;}
+function render(){const panel=ensurePanel();if(!panel)return;ensureStyles();const groups=collect(),total=groups.reduce((n,g)=>n+g.count,0);panel.innerHTML=`<div class="na-head"><div><span class="eyebrow">Business control</span><h2>Needs attention</h2><p>One place for incomplete setup and data. Each item tells you exactly what to do next.</p></div><span class="na-count">${total}</span></div>${!groups.length?'<div class="na-clear"><strong>Nothing needs attention.</strong><div>The core business setup is complete.</div></div>':`<div class="na-list">${groups.map((g,i)=>`<article class="na-item"><div class="na-item-top"><div><h3>${esc(g.title)}</h3><p>${esc(g.detail)}</p></div><span class="na-pill">${g.count} item${g.count===1?'':'s'}</span></div>${g.names.length?`<details><summary>Show affected ${g.names.length===1?'record':'records'}</summary><ul class="na-names">${g.names.map(n=>`<li>${esc(n)}</li>`).join('')}</ul></details>`:''}<ol class="na-steps">${g.steps.map(step=>`<li>${esc(step)}</li>`).join('')}</ol><div class="na-actions"><button type="button" class="button secondary compact" data-na-action="${i}">${esc(g.label)}</button></div></article>`).join('')}</div>`}`;panel.querySelectorAll('[data-na-action]').forEach(btn=>btn.addEventListener('click',()=>{const g=groups[Number(btn.dataset.naAction)];try{g?.action?.()}catch(e){console.warn('[needs attention]',e)}}));}
+function install(){ensureStyles();render();document.addEventListener('click',e=>{if(e.target?.closest?.('[data-view="business"]'))setTimeout(render,100);});window.addEventListener('focus',()=>setTimeout(render,80));setInterval(()=>{const view=document.getElementById('view-year');if(view?.classList.contains('active'))render();},2500);window.renderBusinessNeedsAttentionV6052=render;window.__tuinbooksBusinessNeedsAttentionV6052={build:BUILD,render,collect};}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install,{once:true});else install();
+})();

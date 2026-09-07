@@ -1,0 +1,34 @@
+TUINBOOKS BATCH 1 â€” DIRECT SOURCE REPAIR
+=========================================
+Target: C:\Users\User\Downloads\tuinbooks-staging-main (1)\tuinbooks-staging-main\app\app.js
+Backup: C:\Users\User\Downloads\tuinbooks-staging-main (1)\tuinbooks-staging-main\app\app.js.before-batch1-2026-09-01T14-33-33-135Z
+Before SHA-256: 443784141BC9C9E06194AC97CB4CE2D72B1EC04A71626287687F765A380B893D
+After SHA-256:  A09E00D8AF972D8C1CE5C53C0F7096EB5C73C972DAC501A639D3986DE32BCE57
+
+Changes:
+1. install Batch 1 persistence helpers
+2. sanitize operational row payloads
+3. rewrite core service-site serializer
+4. sanitize core delta RPC payload
+5. sanitize operational delta RPC payload
+6. make route reassignment durable
+7. make modal job reassignment durable
+8. make legacy schedule drop durable
+9. make Schedule basket move durable
+10. await accepted-quote basket wrapper v58945
+11. await atomic basket wrapper v58946
+12. make canonical drag/basket placement durable
+13. make This + Future durable
+14. await durable modal move before recurring scope
+15. make final drag-scope recurrence await cloud save
+16. make schedule Undo durable
+
+Validation:
+- node --check: PASS
+- explicit serviceSitesV56 cloud serialization: REMOVED
+- core + operational delta payload sanitizers: INSTALLED
+- critical schedule moves: await cloud save + read-back before success
+- failed critical move: local rollback; compensating cloud rollback when safe
+- This + Future: operational + core persistence required before success
+
+No deployment was performed.

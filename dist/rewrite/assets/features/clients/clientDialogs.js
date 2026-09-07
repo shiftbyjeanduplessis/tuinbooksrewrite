@@ -1,0 +1,80 @@
+import { todayIso } from '../../domain/dates.js';
+export function openAccountDialog(account, onSave) {
+    const dialog = makeDialog('account-editor');
+    const id = account?.id ?? `client-v2-${idPart()}`;
+    dialog.innerHTML = `<form class="dialog-shell"><header><div><p class="eyebrow">Account</p><h2>${account ? 'Edit account' : 'New account'}</h2></div><button type="button" class="icon-button" data-close>×</button></header><div class="form-grid"><label class="span-two">Account / client name<input name="name" required value="${attr(account?.name ?? '')}"></label><label>Contact person<input name="contactName" value="${attr(account?.contactName ?? '')}"></label><label>Status<select name="status"><option value="active">Active</option><option value="paused">Paused</option><option value="archived">Archived</option></select></label><label>Phone<input name="phone" value="${attr(account?.phone ?? '')}"></label><label>Email<input name="email" type="email" value="${attr(account?.email ?? '')}"></label></div><footer class="dialog-actions"><button type="button" class="secondary-button" data-close>Cancel</button><button class="primary-button">Save account</button></footer><div class="dialog-error hidden" role="alert"></div></form>`;
+    (dialog.querySelector('[name=status]')).value = account?.status ?? 'active';
+    wireClose(dialog);
+    dialog.querySelector('form').onsubmit = async (e) => { e.preventDefault(); const form = e.currentTarget, fd = new FormData(form), error = dialog.querySelector('.dialog-error'), button = form.querySelector('.primary-button'); button.disabled = true; error.classList.add('hidden'); try {
+        await onSave({ id, name: s(fd, 'name'), status: s(fd, 'status'), contactName: s(fd, 'contactName'), phone: s(fd, 'phone'), email: s(fd, 'email') });
+        dialog.close();
+    }
+    catch (err) {
+        error.textContent = message(err);
+        error.classList.remove('hidden');
+    }
+    finally {
+        button.disabled = false;
+    } };
+    dialog.showModal();
+}
+export function openLocationDialog(account, location, onSave) {
+    const dialog = makeDialog('location-editor'), id = location?.id ?? `site-v2-${idPart()}`;
+    dialog.innerHTML = `<form class="dialog-shell"><header><div><p class="eyebrow">${esc(account.name)}</p><h2>${location ? 'Edit service location' : 'New service location'}</h2></div><button type="button" class="icon-button" data-close>×</button></header><div class="form-grid"><label>Location name<input name="siteName" value="${attr(location?.siteName ?? '')}" placeholder="Home, Office, Unit 4…"></label><label class="check-line"><input name="active" type="checkbox" ${location?.active === false ? '' : 'checked'}> Active service location</label><label class="span-two">Street address<input name="address" required value="${attr(location?.address ?? '')}"></label><label>Suburb<input name="suburb" value="${attr(location?.suburb ?? '')}"></label><label>Access notes<input name="accessNotes" value="${attr(location?.accessNotes ?? '')}"></label><label class="span-two">Service instructions<textarea name="instructions" rows="3">${esc(location?.instructions ?? '')}</textarea></label></div><footer class="dialog-actions"><button type="button" class="secondary-button" data-close>Cancel</button><button class="primary-button">Save location</button></footer><div class="dialog-error hidden" role="alert"></div></form>`;
+    wireClose(dialog);
+    dialog.querySelector('form').onsubmit = async (e) => { e.preventDefault(); const form = e.currentTarget, fd = new FormData(form), error = dialog.querySelector('.dialog-error'), button = form.querySelector('.primary-button'); button.disabled = true; error.classList.add('hidden'); try {
+        await onSave({ id, accountId: account.id, siteName: s(fd, 'siteName'), address: s(fd, 'address'), suburb: s(fd, 'suburb'), accessNotes: s(fd, 'accessNotes'), instructions: s(fd, 'instructions'), active: fd.get('active') === 'on' });
+        dialog.close();
+    }
+    catch (err) {
+        error.textContent = message(err);
+        error.classList.remove('hidden');
+    }
+    finally {
+        button.disabled = false;
+    } };
+    dialog.showModal();
+}
+export function openAgreementDialog(account, location, teams, agreement, onSave) {
+    const dialog = makeDialog('agreement-editor'), id = agreement?.id ?? `agreement-v2-${idPart()}`;
+    const selectedDays = new Set(agreement?.weekdays ?? [1]);
+    dialog.innerHTML = `<form class="dialog-shell agreement-form"><header><div><p class="eyebrow">${esc(account.name)} · ${esc(location.siteName || location.address)}</p><h2>${agreement ? 'Edit service agreement' : 'New service agreement'}</h2></div><button type="button" class="icon-button" data-close>×</button></header><p class="scope-copy">This is the routine service arrangement for this property. Activating or changing it versions the future recurrence pattern; past visits and manual exceptions are preserved.</p><div class="form-grid"><label>Status<select name="status"><option value="draft">Draft</option><option value="active">Active</option><option value="ended">Ended</option></select></label><label>Frequency<select name="frequency"><option value="weekly">Weekly</option><option value="fortnightly">Fortnightly</option><option value="four-weekly">Every 4 weeks</option><option value="monthly">Monthly</option></select></label><label>Start date<input name="startDate" type="date" required value="${agreement?.startDate ?? todayIso()}"></label><label>End date<input name="endDate" type="date" value="${agreement?.endDate ?? ''}"></label><label>Default team<select name="defaultTeamId" required><option value="">Choose team</option>${teams.map(team => `<option value="${attr(team.id)}">${esc(team.name)}</option>`).join('')}</select></label><label>Estimated visit duration<input name="estimatedMinutes" type="number" min="15" max="480" step="15" value="${agreement?.estimatedMinutes ?? 60}"></label><fieldset class="weekday-picker span-two"><legend>Routine service day(s)</legend>${[['Mon', 1], ['Tue', 2], ['Wed', 3], ['Thu', 4], ['Fri', 5], ['Sat', 6], ['Sun', 7]].map(([label, day]) => `<label><input type="checkbox" name="weekday" value="${day}" ${selectedDays.has(Number(day)) ? 'checked' : ''}><span>${label}</span></label>`).join('')}</fieldset><label data-monthly-ordinal>Week of month<select name="monthlyOrdinal"><option value="1">1st</option><option value="2">2nd</option><option value="3">3rd</option><option value="4">4th</option><option value="5">5th / last</option></select></label><label>Monthly fee (optional)<input name="monthlyFee" type="number" min="0" step="0.01" value="${agreement?.monthlyFee ?? ''}" placeholder="0.00"></label><label class="span-two">Services / tasks<input name="services" value="${attr((agreement?.serviceIds ?? []).join(', '))}" placeholder="Garden service, Lawn, Irrigation"></label><label class="span-two">Agreement notes<textarea name="notes" rows="3">${esc(agreement?.notes ?? '')}</textarea></label></div><footer class="dialog-actions"><button type="button" class="secondary-button" data-close>Cancel</button><button class="primary-button">Save agreement</button></footer><div class="dialog-error hidden" role="alert"></div></form>`;
+    const status = dialog.querySelector('[name=status]'), frequency = dialog.querySelector('[name=frequency]'), team = dialog.querySelector('[name=defaultTeamId]'), ordinal = dialog.querySelector('[name=monthlyOrdinal]'), ordinalLabel = dialog.querySelector('[data-monthly-ordinal]');
+    status.value = agreement?.status ?? 'draft';
+    frequency.value = agreement?.frequency ?? 'weekly';
+    team.value = agreement?.defaultTeamId ?? '';
+    ordinal.value = String(agreement?.monthlyOrdinal ?? 1);
+    const syncFrequency = () => { const monthly = frequency.value === 'monthly'; ordinalLabel.classList.toggle('hidden', !monthly); const checks = [...dialog.querySelectorAll('[name=weekday]')]; if (frequency.value !== 'weekly') {
+        let found = false;
+        checks.forEach(box => { if (box.checked && !found) {
+            found = true;
+        }
+        else if (box.checked) {
+            box.checked = false;
+        } });
+    } };
+    frequency.onchange = syncFrequency;
+    syncFrequency();
+    wireClose(dialog);
+    dialog.querySelector('form').onsubmit = async (e) => { e.preventDefault(); const form = e.currentTarget, fd = new FormData(form), error = dialog.querySelector('.dialog-error'), button = form.querySelector('.primary-button'); button.disabled = true; error.classList.add('hidden'); try {
+        const feeRaw = s(fd, 'monthlyFee');
+        await onSave({ id, accountId: account.id, serviceLocationId: location.id, status: s(fd, 'status'), startDate: s(fd, 'startDate'), endDate: (s(fd, 'endDate') || null), frequency: s(fd, 'frequency'), weekdays: fd.getAll('weekday').map(Number), monthlyOrdinal: s(fd, 'frequency') === 'monthly' ? Number(s(fd, 'monthlyOrdinal')) : null, defaultTeamId: s(fd, 'defaultTeamId'), estimatedMinutes: Number(s(fd, 'estimatedMinutes') || 60), serviceIds: s(fd, 'services').split(',').map(v => v.trim()).filter(Boolean), notes: s(fd, 'notes'), monthlyFee: feeRaw ? Number(feeRaw) : null });
+        dialog.close();
+    }
+    catch (err) {
+        error.textContent = message(err);
+        error.classList.remove('hidden');
+    }
+    finally {
+        button.disabled = false;
+    } };
+    dialog.showModal();
+}
+function makeDialog(className) { const d = document.createElement('dialog'); d.className = `operation-dialog ${className}`; document.body.append(d); d.addEventListener('close', () => d.remove(), { once: true }); return d; }
+function wireClose(dialog) { dialog.querySelectorAll('[data-close]').forEach(button => button.onclick = () => dialog.close()); }
+function s(fd, key) { return String(fd.get(key) ?? '').trim(); }
+function idPart() { return typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID().replaceAll('-', '') : Math.random().toString(36).slice(2); }
+function message(error) { return error instanceof Error ? error.message : (error && typeof error === 'object' && 'message' in error ? String(error.message) : String(error)); }
+function esc(v) { return String(v).replace(/[&<>'"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[ch] ?? ch)); }
+function attr(v) { return esc(v); }
+//# sourceMappingURL=clientDialogs.js.map

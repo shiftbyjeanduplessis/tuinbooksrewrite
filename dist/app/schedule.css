@@ -1,0 +1,78 @@
+/* TuinBooks v60.8.6 — clean Schedule engine presentation
+   Intentionally preserves the existing labelled team/day board and card language. */
+#view-schedule .tb6086-nav{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:0 0 8px}
+#view-schedule .tb6086-selected-week{font-size:.72rem;color:#687a71;font-weight:700}
+#view-schedule .tb6086-spacer{flex:1 1 auto}
+#view-schedule .tb6086-drag-controls{display:flex;align-items:center;gap:8px}
+#view-schedule .tb6086-scope{display:inline-flex;align-items:center;padding:3px;border:1px solid rgba(20,78,55,.18);border-radius:10px;background:rgba(20,78,55,.045)}
+#view-schedule .tb6086-scope>span{padding:0 8px 0 6px;font-size:.68rem;font-weight:700;color:#466157}
+#view-schedule .tb6086-scope button{min-height:28px;padding:5px 10px;border:0;border-radius:7px;background:transparent;color:#284b3e;font:inherit;font-size:.67rem;font-weight:700;cursor:pointer;white-space:nowrap}
+#view-schedule .tb6086-scope button.active{background:#fff;color:#0f5135;box-shadow:0 1px 3px rgba(0,0,0,.11)}
+#view-schedule .tb6086-drag-toggle.active{background:#145c40!important;color:#fff!important;border-color:#145c40!important}
+
+#view-schedule .schedule-card-clean.v59384-card.tb6086-schedule-card{display:grid!important;grid-template-columns:minmax(0,1fr) 18px!important;grid-template-rows:auto!important;min-height:48px!important;height:auto!important;padding:7px 7px 7px 10px!important;column-gap:7px!important;row-gap:0!important;align-items:center!important;overflow:hidden!important;box-sizing:border-box!important}
+#view-schedule .schedule-card-clean.v59384-card.tb6086-schedule-card .schedule-card-copy.v6059-card-copy{grid-column:1!important;grid-row:1!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;width:auto!important;min-width:0!important;overflow:hidden!important;gap:3px!important;padding:0!important;margin:0!important}
+#view-schedule .schedule-card-clean.v59384-card.tb6086-schedule-card .schedule-card-copy strong{display:block!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;font-size:.72rem!important;line-height:1.16!important;font-weight:850!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#view-schedule .schedule-card-clean.v59384-card.tb6086-schedule-card .schedule-card-suburb{display:block!important;width:100%!important;max-width:100%!important;margin:0!important;padding:0!important;font-size:.61rem!important;line-height:1.12!important;font-weight:650!important;color:#65776e!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#view-schedule .schedule-card-clean.v59384-card.tb6086-schedule-card .schedule-card-info-v58931{grid-column:2!important;grid-row:1!important;position:static!important;align-self:start!important;justify-self:end!important;margin:0!important;width:16px!important;height:16px!important;min-width:16px!important;line-height:14px!important;font-size:.58rem!important}
+body:not(.schedule-drag-mode-active-v6086) #view-schedule .schedule-card-clean{cursor:pointer!important}
+body.schedule-drag-mode-active-v6086 #view-schedule .schedule-card-clean[draggable="true"]{cursor:grab!important;outline:1px solid rgba(31,109,74,.18)}
+body.schedule-drag-mode-active-v6086 #view-schedule .schedule-card-clean[draggable="true"]:active{cursor:grabbing!important}
+
+#view-schedule .tb6086-day-actions{display:flex;gap:4px;padding:0 8px 6px}
+#view-schedule .tb6086-day-actions button{border:0;background:transparent;color:#557067;font-size:.58rem;font-weight:800;padding:2px 4px;border-radius:5px;cursor:pointer}
+#view-schedule .tb6086-day-actions button:hover{background:#eef5f2;color:#174d3c}
+#weeklyScheduleBoard .schedule-actions-v6010{display:grid!important;gap:5px!important;padding:0 6px 6px!important}
+#weeklyScheduleBoard .schedule-action-v6010{width:100%;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"label time" "copy copy";column-gap:8px;row-gap:5px;align-items:start;padding:8px 9px;border-radius:9px;text-align:left;overflow:hidden}
+#weeklyScheduleBoard .schedule-action-v6010.event{background:#f1f7fb;border:1px solid #b9cddd;border-left:4px solid #4c87ad;color:#294a61}
+#weeklyScheduleBoard .schedule-action-v6010.instruction{background:#fff8dc;border:1px solid #ddc98c;border-left:4px solid #c6a33a;color:#4f431e}
+#weeklyScheduleBoard .schedule-action-v6010>span{grid-area:label;font-size:.54rem;line-height:1.15;font-weight:900;letter-spacing:.06em}
+#weeklyScheduleBoard .schedule-action-v6010>div{grid-area:copy;min-width:0}
+#weeklyScheduleBoard .schedule-action-v6010 strong{display:block;font-size:.71rem;line-height:1.22;white-space:normal;overflow-wrap:anywhere}
+#weeklyScheduleBoard .schedule-action-v6010 small{display:block;margin-top:4px;font-size:.62rem;line-height:1.3;white-space:normal;overflow-wrap:anywhere}
+#weeklyScheduleBoard .schedule-action-v6010 time{grid-area:time;justify-self:end;font-size:.58rem;font-weight:900;white-space:nowrap}
+
+#view-schedule .schedule-board-and-parking-v5537{display:block!important;position:relative!important}
+#view-schedule .tb6086-basket.hidden{display:none!important}
+#view-schedule .tb6086-basket{box-sizing:border-box;background:#fff;border:1px solid #cadbd4;border-radius:14px;box-shadow:0 18px 48px rgba(16,51,40,.24);overflow:hidden}
+#view-schedule .tb6086-basket>header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid #e2ebe7;background:#fff}
+#view-schedule .tb6086-basket>header>div:first-child{display:grid;gap:2px}
+#view-schedule .tb6086-basket>header strong{font-size:1rem;color:#173d30}
+#view-schedule .tb6086-basket>header span{font-size:.68rem;color:#687a71}
+#view-schedule .tb6086-basket>header>div:last-child{display:flex;gap:5px}
+#view-schedule .tb6086-basket-search{margin:8px 10px 2px;width:calc(100% - 20px)}
+#view-schedule .tb6086-basket-list{display:grid;gap:8px;padding:8px 10px 10px;overflow:auto}
+#view-schedule .tb6086-basket-list section{display:grid;gap:4px}
+#view-schedule .tb6086-basket-list h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 2px;padding:0 2px;font-size:.67rem;line-height:1.1;text-transform:uppercase;letter-spacing:.04em;color:#5d7269}
+#view-schedule .tb6086-basket-list h3 span{font-size:.64rem}
+#view-schedule .tb6086-basket-card{display:grid;grid-template-columns:20px minmax(0,1fr) 18px;gap:6px;align-items:center;min-height:34px;padding:5px 6px;border:1px solid #d8e5df;border-radius:7px;background:#fff;cursor:grab}
+#view-schedule .tb6086-basket-card:hover{border-color:#91b4a4;background:#f9fcfa}
+#view-schedule .tb6086-basket-card>div{display:grid;gap:1px;min-width:0}
+#view-schedule .tb6086-basket-card strong{font-size:.66rem;line-height:1.05;color:#173d30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-schedule .tb6086-basket-card span{font-size:.56rem;line-height:1.05;color:#63776e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-schedule .tb6086-basket-card small{font-size:.52rem;line-height:1.05;color:#85928d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-schedule .tb6086-marker{display:grid!important;place-items:center;width:18px;height:18px;border-radius:999px;font-size:.56rem!important;font-weight:900!important}
+#view-schedule .tb6086-marker.r{background:#e7f4ed;color:#176344}
+#view-schedule .tb6086-marker.o{background:#eef3fb;color:#315f92}
+#view-schedule .tb6086-grip{font-size:.7rem!important;color:#8a9993!important;text-align:center}
+#view-schedule .tb6086-basket.is-drop-target{outline:3px solid #2e8b68;outline-offset:2px}
+
+#view-schedule .tb6086-basket.floating-basket{position:fixed!important;top:126px!important;right:16px!important;bottom:16px!important;width:min(390px,calc(100vw - 32px));z-index:1500!important;display:flex!important;flex-direction:column!important}
+#view-schedule .tb6086-basket.floating-basket .tb6086-basket-list{flex:1 1 auto;min-height:0}
+#view-schedule .tb6086-basket.floating-basket.minimised{display:block!important;top:auto!important;right:12px!important;bottom:18px!important;width:auto!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important}
+#view-schedule .tb6086-min-strip{display:flex;align-items:center;gap:7px;padding:9px 12px;border:1px solid #174d3c;border-radius:10px;background:#174d3c;color:#fff;font-weight:900;box-shadow:0 8px 22px rgba(16,51,40,.24);cursor:pointer}
+#view-schedule .tb6086-min-strip span{display:grid;place-items:center;min-width:19px;height:19px;padding:0 4px;border-radius:999px;background:#fff;color:#174d3c;font-size:.65rem}
+
+body.schedule-drag-mode-active-v6086 #view-schedule .schedule-board-and-parking-v5537{display:grid!important;grid-template-columns:minmax(280px,330px) minmax(0,1fr)!important;gap:10px!important;align-items:start!important}
+body.schedule-drag-mode-active-v6086 #view-schedule #scheduleParkingLotV5537.tb6086-basket.drag-basket{order:-1!important;position:sticky!important;top:112px!important;display:flex!important;flex-direction:column!important;width:100%!important;max-height:calc(100vh - 130px)!important;box-shadow:none!important;z-index:6!important}
+body.schedule-drag-mode-active-v6086 #view-schedule #scheduleParkingLotV5537.tb6086-basket.drag-basket .tb6086-basket-list{min-height:0!important;max-height:calc(100vh - 220px)!important}
+body.schedule-drag-mode-active-v6086 #view-schedule #weeklyScheduleBoard{min-width:0!important;overflow:hidden!important}
+body.schedule-drag-mode-active-v6086 #view-schedule .schedule-board-scroll{overflow-x:auto!important}
+
+#view-schedule .schedule-basket-launcher-v58931{cursor:pointer!important}
+#view-schedule .schedule-basket-launcher-v58931.hidden{display:none!important}
+
+@media(max-width:1000px){
+  body.schedule-drag-mode-active-v6086 #view-schedule .schedule-board-and-parking-v5537{grid-template-columns:260px minmax(0,1fr)!important}
+  #view-schedule .tb6086-scope>span{display:none}
+}

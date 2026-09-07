@@ -1,24 +1,39 @@
-# TuinBooks UI-Restored Release R17
+# TuinBooks UI-Restored Release R18 — verification report
 
-Purpose: package the restored product after the R17 parity pass, preserving the R16 visit-detail/DNS improvements and restoring an office-visible audit/activity history reader.
+Purpose: correct the R17 packaging error that made the stripped rewrite shell the active `/app/` UI.
 
-R17 additions:
-- Settings now includes **Recent activity**, backed by the established `audit_events` history.
-- `supabase/APPLY-R17-AUDIT-LOG.sql` adds an admin-only read RPC; it is additive and does not rewrite operational data.
-- The UI degrades safely if the R17 SQL has not yet been applied.
-- The parity contract explicitly protects Sunday as a valid routine service day.
-- R16 remains intact: Service normally / Do not service is a literal reversible state; original-style service icons remain in visit detail.
-- Schedule-card street address and the visible drag identifier remain protected by release contracts.
+## Active build contract
+- full established office product -> `/app/`
+- established Management -> `/management/`
+- TypeScript rewrite -> `/rewrite/` only
+- root -> immediate redirect to `/app/`
 
-Verification performed while creating this package:
-- Domain tests: PASS (178 assertions)
-- Stress: PASS (100-account v4, 200-client recurrence / 1,408 visits, 10,000 invoices)
-- Release/UI/Schedule contracts: PASS, including R17 parity/audit-log contract
-- Build: PASS
-- XLSX round-trip: PASS
-- Static assets/imports: PASS
-- HTTP smoke: PASS
+## Protected parity carried into the restored office UI
+- street address directly on Schedule cards;
+- visible visit ID while dragging;
+- literal `Service normally / Do not service` two-state control;
+- visit-only vs client-wide Do Not Service scope;
+- service icon chips and specific instructions in visit detail;
+- Sunday as a seventh routine service day across schedule/import/mobile paths;
+- mobile visibility of visit/client Do Not Service;
+- R17 `Recent activity` reader in Settings, with graceful fallback if its SQL has not been applied.
 
-Verification boundary:
-- The R17 audit-log SQL has been statically validated and is included in the package, but it has NOT been executed against the live/staging Supabase database in this packaging session.
-- Browser verification remains a deployment/QA step.
+## Exact local verification completed on the packaged source
+`npm run check` — PASS
+- domain tests: PASS — 178 assertions
+- stress tests: PASS — 100 accounts / 110 locations; 200-client recurrence = 1,408 visits; 10,000 invoices
+- release contracts: PASS — base V2 + R6/R8/R9/R10/R11/R12/R13/R14/R16/R17/R18
+- TypeScript/build: PASS
+- XLSX round-trip: PASS — 100-account v4 binary -> v2 -> generated v4 binary -> v2, 0 errors
+- static references: PASS — 48 isolated rewrite modules, 106 relative imports, 0 missing
+- local HTTP smoke: PASS — `/app/`, `/management/`, `/rewrite/` all HTTP 200
+- active old-office script syntax/reference audit: PASS
+
+Active generated office sizes after build:
+- `dist/app/index.html`: ~151 KB (not the 451-byte R17 shell)
+- `dist/app/app.js`: ~2.54 MB
+- `dist/app/styles.css`: ~353 KB
+- `dist/app/r18-ui-parity-bridge.js`: ~22 KB
+
+## Verification boundary
+These are local build/static/domain/stress checks. They do **not** claim a live Render browser session or Supabase database migration was executed from this environment. The R17 audit RPC SQL remains database-dependent; the restored Settings UI fails safely when it is absent.

@@ -1,0 +1,1 @@
+(()=>{'use strict';window.__tuinbooksProductionRelease='60.3.8-v6011-schedule-authority';window.__tuinbooksScheduleAuthority='60.0.11-schedule-action-permission-fix';document.documentElement.dataset.productionRelease='v6038';})();

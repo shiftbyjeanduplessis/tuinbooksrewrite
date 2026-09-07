@@ -1,0 +1,4 @@
+/* v60.3.7 — production shell around the literal v60.0.11 canary. */
+body{padding-top:0!important}
+body::before{display:none!important;content:none!important}
+.tuinbooks-canary-status-v6004,.tuinbooks-canary-status-v6010,[class^="tuinbooks-canary-status-v60"]{display:none!important}

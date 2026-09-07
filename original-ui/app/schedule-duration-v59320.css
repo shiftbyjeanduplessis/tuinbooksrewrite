@@ -1,0 +1,29 @@
+/* TuinBooks v59.3.20 — jobs-per-day scheduling and bulk duration editing */
+.jobs-only-grid-v59320 .schedule-team-heading small,
+.jobs-only-grid-v59320 .schedule-day-heading small{display:block;color:var(--muted,#64756d);font-size:.72rem;margin-top:.15rem}
+.schedule-day-lane.jobs-only-v59320{min-height:260px!important}
+.schedule-day-lane.jobs-only-v59320.over,
+.schedule-day-lane.jobs-only-v59320.near,
+.schedule-day-lane.jobs-only-v59320.full{border-color:var(--line,#dce5e0)!important;background:var(--surface,#fff)!important}
+.schedule-lane-state.jobs-only-v59320{display:grid;place-items:center;min-width:2rem;height:2rem;border-radius:999px;background:#edf6f1;color:#205d45;font-weight:800;font-size:.82rem}
+.v59320-card.v59320-no-duration{--card-height:58px!important}
+.v59320-card .schedule-card-duration{white-space:nowrap}
+.v59320-card.v59320-no-duration .schedule-card-duration{color:#6f7d76;font-weight:650}
+.v59320-planned-time{display:inline-flex;align-items:center;padding:.05rem .38rem;border-radius:999px;background:#eef3f0;color:#43564d;font-size:.68rem;font-weight:750}
+.v59320-select-tick{display:none;position:absolute;right:.4rem;top:.35rem;width:1.3rem;height:1.3rem;border-radius:999px;background:#176b4b;color:#fff;place-items:center;font-size:.75rem;font-weight:900;z-index:4}
+.schedule-select-mode-v59320 .schedule-card-clean{cursor:pointer!important;user-select:none}
+.schedule-select-mode-v59320 .schedule-card-info-v58931,
+.schedule-select-mode-v59320 .schedule-card-resize{pointer-events:none;opacity:.22}
+.schedule-card-clean.v59320-selected{outline:3px solid #176b4b!important;outline-offset:1px;box-shadow:0 0 0 3px rgba(23,107,75,.16)!important}
+.schedule-card-clean.v59320-selected .v59320-select-tick{display:grid}
+.schedule-select-mode-v59320 .schedule-lane-head{cursor:pointer}
+.schedule-bulk-duration-bar-v59320{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:1400;display:flex;align-items:center;gap:.45rem;max-width:calc(100vw - 28px);padding:.65rem .75rem;border:1px solid rgba(18,63,46,.18);border-radius:16px;background:rgba(255,255,255,.97);box-shadow:0 18px 48px rgba(20,45,35,.24);backdrop-filter:blur(10px);overflow-x:auto}
+.v59320-bulk-count{display:flex;align-items:baseline;gap:.3rem;min-width:max-content;padding:0 .45rem}
+.v59320-bulk-count strong{font-size:1.1rem;color:#164f39}
+.v59320-bulk-count span{font-size:.74rem;color:#66766f}
+.v59320-bulk-divider{width:1px;height:1.8rem;background:#dbe5df;flex:0 0 auto}
+.schedule-lasso-v59320{position:fixed;z-index:1390;border:2px solid #176b4b;background:rgba(23,107,75,.12);border-radius:8px;pointer-events:none}
+.schedule-select-mode-v59320{cursor:crosshair}
+.schedule-select-mode-v59320 .schedule-card-clean{cursor:pointer}
+#scheduleSelectVisitsBtnV59320.active{background:#176b4b;color:#fff;border-color:#176b4b}
+@media(max-width:820px){.schedule-bulk-duration-bar-v59320{left:10px;right:10px;bottom:10px;transform:none}.v59320-bulk-divider{display:none}}

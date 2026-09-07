@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0d4f2f">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TuinBooks Office Login</title>
+  <style>
+    :root{--green:#0d4f2f;--green2:#0b6b3a;--gold:#d7a20a;--ink:#163c2d;--muted:#66786f;--line:#d7e5dc;--soft:#f5faf7;--error:#b42318}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:linear-gradient(145deg,#0d4f2f,#174f3e);font-family:Arial,sans-serif;color:var(--ink)}
+    .card{width:min(460px,100%);background:#fff;border-radius:22px;padding:30px;box-shadow:0 24px 70px rgba(0,0,0,.25)}.brand{font-size:30px;font-weight:900;color:#0b6138;margin-bottom:6px}.brand span{color:var(--gold)}.subtitle{margin:0 0 24px;color:var(--muted)}
+    .prepared{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--soft);margin-bottom:20px}.prepared small{color:var(--muted)}.prepared strong{display:block;margin-top:4px}
+    label{display:block;font-weight:800;font-size:13px;margin:14px 0 6px}input,select{width:100%;padding:13px 14px;border:1px solid #cbd8d0;border-radius:10px;font:inherit;background:#fff}input:focus,select:focus{outline:0;border-color:var(--green2);box-shadow:0 0 0 3px rgba(11,107,58,.10)}
+    button{width:100%;margin-top:20px;padding:14px;border:0;border-radius:11px;background:var(--green2);color:#fff;font-size:16px;font-weight:900;cursor:pointer}button:disabled{opacity:.6;cursor:wait}.message{min-height:22px;color:var(--error);font-size:14px;line-height:1.4;margin:14px 0 0}.message.info{color:#496357}.help{font-size:12px;line-height:1.5;color:#6a7c73;margin-top:18px;text-align:center}.chooser{border-top:1px solid var(--line);margin-top:18px;padding-top:4px}.hidden{display:none!important}
+  </style>
+  <script src="vendor/supabase.js"></script>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">Tuin<span>Books</span></div>
+    <p class="subtitle">Office access to your prepared business workspace</p>
+    <div class="prepared"><small>Prepared account</small><strong id="businessName">Your TuinBooks business</strong></div>
+    <form id="loginForm">
+      <label for="email">Email</label><input id="email" type="email" autocomplete="username" required>
+      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required>
+      <p id="message" class="message" role="status"></p><button id="loginButton" type="submit">Open TuinBooks</button>
+    </form>
+    <section id="businessChooser" class="chooser hidden"><label for="businessChoice">Choose business</label><select id="businessChoice"></select><button id="openChosenBusiness" type="button">Open selected business</button></section>
+    <p class="help">Use this page for normal day-to-day sign-in after your password has been created. A setup link is only needed to create or reset a password.</p>
+  </main>
+<script>
+(() => {
+  'use strict';
+  const VERSION='59.6.93-onboarding-access-hardening';
+  const SUPABASE_URL='https://rjtvgdyelqmvdosndhik.supabase.co';
+  const SUPABASE_KEY='sb_publishable_1u2eSdcCUd7L2BR7u-PAVQ_MLnStefE';
+  const $=id=>document.getElementById(id);
+  const params=new URLSearchParams(location.search);
+  const rawBusiness=String(params.get('business')||'').trim();
+  const suppliedBusinessName=String(params.get('name')||'').trim().slice(0,160);
+  const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  const requestedBusiness=uuid.test(rawBusiness)?rawBusiness:'';
+  const client=globalThis.supabase?.createClient?.(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  let resolvedBusinesses=[];
+  function setMessage(text='',kind='error'){$('message').textContent=String(text||'');$('message').className=`message${kind==='info'?' info':''}`;}
+  function friendlyError(error){const text=String(error?.message||error||'').trim();if(/invalid login credentials/i.test(text))return 'The email or password is incorrect.';if(/email not confirmed/i.test(text))return 'This email has not finished account setup yet. Use the latest TuinBooks setup link first.';if(/failed to fetch|network|load failed/i.test(text))return 'TuinBooks could not reach the secure login service. Check the connection and try again.';if(/row-level security|permission denied|42501/i.test(text))return 'Your login worked, but TuinBooks could not verify the business access. Please contact TuinBooks.';return text||'The office login could not open.';}
+  async function activeMemberships(userId){const {data,error}=await client.from('business_members').select('business_id,role,display_name,active').eq('user_id',userId).eq('active',true).limit(20);if(error)throw error;return Array.isArray(data)?data.filter(row=>uuid.test(String(row?.business_id||''))):[];}
+  async function businessNames(ids){const unique=[...new Set(ids.filter(id=>uuid.test(String(id||''))))];if(!unique.length)return new Map();try{const {data,error}=await client.from('businesses').select('id,name').in('id',unique);if(error)throw error;return new Map((data||[]).map(row=>[String(row.id),String(row.name||'TuinBooks business')]));}catch(_){return new Map();}}
+  async function resolveBusinesses(user){const memberships=await activeMemberships(user.id);if(requestedBusiness){const match=memberships.find(row=>String(row.business_id)===requestedBusiness);if(!match)throw new Error('Your login worked, but this link is for a different TuinBooks business. Ask TuinBooks for the correct login link.');const names=await businessNames([requestedBusiness]);const actualName=names.get(requestedBusiness)||suppliedBusinessName||'Your TuinBooks business';return [{...match,name:actualName}];}if(!memberships.length)throw new Error('Your login worked, but this email is not attached to an active TuinBooks business. Please contact TuinBooks.');const names=await businessNames(memberships.map(row=>row.business_id));return memberships.map(row=>({...row,name:names.get(String(row.business_id))||'TuinBooks business'}));}
+  function openBusiness(row){const businessId=String(row?.business_id||'');if(!uuid.test(businessId))throw new Error('TuinBooks could not identify the business workspace.');$('businessName').textContent=row?.name||suppliedBusinessName||'Your TuinBooks business';setMessage('Opening your prepared workspace…','info');const target=new URL('index.html',location.href);target.searchParams.set('business',businessId);target.searchParams.set('handover','1');location.replace(target.href);}
+  function escapeHtml(value){return String(value||'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+  function showBusinessChooser(rows){resolvedBusinesses=rows;$('businessChoice').innerHTML=rows.map((row,index)=>`<option value="${index}">${escapeHtml(row.name||'TuinBooks business')}</option>`).join('');$('loginForm').classList.add('hidden');$('businessChooser').classList.remove('hidden');setMessage('');}
+  async function init(){if(suppliedBusinessName)$('businessName').textContent=suppliedBusinessName;if(rawBusiness&&!requestedBusiness)setMessage('This old link has an invalid business reference. You can still sign in normally below.','info');if(!client){setMessage('TuinBooks secure login is temporarily unavailable.');$('loginButton').disabled=true;}}
+  $('loginForm').addEventListener('submit',async event=>{event.preventDefault();const email=$('email').value.trim().toLowerCase();const password=$('password').value;const button=$('loginButton');setMessage('');button.disabled=true;button.textContent='Checking secure access…';try{const current=await client.auth.getSession();const currentEmail=String(current.data?.session?.user?.email||'').toLowerCase();if(currentEmail&&currentEmail!==email)await client.auth.signOut({scope:'local'});const signed=await client.auth.signInWithPassword({email,password});if(signed.error)throw signed.error;const verified=await client.auth.getUser();if(verified.error)throw verified.error;const user=verified.data?.user||signed.data?.user;if(!user)throw new Error('The secure login did not return a user.');const businesses=await resolveBusinesses(user);if(businesses.length===1){openBusiness(businesses[0]);return;}showBusinessChooser(businesses);}catch(error){setMessage(friendlyError(error));button.disabled=false;button.textContent='Open TuinBooks';}});
+  $('openChosenBusiness').addEventListener('click',()=>{const row=resolvedBusinesses[Number($('businessChoice').value)];if(!row)return;try{openBusiness(row);}catch(error){setMessage(friendlyError(error));}});
+  window.__tuinbooksClientLogin={version:VERSION,genericLogin:true};init();
+})();
+</script>
+</body>
+</html>

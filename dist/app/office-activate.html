@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TuinBooks — Activate office account</title>
+  <link rel="icon" type="image/png" href="tuinbooks-icon.png">
+  <style>
+    :root{--green:#0d4f2f;--green2:#11733f;--gold:#f2c230;--ink:#173428;--muted:#667a70;--line:#d9e6dd;--bg:#f3f7f4;--error:#a33131}
+    *{box-sizing:border-box}html,body{min-height:100%;margin:0}body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(160deg,#eef6f0 0%,#f8fbf9 58%,#edf5ef 100%);color:var(--ink);display:grid;place-items:center;padding:24px}
+    .card{width:min(100%,520px);background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 24px 70px rgba(19,60,43,.12);overflow:hidden}.brand{background:var(--green);color:#fff;padding:22px 26px}.brand img{display:block;max-width:190px;max-height:54px;object-fit:contain;filter:none}.brand small{display:block;margin-top:7px;opacity:.84;font-weight:600}.body{padding:30px 28px 28px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--green2);margin-bottom:8px}h1{font-size:28px;line-height:1.13;margin:0 0 12px;letter-spacing:-.025em}p{line-height:1.55;color:var(--muted);margin:0 0 20px}.notice{border:1px solid #dce9e0;background:#f6faf7;border-radius:13px;padding:14px 15px;margin:0 0 20px;color:#496357;font-size:14px;line-height:1.5}.notice strong{color:var(--ink)}form{display:grid;gap:15px}label{display:grid;gap:7px;font-size:13px;font-weight:750;color:#29483a}input{width:100%;border:1px solid #bfd1c5;border-radius:10px;padding:13px 14px;font:inherit;color:var(--ink);outline:none;background:#fff}input:focus{border-color:var(--green2);box-shadow:0 0 0 3px rgba(17,115,63,.11)}button,.button{border:0;border-radius:10px;padding:13px 17px;font:800 15px/1.2 inherit;cursor:pointer;text-decoration:none;text-align:center}.primary{background:var(--green2);color:#fff}.secondary{background:#edf4ef;color:var(--green);display:inline-block}.primary:disabled{opacity:.58;cursor:wait}.message{min-height:22px;margin:2px 0 0;font-size:14px;font-weight:650;color:var(--muted)}.message.error{color:var(--error)}.hidden{display:none!important}.loader{width:30px;height:30px;border:3px solid #dce9e0;border-top-color:var(--green2);border-radius:50%;animation:spin .8s linear infinite;margin:2px auto 16px}@keyframes spin{to{transform:rotate(360deg)}}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.fine{font-size:12px;margin-top:22px;margin-bottom:0;color:#829188}.success{color:var(--green2)}
+  </style>
+</head>
+<body>
+  <main class="card" aria-live="polite">
+    <div class="brand">
+      <img src="tuinbooks-logo.png" alt="TuinBooks" onerror="this.style.display='none'">
+      <small>Secure admin account setup</small>
+    </div>
+    <section class="body">
+      <div id="loadingState">
+        <div class="loader" aria-hidden="true"></div>
+        <h1>Opening your secure setup link</h1>
+        <p id="loadingMessage">Confirming your TuinBooks office access…</p>
+      </div>
+
+      <div id="passwordState" class="hidden">
+        <div class="eyebrow">Admin account</div>
+        <h1>Choose your TuinBooks password</h1>
+        <div class="notice"><strong>Your secure link has already signed you in.</strong><br>Choose your password below to finish opening your business workspace.</div>
+        <form id="passwordForm">
+          <label>New password
+            <input id="password" type="password" minlength="8" required autocomplete="new-password" placeholder="At least 8 characters">
+          </label>
+          <label>Confirm password
+            <input id="confirmPassword" type="password" minlength="8" required autocomplete="new-password" placeholder="Enter the same password again">
+          </label>
+          <button id="finishButton" class="primary" type="submit">Finish setup &amp; open TuinBooks</button>
+          <div id="message" class="message" role="status"></div>
+        </form>
+      </div>
+
+      <div id="doneState" class="hidden">
+        <div class="eyebrow">Account ready</div>
+        <h1>Your admin access is active</h1>
+        <p>Opening your prepared TuinBooks workspace…</p>
+        <div class="loader" aria-hidden="true"></div>
+      </div>
+
+      <div id="errorState" class="hidden">
+        <div class="eyebrow">Setup link</div>
+        <h1>We couldn't finish this setup link</h1>
+        <p id="errorMessage">The secure session could not be confirmed.</p>
+        <div class="actions">
+          <button id="retryButton" class="primary" type="button">Try again</button>
+          <a id="goToLoginButton" class="button secondary" href="client-login.html">Go to sign in</a>
+        </div>
+        <p class="fine">If this secure link has expired or has already been used, ask TuinBooks for a fresh admin setup link.</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+  (()=>{
+    'use strict';
+    const VERSION='59.6.93-onboarding-access-hardening';
+    const $=id=>document.getElementById(id);
+    const params=new URLSearchParams(location.search);
+    const inviteToken=String(params.get('invite')||'').trim();
+    const requestedBusiness=String(params.get('business')||'').trim();
+    const accessMode=String(params.get('mode')||'').trim().toLowerCase();
+    const adminMode=accessMode==='admin'&&validUuid(requestedBusiness);
+    let client=null,session=null,membership=null,acceptResult=null,started=false;
+
+    function validUuid(value){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value||''));}
+    function show(id){['loadingState','passwordState','doneState','errorState'].forEach(name=>$(name).classList.toggle('hidden',name!==id));}
+    function errorText(error){
+      const text=String(error?.message||error||'').trim();
+      if(/same email address/i.test(text))return 'This setup link belongs to a different email address. Open the newest link sent to the admin who will use TuinBooks.';
+      if(/expired|invalid|otp|token/i.test(text))return 'This secure setup link has expired or is no longer valid. Ask TuinBooks for a fresh admin setup link.';
+      return text||'The secure admin setup could not be completed.';
+    }
+    function fail(error){console.error('TuinBooks office activation failed',error);$('errorMessage').textContent=errorText(error);show('errorState');}
+    function config(){const raw=window.TUINBOOKS_SUPABASE_CONFIG||{};return{url:String(raw.url||'').trim().replace(/\/$/,''),key:String(raw.key||'').trim()};}
+    function configValid(c){return /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)&&c.key.length>20&&!/service_role|sb_secret_/i.test(c.key);}
+
+    async function activeMembership(user,businessId=''){
+      let query=client.from('business_members').select('business_id,role,display_name,active').eq('user_id',user.id).eq('active',true);
+      if(validUuid(businessId))query=query.eq('business_id',businessId);
+      const {data,error}=await query.limit(10);
+      if(error)throw error;
+      const rows=Array.isArray(data)?data:[];
+      return rows[0]||null;
+    }
+
+    function resultBusinessId(value){
+      const row=Array.isArray(value)?value[0]:value;
+      return String(row?.business_id||row?.businessId||'').trim();
+    }
+
+    async function resolveAccess(user){
+      if(adminMode){
+        membership=await activeMembership(user,requestedBusiness);
+        if(!membership)throw new Error('This admin link signed you in, but the business membership is missing. Ask TuinBooks to create a fresh admin setup link.');
+        if(!['owner','admin'].includes(String(membership.role||'')))throw new Error('This account does not have office-admin access to this business.');
+        return membership;
+      }
+
+      // Legacy prepared-client handover links remain supported.
+      const metadataBusiness=String(user?.user_metadata?.tuinbooks_business_id||'').trim();
+      membership=await activeMembership(user,metadataBusiness);
+      if(membership)return membership;
+      if(!validUuid(inviteToken))throw new Error('The office invitation token is missing or invalid. Ask TuinBooks to resend the office access email.');
+      const {data,error}=await client.rpc('accept_business_invite',{p_token:inviteToken});
+      if(error){
+        membership=await activeMembership(user,metadataBusiness).catch(()=>null);
+        if(membership)return membership;
+        throw error;
+      }
+      acceptResult=data;
+      const acceptedBusiness=resultBusinessId(data)||metadataBusiness;
+      membership=await activeMembership(user,acceptedBusiness);
+      if(!membership)throw new Error('Your email is confirmed, but the TuinBooks business access could not be attached. Ask TuinBooks for a fresh setup link.');
+      return membership;
+    }
+
+    async function getSession(){
+      const {data,error}=await client.auth.getSession();
+      if(error)throw error;
+      if(data?.session?.user)return data.session;
+      return await new Promise(resolve=>{
+        let settled=false;
+        let subscription=null;
+        const timer=setTimeout(()=>{if(settled)return;settled=true;subscription?.unsubscribe?.();resolve(null);},2500);
+        const {data:listener}=client.auth.onAuthStateChange((event,next)=>{
+          if(settled||!next?.user)return;
+          if(['SIGNED_IN','INITIAL_SESSION','USER_UPDATED','PASSWORD_RECOVERY'].includes(event)){
+            settled=true;clearTimeout(timer);listener?.subscription?.unsubscribe?.();resolve(next);
+          }
+        });
+        subscription=listener?.subscription||null;
+      });
+    }
+
+    async function start(){
+      if(started)return;started=true;show('loadingState');$('loadingMessage').textContent='Confirming your TuinBooks admin access…';
+      try{
+        const c=config();
+        if(!configValid(c)||!window.supabase?.createClient)throw new Error('TuinBooks secure account setup is temporarily unavailable.');
+        client=window.supabase.createClient(c.url,c.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+        session=await getSession();
+        if(!session?.user)throw new Error('This secure setup link has expired or did not create a secure session. Ask TuinBooks for a fresh admin setup link.');
+        $('loadingMessage').textContent='Connecting your admin account to the business…';
+        await resolveAccess(session.user);
+        show('passwordState');
+        setTimeout(()=>$('password')?.focus(),50);
+      }catch(error){fail(error);}
+    }
+
+    async function finish(event){
+      event.preventDefault();
+      const password=$('password').value,confirm=$('confirmPassword').value,button=$('finishButton');
+      $('message').className='message';$('message').textContent='';
+      if(password.length<8){$('message').className='message error';$('message').textContent='Use at least 8 characters.';return;}
+      if(password!==confirm){$('message').className='message error';$('message').textContent='The passwords do not match.';return;}
+      button.disabled=true;button.textContent='Saving securely…';
+      try{
+        const {data,error}=await client.auth.updateUser({password});
+        if(error)throw error;
+        session={...(session||{}),user:data?.user||session?.user};
+        if(!membership)membership=await resolveAccess(session.user);
+        const businessId=String(membership?.business_id||resultBusinessId(acceptResult)||requestedBusiness||session.user?.user_metadata?.tuinbooks_business_id||'').trim();
+        if(!validUuid(businessId))throw new Error('Your password was saved, but the business could not be identified. Please contact TuinBooks support.');
+        show('doneState');
+        const target=new URL('./',location.href);
+        target.searchParams.set('business',businessId);
+        // Every successfully activated office account opens the already-prepared
+        // workspace. The app treats handover bookkeeping as best-effort.
+        target.searchParams.set('handover','1');
+        target.searchParams.set('welcome','1');
+        target.searchParams.set('from','office-activate');
+        location.replace(target.href);
+      }catch(error){
+        $('message').className='message error';$('message').textContent=errorText(error);button.disabled=false;button.textContent='Finish setup & open TuinBooks';
+      }
+    }
+
+    $('passwordForm').addEventListener('submit',finish);
+    $('retryButton').addEventListener('click',()=>{started=false;start();});
+    const loginTarget=new URL('client-login.html',location.href);
+    if(validUuid(requestedBusiness))loginTarget.searchParams.set('business',requestedBusiness);
+    if($('goToLoginButton'))$('goToLoginButton').href=loginTarget.href;
+    window.__tuinbooksOfficeActivate={version:VERSION,mode:adminMode?'admin':'legacy-handover'};
+    start();
+  })();
+  </script>
+</body>
+</html>

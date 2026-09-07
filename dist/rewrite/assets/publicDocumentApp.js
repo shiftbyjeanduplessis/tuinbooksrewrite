@@ -1,0 +1,58 @@
+import { supabase } from './lib/supabase.js';
+const root = document.getElementById('root');
+if (!root)
+    throw new Error('Public document root missing.');
+const params = new URLSearchParams(location.search), token = params.get('token') ?? '', demo = params.get('demo') === '1', acceptMode = document.body.dataset.publicMode === 'accept';
+const money = (v) => new Intl.NumberFormat('en-ZA', { style: 'currency', currency: 'ZAR' }).format(Number(v ?? 0));
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c));
+async function load() { root.innerHTML = '<main class="public-doc-shell"><div class="loading-state">Loading secure document…</div></main>'; try {
+    let result;
+    if (demo)
+        result = demoResult();
+    else {
+        if (!token)
+            throw new Error('This secure link is incomplete.');
+        const { data, error } = await supabase.rpc('tuinbooks_v2_get_public_document', { p_token: token });
+        if (error)
+            throw error;
+        result = data;
+    }
+    if (!result?.ok)
+        throw new Error(result?.error === 'expired' ? 'This secure link has expired.' : result?.error === 'revoked' ? 'This secure link was revoked.' : 'This secure link is invalid.');
+    render(result);
+}
+catch (e) {
+    root.innerHTML = `<main class="public-doc-shell"><section class="public-doc-card"><div class="error-box">${esc(msg(e))}</div></section></main>`;
+} }
+function render(result) { const s = result.snapshot ?? {}, type = String(result.document_type ?? s.documentType ?? 'document'), lines = Array.isArray(s.lines) ? s.lines : [], total = Number(s.total ?? lines.reduce((sum, l) => sum + Number(l.quantity ?? 1) * Number(l.unitPrice ?? 0) * (1 - Math.max(0, Math.min(100, Number(l.discountPercent ?? 0))) / 100) * (1 + Number(l.vatRate ?? 0) / 100), 0)), statementRows = Array.isArray(s.statementRows) ? s.statementRows : []; document.title = `${title(type)} ${s.number ?? ''}`.trim(); root.innerHTML = `<main class="public-doc-shell"><header class="public-doc-brand"><img src="./tuinbooks-logo.png" alt="TuinBooks"><div><strong>${esc(s.businessName || 'TuinBooks')}</strong><span>Secure ${esc(type)}</span></div></header><article class="public-doc-card"><header class="public-doc-heading"><div><p class="eyebrow">${esc(type)}</p><h1>${esc(s.number || title(type))}</h1><span>${esc(s.accountName || 'Customer')}</span></div><button id="printDocument" class="secondary-button">Print / Save PDF</button></header>${type === 'statement' ? statement(statementRows, s) : standard(lines, s, total)}${acceptMode && type === 'quote' ? responseBlock(result) : ''}</article></main>`; root.querySelector('#printDocument').onclick = () => window.print(); const form = root.querySelector('#publicQuoteResponse'); if (form)
+    form.onsubmit = e => void respond(e, result); }
+function standard(lines, s, total) { return `<section class="public-doc-meta"><div><span>Date</span><strong>${esc(s.date || s.issueDate || '')}</strong></div>${s.validUntil ? `<div><span>Valid until</span><strong>${esc(s.validUntil)}</strong></div>` : ''}${s.dueDate ? `<div><span>Due date</span><strong>${esc(s.dueDate)}</strong></div>` : ''}</section><div class="public-lines">${lines.map(l => `<div><span><strong>${esc(l.description || 'Work item')}</strong><small>${Number(l.quantity ?? 1)} × ${money(l.unitPrice)}${Number(l.discountPercent ?? 0) > 0 ? ` · ${Number(l.discountPercent)}% discount` : ''}</small></span><b>${money(Number(l.quantity ?? 1) * Number(l.unitPrice ?? 0) * (1 - Math.max(0, Math.min(100, Number(l.discountPercent ?? 0))) / 100) * (1 + Number(l.vatRate ?? 0) / 100))}</b></div>`).join('') || '<p>No line items.</p>'}</div><div class="public-total"><span>Total</span><strong>${money(total)}</strong></div>${s.balance != null ? `<div class="public-balance"><span>Outstanding</span><strong>${money(s.balance)}</strong></div>` : ''}${s.notes ? `<section class="public-note"><strong>Notes</strong><p>${esc(s.notes)}</p></section>` : ''}`; }
+function statement(rows, s) { return `<div class="public-statement"><div class="statement-head"><span>Date</span><span>Reference</span><span>Debit</span><span>Credit</span><span>Balance</span></div>${rows.map(r => `<div><span>${esc(r.date)}</span><span>${esc(`${r.type ?? ''} ${r.reference ?? ''}`.trim())}</span><span>${r.debit ? money(r.debit) : ''}</span><span>${r.credit ? money(r.credit) : ''}</span><strong>${money(r.balance)}</strong></div>`).join('') || '<p>No statement activity.</p>'}</div><div class="public-total"><span>Current balance</span><strong>${money(s.balance)}</strong></div>`; }
+function responseBlock(result) { if (result.status === 'responded')
+    return `<section class="public-response recorded"><h2>Response recorded</h2><p>${esc(responseLabel(result.response ?? ''))}${result.responded_by_name ? ` by ${esc(result.responded_by_name)}` : ''}.</p></section>`; return `<form id="publicQuoteResponse" class="public-response"><h2>Your response</h2><label>Your name<input name="name" required autocomplete="name"></label><label>Note<textarea name="note" rows="3" placeholder="Optional"></textarea></label><div class="response-actions"><button name="decision" value="accepted" class="primary-button">Accept quote</button><button name="decision" value="changes_requested">Request changes</button><button name="decision" value="declined">Decline</button></div><div class="dialog-error hidden"></div></form>`; }
+async function respond(event, result) { event.preventDefault(); if (demo) {
+    alert('Demo response recorded locally.');
+    result.status = 'responded';
+    result.response = event.submitter?.value ?? 'accepted';
+    render(result);
+    return;
+} const form = event.currentTarget, fd = new FormData(form), decision = event.submitter?.value ?? 'accepted', box = form.querySelector('.dialog-error'); try {
+    form.querySelectorAll('button').forEach(b => b.disabled = true);
+    const { data, error } = await supabase.rpc('tuinbooks_v2_respond_public_quote', { p_token: token, p_decision: decision, p_customer_name: String(fd.get('name') ?? ''), p_note: String(fd.get('note') ?? '') });
+    if (error)
+        throw error;
+    if (!data?.ok)
+        throw new Error('The response could not be recorded.');
+    await load();
+}
+catch (e) {
+    box.textContent = msg(e);
+    box.classList.remove('hidden');
+    form.querySelectorAll('button').forEach(b => b.disabled = false);
+} }
+function demoResult() { return { ok: true, document_type: acceptMode ? 'quote' : 'invoice', status: 'active', snapshot: { documentType: acceptMode ? 'quote' : 'invoice', businessName: 'TuinBooks Demo', number: acceptMode ? 'Q-1001' : 'INV-1001', accountName: 'Demo Client', date: '2026-09-06', dueDate: acceptMode ? null : '2026-09-13', validUntil: acceptMode ? '2026-09-13' : null, lines: [{ description: 'Garden service', quantity: 1, unitPrice: 750, vatRate: 15 }], total: 862.5, balance: acceptMode ? null : 862.5, notes: 'Thank you for your business.' } }; }
+function title(v) { return v.charAt(0).toUpperCase() + v.slice(1); }
+function responseLabel(v) { return v === 'accepted' ? 'Accepted' : v === 'changes_requested' ? 'Changes requested' : v === 'declined' ? 'Declined' : v; }
+function msg(e) { return e instanceof Error ? e.message : String(e); }
+void load();
+//# sourceMappingURL=publicDocumentApp.js.map

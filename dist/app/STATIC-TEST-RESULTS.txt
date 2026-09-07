@@ -1,0 +1,2 @@
+PASS — calendar_patch_javascript_node_check
+PASS — patcher_python_compile

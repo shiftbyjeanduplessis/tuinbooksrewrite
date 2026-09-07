@@ -1,0 +1,343 @@
+
+/* v59.6.76.1 — HTML hidden must always win over component display rules. */
+[hidden]{display:none!important}
+:root{--green-950:#0d3f20;--green-900:#157235;--green-800:#228d44;--green-100:#edf8ed;--gold:#f2c230;--cream:#fffbea;--ink:#132019;--muted:#607066;--line:#dce7de;--danger:#b42318;--danger-bg:#fff1f0;--surface:#fff;--page:#f4f7f3;--shadow:0 18px 50px rgba(13,63,32,.12);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+*{box-sizing:border-box}body{margin:0;background:var(--page);min-height:100vh}button,input,select,textarea{font:inherit}button{cursor:pointer}.shell{min-height:100vh;display:grid;grid-template-columns:230px 1fr}.sidebar{background:var(--green-950);color:#fff;padding:22px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:11px;color:#fff;text-decoration:none;padding:4px 7px 24px}.brand-mark{width:38px;height:38px;border-radius:11px;background:var(--gold);color:var(--green-950);display:grid;place-items:center;font-weight:900;font-size:21px}.brand strong,.brand small{display:block}.brand small{font-size:12px;color:#cfe0d4;margin-top:2px}.sidebar nav{display:grid;gap:7px}.nav-button{border:0;background:transparent;color:#dbe8df;text-align:left;border-radius:10px;padding:11px 12px;font-weight:750}.nav-button:hover,.nav-button.active{background:rgba(255,255,255,.12);color:#fff}.sidebar-foot{margin-top:auto;border-top:1px solid rgba(255,255,255,.16);padding:16px 7px 3px;display:grid;gap:7px;font-size:12px;color:#cfe0d4}.text-button{border:0;background:transparent;color:var(--gold);padding:0;text-align:left;font-weight:800}.main{min-width:0;padding:34px}.gate-card{width:min(520px,calc(100vw - 48px));margin:9vh auto;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:34px;box-shadow:var(--shadow);text-align:center}.gate-card h1{font-size:28px;margin:10px 0}.gate-card p{color:var(--muted);line-height:1.6}.error-card{border-color:#f1c6c2}.gate-icon{width:48px;height:48px;margin:auto;border-radius:50%;display:grid;place-items:center;background:var(--danger-bg);color:var(--danger);font-size:28px;font-weight:900}.spinner{width:38px;height:38px;border:4px solid var(--green-100);border-top-color:var(--green-900);border-radius:50%;margin:auto;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.eyebrow{font-size:11px;letter-spacing:.13em;font-weight:900;color:var(--green-800)}.form-stack{display:grid;gap:14px;text-align:left;margin-top:22px}.form-stack label,.modal-card label,.toolbar-card label{display:grid;gap:7px;color:#33483a;font-size:13px;font-weight:750}.form-stack input,.modal-card input,.modal-card select,.modal-card textarea,.toolbar-card input,.toolbar-card select,.note-form textarea{width:100%;border:1px solid #cddbd1;border-radius:11px;padding:11px 12px;background:#fff;color:var(--ink);outline:none}.form-stack input:focus,.modal-card select:focus,.modal-card textarea:focus,.toolbar-card input:focus,.toolbar-card select:focus,.note-form textarea:focus{border-color:var(--green-800);box-shadow:0 0 0 3px rgba(34,141,68,.12)}.primary-button,.secondary-button{border-radius:10px;padding:10px 14px;font-weight:850;border:1px solid transparent}.primary-button{background:var(--green-900);color:#fff}.primary-button:hover{background:var(--green-950)}.secondary-button{background:#fff;color:var(--green-950);border-color:#bfd1c3}.secondary-button:hover{background:var(--green-100)}button:disabled{opacity:.48;cursor:not-allowed}.form-message{min-height:18px;margin:0;color:var(--danger);font-size:13px}.qr-frame{width:210px;height:210px;margin:18px auto;background:#fff;border:1px solid var(--line);padding:10px;border-radius:15px}.qr-frame img{width:100%;height:100%;object-fit:contain}.secret-line code{display:inline-block;max-width:100%;word-break:break-all;background:#f2f5f2;padding:5px 7px;border-radius:6px}.topbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:24px}.topbar h1{margin:5px 0 4px;font-size:29px}.topbar p{margin:0;color:var(--muted)}.view{display:none}.view.active{display:block}.toolbar-card,.table-card{background:var(--surface);border:1px solid var(--line);border-radius:18px;box-shadow:0 8px 26px rgba(13,63,32,.06)}.toolbar-card{padding:16px;display:grid;grid-template-columns:minmax(260px,1fr) 210px 120px;gap:14px;align-items:end;margin-bottom:16px}.result-count{height:43px;border-left:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:7px}.result-count strong{font-size:24px;color:var(--green-900)}.result-count span{font-size:12px;color:var(--muted)}.table-card{overflow:hidden}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;min-width:1120px}th,td{text-align:left;padding:13px 14px;border-bottom:1px solid #e6ede8;vertical-align:middle;font-size:13px}th{position:sticky;top:0;background:#f7faf7;color:#496154;font-size:11px;text-transform:uppercase;letter-spacing:.06em;z-index:1}tbody tr:hover{background:#fbfdfb}.business-cell strong{display:block;font-size:14px}.business-cell small,.contact-cell small{display:block;color:var(--muted);margin-top:3px}.chip{display:inline-flex;align-items:center;border-radius:999px;padding:5px 8px;font-size:11px;font-weight:850;background:#eef4ef;color:#355241;white-space:nowrap}.chip.green{background:#e7f7ea;color:#146b31}.chip.gold{background:#fff5cc;color:#745b00}.chip.red{background:var(--danger-bg);color:var(--danger)}.chip.blue{background:#eef5ff;color:#275ea8}.row-action{border:1px solid #bfd1c3;background:#fff;border-radius:8px;padding:7px 9px;color:var(--green-950);font-weight:800}.empty-state,.inline-loading{text-align:center;padding:32px;color:var(--muted)}.drawer-dialog,.modal-dialog{border:0;padding:0;background:transparent}.drawer-dialog::backdrop,.modal-dialog::backdrop{background:rgba(8,28,15,.52)}.drawer-dialog{width:min(860px,95vw);max-width:none;margin:0 0 0 auto;height:100vh;max-height:none}.drawer-shell{height:100%;background:#fff;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18)}.drawer-header{padding:22px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px}.drawer-header h2{margin:5px 0 3px;font-size:25px}.drawer-header p{margin:0;color:var(--muted)}.icon-button{width:38px;height:38px;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:24px;color:#516359}.drawer-shell>#accountDialogContent{padding:22px 24px;overflow:auto;flex:1}.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.summary-card{border:1px solid var(--line);border-radius:13px;padding:13px;background:#fbfdfb}.summary-card strong{display:block;font-size:22px;color:var(--green-900)}.summary-card span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}.drawer-section{margin-top:24px}.section-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.section-heading h3{margin:0}.member-list,.notes-list,.activity-list{display:grid;gap:8px}.member-row,.note-row,.activity-row{border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff}.member-row{display:flex;justify-content:space-between;gap:12px}.member-row small,.note-row small,.activity-row small{display:block;color:var(--muted);margin-top:3px}.note-form{display:grid;grid-template-columns:1fr auto;gap:9px;align-items:end;margin-bottom:10px}.note-form textarea{min-height:76px;resize:vertical}.drawer-footer{padding:15px 24px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:flex-end;gap:10px;background:#fbfdfb}.grant-summary{margin-right:auto;font-size:12px;color:var(--muted);max-width:360px}.modal-dialog{width:min(520px,calc(100vw - 32px));max-width:none}.modal-card{background:#fff;border-radius:20px;padding:22px;box-shadow:var(--shadow);display:grid;gap:15px}.modal-card header,.modal-card footer{display:flex;align-items:center;justify-content:space-between;gap:14px}.modal-card h2{margin:5px 0 0}.modal-card textarea{min-height:90px;resize:vertical}.modal-card footer{justify-content:flex-end;border-top:1px solid var(--line);padding-top:15px}.scope-summary{border:1px solid var(--line);background:#f7faf7;border-radius:12px;padding:12px;font-size:13px;line-height:1.55}.grant-summary strong{color:var(--green-950)}.toast-region{position:fixed;right:20px;bottom:20px;display:grid;gap:8px;z-index:100}.toast{background:#173722;color:#fff;padding:12px 14px;border-radius:11px;box-shadow:var(--shadow);max-width:360px;font-size:13px}.toast.error{background:#8f1d16}
+@media(max-width:900px){.shell{grid-template-columns:1fr}.sidebar{position:static;height:auto;flex-direction:row;align-items:center;padding:12px 14px;gap:10px}.brand{padding:0}.sidebar nav{display:flex!important;margin-left:auto}.sidebar-foot{display:none}.main{padding:22px}.toolbar-card{grid-template-columns:1fr 180px}.result-count{display:none}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.sidebar nav{overflow:auto}.nav-button{white-space:nowrap}.main{padding:16px}.topbar{align-items:center}.topbar p{display:none}.toolbar-card{grid-template-columns:1fr}.drawer-dialog{width:100vw}.summary-grid{grid-template-columns:repeat(2,1fr)}.drawer-footer{align-items:stretch;flex-direction:column}.grant-summary{max-width:none;margin:0}.drawer-footer button{width:100%}.note-form{grid-template-columns:1fr}}
+
+/* v59.2 manager-created client accounts */
+.topbar-actions{display:flex;gap:10px;align-items:center}.form-intro{margin:0;color:var(--muted);line-height:1.55;font-size:13px}.create-account-card{width:min(680px,calc(100vw - 32px))}.created-account-card{width:min(620px,calc(100vw - 32px))}.form-grid{display:grid;gap:12px}.form-grid.two-column{grid-template-columns:1fr 1fr}.success-panel{border:1px solid #bcd9c3;background:#f0faf2;border-radius:12px;padding:13px;display:grid;gap:4px}.success-panel strong{color:var(--green-950)}.success-panel span{font-size:12px;color:var(--muted)}.copy-field{display:grid;grid-template-columns:1fr auto;gap:8px}.copy-field input{min-width:0}.chip.gold{background:#fff3c4;color:#735500}
+@media(max-width:620px){.topbar-actions{gap:7px}.topbar-actions button{padding:9px 10px}.form-grid.two-column{grid-template-columns:1fr}.copy-field{grid-template-columns:1fr}.copy-field button{width:100%}}
+
+/* v59.2.1 — compact create-account modal; no internal scrolling */
+#createAccountDialog{
+  width:min(760px,calc(100vw - 32px));
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:0;
+  overflow:hidden;
+}
+#createAccountDialog .create-account-card{
+  width:100%;
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:18px 20px;
+  gap:10px;
+  overflow:hidden;
+}
+#createAccountDialog .modal-card header{align-items:flex-start}
+#createAccountDialog .modal-card h2{font-size:23px;line-height:1.15}
+#createAccountDialog .form-intro{font-size:12px;line-height:1.35}
+#createAccountDialog .form-grid.two-column{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  column-gap:12px;
+  row-gap:9px;
+}
+#createAccountDialog label{min-width:0;gap:5px;font-size:12px}
+#createAccountDialog input,
+#createAccountDialog select{
+  min-width:0;
+  height:39px;
+  padding:8px 10px;
+  border-radius:9px;
+}
+#createAccountDialog .form-message{
+  min-height:15px;
+  line-height:1.2;
+  margin:0;
+}
+#createAccountDialog footer{
+  padding-top:10px;
+  gap:9px;
+}
+#createAccountDialog footer button{padding:9px 14px}
+
+@media(max-width:620px){
+  #createAccountDialog{width:calc(100vw - 12px);max-height:calc(100dvh - 12px)}
+  #createAccountDialog .create-account-card{max-height:calc(100dvh - 12px);padding:14px;gap:8px;border-radius:15px}
+  #createAccountDialog .form-grid.two-column{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:8px;row-gap:7px}
+  #createAccountDialog .modal-card h2{font-size:20px}
+  #createAccountDialog .form-intro{font-size:11px}
+  #createAccountDialog label{font-size:11px;gap:4px}
+  #createAccountDialog input,#createAccountDialog select{height:36px;padding:7px 8px;font-size:12px}
+}
+
+@media(max-height:650px){
+  #createAccountDialog .create-account-card{padding:12px 16px;gap:7px}
+  #createAccountDialog .form-intro{font-size:11px;line-height:1.25}
+  #createAccountDialog .form-grid.two-column{row-gap:6px}
+  #createAccountDialog label{gap:3px}
+  #createAccountDialog input,#createAccountDialog select{height:34px;padding:6px 9px}
+  #createAccountDialog footer{padding-top:7px}
+  #createAccountDialog .form-message{min-height:13px;font-size:11px}
+}
+
+/* v59.3.16 — account-created confirmation modal fits without any scrolling */
+#createdAccountDialog{
+  width:min(720px,calc(100vw - 32px));
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:0;
+  overflow:hidden;
+}
+#createdAccountDialog .created-account-card{
+  width:100%;
+  max-width:none;
+  max-height:calc(100dvh - 24px);
+  padding:20px 22px;
+  gap:13px;
+  overflow:hidden;
+}
+#createdAccountDialog .modal-card header{
+  align-items:flex-start;
+  min-width:0;
+}
+#createdAccountDialog .modal-card header>div,
+#createdAccountDialog label,
+#createdAccountDialog .success-panel,
+#createdAccountDialog .copy-field{
+  min-width:0;
+}
+#createdAccountDialog .copy-field{
+  width:100%;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+}
+#createdAccountDialog .copy-field input{
+  width:100%;
+  min-width:0;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  overflow:hidden;
+}
+#createdAccountDialog .form-intro,
+#createdAccountDialog .success-panel span{
+  overflow-wrap:anywhere;
+}
+#createdAccountDialog footer{
+  padding-top:12px;
+  flex-wrap:wrap;
+}
+@media(max-width:620px){
+  #createdAccountDialog{
+    width:calc(100vw - 12px);
+    max-height:calc(100dvh - 12px);
+  }
+  #createdAccountDialog .created-account-card{
+    max-height:calc(100dvh - 12px);
+    padding:16px;
+    border-radius:15px;
+  }
+  #createdAccountDialog .copy-field{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+  #createdAccountDialog .copy-field button{
+    width:auto;
+    white-space:nowrap;
+  }
+}
+
+/* v59.3.19 — office-user email invitation handover */
+.office-access-section{
+  border:1px solid #cfe0d4;
+  background:#f8fcf9;
+  border-radius:15px;
+  padding:16px;
+}
+.office-access-section .section-heading{align-items:flex-start;gap:14px}
+.office-access-section .section-heading>div{min-width:0}
+.office-access-section .section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.office-access-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:12px}
+.office-access-grid label{min-width:0}
+.office-access-grid input{width:100%;min-width:0}
+.office-access-detail{margin-top:11px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.5}
+.office-access-detail strong{color:var(--green-950)}
+.office-access-help{margin:9px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.office-access-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:11px;flex-wrap:wrap}
+.office-access-actions button{min-width:190px}
+.handover-panel{border:1px solid #bcd9c3;background:#f0faf2;border-radius:12px;padding:13px;display:grid;gap:5px}
+.handover-panel strong{color:var(--green-950)}
+.handover-panel span{font-size:12px;line-height:1.5;color:var(--muted)}
+@media(max-width:620px){
+  .office-access-grid{grid-template-columns:1fr}
+  .office-access-actions{justify-content:stretch}
+  .office-access-actions button{width:100%}
+}
+
+/* v59.3.21 — safe seven-day account deletion */
+.danger-zone{
+  border:1px solid #efc7c2;
+  background:#fff9f8;
+  border-radius:15px;
+  padding:16px;
+}
+.danger-zone .section-heading{align-items:flex-start;gap:14px}
+.danger-zone .section-heading>div{min-width:0}
+.danger-zone .section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.deletion-detail{margin-top:11px;border:1px solid #efd7d3;background:#fff;border-radius:11px;padding:11px 12px;color:var(--muted);font-size:12px;line-height:1.5}
+.deletion-detail strong{color:#7e261d}
+.deletion-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:11px}
+.danger-button{
+  border:1px solid #b9382d;
+  background:#b9382d;
+  color:#fff;
+  border-radius:10px;
+  padding:10px 16px;
+  font:inherit;
+  font-weight:800;
+  cursor:pointer;
+}
+.danger-button:hover{background:#992d24;border-color:#992d24}
+.danger-button:disabled{opacity:.55;cursor:not-allowed}
+.delete-warning{display:grid;gap:6px;border:1px solid #efc7c2;background:#fff5f3;border-radius:12px;padding:14px;color:#6f3b35;line-height:1.5}
+.delete-warning strong{color:#7e261d;font-size:16px}
+.delete-warning span{font-size:13px}
+.delete-account-card{max-width:620px}
+@media(max-width:620px){
+  .deletion-actions{flex-direction:column;align-items:stretch}
+  .deletion-actions button{width:100%}
+}
+
+
+/* v59.3.68 — genuine field activity counter on the account directory */
+
+/* =========================================================
+   v59.6.1 — native Management account setup
+   ========================================================= */
+.management-setup-section{
+  border:1px solid #bdd9c4;
+  background:linear-gradient(180deg,#f8fcf9 0%,#ffffff 100%);
+  border-radius:16px;
+  padding:16px;
+}
+.management-setup-section .section-heading{align-items:flex-start;gap:16px}
+.management-setup-section .section-heading>div{min-width:0}
+.management-setup-section .section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:640px}
+.management-setup-form{display:grid;gap:12px}
+.management-setup-card{border:1px solid var(--line);background:#fff;border-radius:13px;padding:13px}
+.management-setup-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:11px}
+.management-setup-card-heading>div{display:grid;gap:3px}
+.management-setup-card-heading strong,.management-setup-operational strong{color:var(--green-950);font-size:13px}
+.management-setup-card-heading span,.management-setup-operational span{color:var(--muted);font-size:12px;line-height:1.45}
+.management-setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.management-setup-grid label,.management-setup-team label{display:grid;gap:6px;color:#33483a;font-size:12px;font-weight:750;min-width:0}
+.management-setup-grid input,.management-setup-grid select,.management-setup-team input{
+  width:100%;min-width:0;border:1px solid #cddbd1;border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);outline:none
+}
+.management-setup-grid input:focus,.management-setup-grid select:focus,.management-setup-team input:focus{border-color:var(--green-800);box-shadow:0 0 0 3px rgba(34,141,68,.11)}
+.management-setup-teams{display:grid;gap:8px}
+.management-setup-team{display:grid;grid-template-columns:32px minmax(150px,1.3fr) minmax(130px,1.2fr) 96px 88px 82px 34px;gap:8px;align-items:end;border:1px solid #dbe7de;border-radius:11px;padding:9px;background:#fbfdfb}
+.management-setup-team.inactive{opacity:.62;background:#f5f6f5}
+.setup-team-number{width:28px;height:28px;border-radius:8px;background:#eaf5ed;color:var(--green-900);display:grid;place-items:center;font-weight:900;font-size:12px;margin-bottom:2px}
+.setup-team-active{display:flex!important;align-items:center;gap:6px!important;height:38px;white-space:nowrap}
+.setup-team-active input{width:auto!important;margin:0}
+.setup-team-remove{width:32px;height:38px;border:1px solid #d9c5c3;border-radius:8px;background:#fff;color:#9b2c24;font-size:20px;line-height:1;cursor:pointer}
+.setup-team-remove:hover{background:#fff2f1}
+.compact-button{padding:7px 10px;font-size:12px}
+.management-setup-operational{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.management-setup-operational>div{display:grid;gap:3px}
+.management-setup-ready{display:flex;align-items:flex-start;gap:10px;border:1px solid #c8dacd;background:#f5fbf6;border-radius:12px;padding:12px;color:#2e4736;cursor:pointer}
+.management-setup-ready input{margin-top:3px}
+.management-setup-ready span{display:grid;gap:2px}
+.management-setup-ready strong{font-size:13px;color:var(--green-950)}
+.management-setup-ready small{font-size:11px;line-height:1.45;color:var(--muted)}
+.management-setup-actions{display:flex;align-items:center;justify-content:flex-end;gap:12px}
+.management-setup-actions .form-message{margin-right:auto;min-height:0}
+.setup-primary-row-action{border-color:#a8ceb1!important;background:#f0faf2!important;color:#0f6630!important}
+.setup-focus-pulse{animation:setupFocusPulseV5961 1.2s ease-out}
+@keyframes setupFocusPulseV5961{0%{box-shadow:0 0 0 0 rgba(34,141,68,.35)}55%{box-shadow:0 0 0 7px rgba(34,141,68,.12)}100%{box-shadow:0 0 0 0 rgba(34,141,68,0)}}
+@media(max-width:1100px){
+  .management-setup-team{grid-template-columns:32px 1fr 1fr 80px 80px;}
+  .management-setup-team .setup-team-active{grid-column:2/4}
+  .management-setup-team .setup-team-remove{grid-column:5;grid-row:2}
+}
+@media(max-width:620px){
+  .management-setup-grid{grid-template-columns:1fr}
+  .management-setup-team{grid-template-columns:28px 1fr;align-items:end}
+  .management-setup-team label{grid-column:2}
+  .management-setup-team .setup-team-active{grid-column:2}
+  .management-setup-team .setup-team-remove{grid-column:1;grid-row:auto}
+  .management-setup-operational{align-items:stretch;flex-direction:column}
+  .management-setup-operational button{width:100%}
+  .management-setup-actions{align-items:stretch;flex-direction:column}
+  .management-setup-actions button{width:100%}
+}
+
+
+/* =========================================================
+   v59.6.75 — Management subscriptions + 30-day Trash
+   ========================================================= */
+.nav-button{display:flex;align-items:center;justify-content:space-between;gap:8px}.nav-count{min-width:22px;height:22px;padding:0 6px;border-radius:999px;display:inline-grid;place-items:center;background:#f2c230;color:#0d3f20;font-size:11px;font-weight:900}.trash-nav-button.active .nav-count{background:#fff;color:#7e261d}
+.trash-retention-note{display:grid;gap:2px;align-self:center;color:var(--muted);font-size:11px;line-height:1.4}.trash-retention-note strong{color:var(--green-950);font-size:12px}.trash-table{min-width:760px}.trash-toolbar{grid-template-columns:minmax(260px,1fr) minmax(260px,.8fr) 120px}
+.account-stage-cell{display:grid;gap:5px}.account-stage-cell small,.subscription-cell small,.mobile-cell small,.payment-cell small{display:block;color:var(--muted);margin-top:4px;line-height:1.35}.mobile-warning{color:#9b2c24!important;font-weight:800}.payment-overdue{color:#9b2c24!important;font-weight:800}.subscription-cell strong{display:block;color:var(--green-950)}
+.subscription-section{border:1px solid #c8dacd;background:linear-gradient(180deg,#f7fbf8 0%,#fff 100%);border-radius:16px;padding:16px}.subscription-section .section-heading{align-items:flex-start}.subscription-section .section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px}.subscription-form{display:grid;gap:12px}.subscription-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.subscription-grid label,.subscription-form>label,.payment-entry label{display:grid;gap:6px;color:#33483a;font-size:12px;font-weight:750;min-width:0}.subscription-grid input,.subscription-grid select,.subscription-form textarea,.payment-entry input{width:100%;min-width:0;border:1px solid #cddbd1;border-radius:9px;padding:9px 10px;background:#fff;color:var(--ink);outline:none}.subscription-form textarea{min-height:60px;resize:vertical}.subscription-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.subscription-summary-grid>div{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px}.subscription-summary-grid strong{display:block;color:var(--green-900);font-size:17px}.subscription-summary-grid span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}.subscription-alert{border:1px solid #efc7c2;background:#fff5f3;color:#7e261d;border-radius:11px;padding:11px 12px;margin-bottom:12px;font-size:12px;line-height:1.5}.subscription-alert strong{display:block;margin-bottom:2px}.subscription-actions{display:flex;align-items:center;justify-content:flex-end;gap:9px;flex-wrap:wrap}.subscription-actions .form-message{margin-right:auto}.subscription-payment-panel{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px}.subscription-payment-panel>div:first-child{display:grid;gap:3px}.subscription-payment-panel span{color:var(--muted);font-size:12px}.payment-entry{display:grid;grid-template-columns:1fr 1fr auto;gap:9px;align-items:end}.payment-entry button{height:39px}.trash-expired{color:#9b2c24;font-weight:800}
+@media(max-width:1000px){.subscription-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.subscription-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.trash-toolbar{grid-template-columns:1fr 1fr}.trash-toolbar .result-count{display:none}}
+@media(max-width:620px){.subscription-grid,.subscription-summary-grid,.payment-entry{grid-template-columns:1fr}.subscription-actions{align-items:stretch;flex-direction:column}.subscription-actions button{width:100%}.trash-toolbar{grid-template-columns:1fr}.trash-retention-note{padding:2px 1px}}
+
+/* v59.6.76 — clean Management drawer + unified admin access */
+.admin-access-section{border:1px solid #c8dacd;background:linear-gradient(180deg,#f7fbf8 0%,#fff 100%);border-radius:16px;padding:16px}
+.admin-access-list{display:grid;gap:8px;background:transparent;border:0;padding:0}
+.admin-access-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px 12px}
+.admin-access-identity{min-width:0}.admin-access-identity strong,.admin-access-identity small{display:block}.admin-access-identity small{margin-top:3px;color:var(--muted);overflow-wrap:anywhere}
+.admin-access-row-actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap}.admin-access-row-actions .row-action{font-size:11px;padding:6px 8px}.admin-access-row-actions .danger-lite{border-color:#ecc9c5;color:#8f1d16;background:#fff8f7}
+.admin-add-heading{display:grid;gap:3px;margin:15px 0 9px}.admin-add-heading strong{color:var(--green-950);font-size:13px}.admin-add-heading span{color:var(--muted);font-size:11px}
+.management-advanced{border-top:1px solid var(--line);padding-top:12px}.management-advanced>summary{cursor:pointer;color:var(--muted);font-size:12px;font-weight:800;list-style:none}.management-advanced>summary::-webkit-details-marker{display:none}.management-advanced>summary:after{content:' ▾'}.management-advanced[open]>summary:after{content:' ▴'}.management-advanced .danger-zone{margin-top:12px}
+.empty-state.compact{padding:14px}
+@media(max-width:720px){.admin-access-row{grid-template-columns:1fr}.admin-access-row .chip{justify-self:start}.admin-access-row-actions{grid-column:1}.admin-access-row-actions button{width:100%}}
+
+
+/* =========================================================
+   v59.6.87 — Management quiet startup
+   Routine session restoration no longer uses the full-screen
+   "Opening TuinBooks Management" gate. The shell appears immediately while
+   the existing session and platform-admin role are verified. No account data
+   is cached here; account rows still load only after verification succeeds.
+   ========================================================= */
+body.management-booting-v59687 #loadingScreen {
+  display:none !important;
+}
+body.management-booting-v59687 #managementApp {
+  display:block !important;
+}
+.management-boot-status-v59687 {
+  display:none;
+  align-items:center;
+  gap:8px;
+  width:max-content;
+  max-width:100%;
+  margin:0 0 14px;
+  padding:7px 10px;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:#fff;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:750;
+}
+body.management-booting-v59687 .management-boot-status-v59687 {
+  display:inline-flex;
+}
+.management-boot-dot-v59687 {
+  width:7px;
+  height:7px;
+  flex:0 0 auto;
+  border-radius:50%;
+  background:#4a9270;
+  animation:managementBootPulseV59687 1s ease-in-out infinite;
+}
+body.management-booting-v59687 #managementApp .topbar-actions,
+body.management-booting-v59687 #managementApp #accountsView,
+body.management-booting-v59687 #managementApp #activityView,
+body.management-booting-v59687 #managementApp #trashView {
+  pointer-events:none;
+  user-select:none;
+}
+body.management-booting-v59687 #managementApp #accountsView,
+body.management-booting-v59687 #managementApp #activityView,
+body.management-booting-v59687 #managementApp #trashView {
+  opacity:.38;
+}
+@keyframes managementBootPulseV59687 {
+  50% { opacity:.3; transform:scale(.82); }
+}

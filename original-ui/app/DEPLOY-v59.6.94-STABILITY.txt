@@ -1,0 +1,45 @@
+TUINBOOKS 59.6.94-stability-data-ui-repair
+
+UPLOAD LOCATION
+Upload the CONTENTS of this ZIP inside the existing /app folder.
+Do not upload these files to repository root or /management.
+
+THIS RELEASE DOES NOT CHANGE MANAGEMENT OR CLIENT LOGIN.
+It is layered on the verified v59.6.93 app.
+
+AUDITED REPAIRS
+1. Work: every historical date gets a team breakdown with scheduled/completed/unresolved.
+2. Operational tracking start: office can mark pre-go-live diary rows as imported history.
+3. Clients: go-live readiness panel checks address, suburb, explicit services, recurrence, team, rate and Billing Profile.
+4. Imported recurrence: no new spreadsheet import silently invents Friday.
+5. Recurrence activation: diary-managed recurring clients get an explicit Review recurrence flow; it uses last diary job as evidence and requires the office to confirm day/team/anchor.
+6. Team Notes/Internal Events: reconstructed against operational_actions_v59674; notes render before jobs in the Schedule lane and at top of the field phone route.
+7. Quotes: Management/support-mode outbound block is explained before the user attempts sending. Client daily-login sending policy is unchanged.
+8. Billing Profiles: incomplete/placeholder issuing entities are visibly flagged for confirmation.
+9. UI: common page tabs, buttons, panels, toolbars and rolling-week strip are normalised.
+
+IMPORTANT SAFETY
+- No existing Clean Gardens recurrence is auto-activated by this deploy.
+- No historical jobs are deleted or resolved by this deploy.
+- Do not set Operational tracking start until the client confirms the go-live date.
+- Confirm recurrence one client at a time. Existing historical jobs remain untouched.
+- Quote outbound safety in Management mode remains ON.
+
+SMOKE TEST (PASS/FAIL)
+A. /app/VERSION.txt = 59.6.94-stability-data-ui-repair
+B. Management -> Clean Gardens -> Open workspace still opens.
+C. Navigate Schedule -> Work -> Clients -> Quotes -> Billing -> Business twice; no logout/reload loop.
+D. Work: open 17 Aug; Team Black/Blue/Featherbrook appear as separate team sections with scheduled/completed/unresolved counts.
+E. Work: set Operational tracking start to a TEST/confirmed date and confirm earlier schedule rows become Imported history, then clear/reset if not yet approved.
+F. Schedule: create Team note for tomorrow + team; refresh; note persists before first job.
+G. Field phone for that team/day: note is first operational item.
+H. Schedule: create Internal event; refresh; it persists and has no client/billing record.
+I. Clients: Go-live readiness panel appears; existing data is not silently changed.
+J. Pick one diary-managed TEST client: Review recurrence shows last diary date/team; CANCEL first. Do not activate a real client until the values are confirmed.
+K. Quotes opened through Management: clear Sending locked explanation is visible.
+L. Quotes opened through normal client daily login: Send quote remains available.
+M. Settings -> Billing Profiles: Clean Gardens and Temporary/Greenscape gaps are visibly listed.
+N. No new console exception on Schedule, Work, Clients, Quotes, Billing or Settings.
+
+ROLLBACK
+Redeploy the attached v59.6.93 rollback package inside /app. The two v59.6.94 files can remain on disk because v59.6.93 index.html does not load them.

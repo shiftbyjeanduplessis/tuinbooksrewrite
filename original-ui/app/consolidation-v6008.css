@@ -1,0 +1,8 @@
+/* v60.0.8 unique canary entry — unmistakable schedule controls */
+body::before{content:'CONSOLIDATION CANARY — v60.0.8 UNIQUE PAGE'!important;background:#9a3412!important}
+#v6008ScheduleOps{position:relative;z-index:2147481000;margin:10px 20px 10px;padding:10px 12px;border:2px solid #1f7a55;border-radius:12px;background:#f2fbf6;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 10px rgba(20,83,45,.08)}
+#v6008ScheduleOps .v6008-copy{display:grid;gap:2px}#v6008ScheduleOps .v6008-copy strong{font-size:.92rem;color:#124c36}#v6008ScheduleOps .v6008-copy small{font-size:.68rem;color:#63766c}
+#v6008ScheduleOps .v6008-actions{display:flex;gap:7px;flex-wrap:wrap}#v6008ScheduleOps button{border:1px solid #bdd9cb;border-radius:8px;background:#fff;color:#165c41;padding:7px 10px;font:800 .72rem/1 system-ui,sans-serif;cursor:pointer}#v6008ScheduleOps button.primary{background:#1f7a55;color:#fff;border-color:#1f7a55}
+#scheduleParkingLotV5537,#scheduleBasketLauncherV58931{display:none!important}body.v6007-basket-open #scheduleParkingLotV5537:not(.hidden){display:block!important}
+.tuinbooks-canary-status-v6008{position:fixed;right:10px;bottom:10px;z-index:2147483647;background:#fff;border:2px solid #9a3412;border-radius:10px;padding:8px 10px;font:800 11px/1.35 system-ui,sans-serif;color:#334155;box-shadow:0 4px 18px rgba(15,23,42,.18);max-width:min(800px,calc(100vw - 20px))}.tuinbooks-canary-status-v6008 strong{color:#9a3412}
+@media(max-width:900px){#v6008ScheduleOps{align-items:flex-start;flex-direction:column}}

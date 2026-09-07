@@ -1,0 +1,1229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TuinBooks — Admin</title>
+  <link rel="stylesheet" href="styles.css?v=55.3.1-header-cleanup1">
+  <link rel="icon" type="image/png" href="tuinbooks-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1f6f54">
+<style>
+.field-phone-controller{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1rem 1.1rem;margin:.8rem 0 1rem;border:1px solid #b9d8cb;border-radius:16px;background:#f4faf7}.field-phone-controller h3{margin:.15rem 0 .25rem}.field-phone-controller p{margin:0;max-width:760px}.field-phone-controller .button{flex:0 0 auto}@media(max-width:720px){.field-phone-controller{align-items:stretch;flex-direction:column}.field-phone-controller .button{width:100%}}
+</style>
+</head>
+<body class="desktop-body" data-app="desktop">
+  <section id="backendGate" class="backend-gate" aria-live="polite">
+    <div class="backend-gate-card">
+      <div class="backend-gate-brand">
+        <img src="tuinbooks-logo.png" alt="TuinBooks">
+        <span>Garden-service business management</span>
+      </div>
+
+      <div id="backendConnectionStep" class="backend-gate-step backend-unavailable-step hidden">
+        <span class="eyebrow">Temporarily unavailable</span>
+        <h1>TuinBooks is not ready on this site</h1>
+        <p>Please try again shortly or contact your TuinBooks administrator.</p>
+        <button type="button" class="button backend-retry-button" onclick="window.location.reload()">Try again</button>
+        <p id="backendConnectionError" class="backend-gate-error" role="alert"></p>
+      </div>
+
+      <div id="backendAuthStep" class="backend-gate-step backend-auth-step hidden">
+        <span class="eyebrow">Secure account</span>
+        <h1 id="backendAuthTitle">Sign in to TuinBooks</h1>
+        <p id="backendAuthHelp">Use your email address and password.</p>
+        <div class="backend-auth-toggle" role="tablist" aria-label="Account access">
+          <button type="button" class="active" data-backend-auth-mode="signin">Sign in</button>
+          <button type="button" data-backend-auth-mode="signup">Create account</button>
+        </div>
+        <form id="backendAuthForm" class="backend-gate-form">
+          <label id="backendDisplayNameWrap" class="hidden">Your name<input id="backendDisplayName" autocomplete="name"></label>
+          <label>Email address<input id="backendAuthEmail" type="email" required autocomplete="email" placeholder="name@example.com"></label>
+          <label>Password<input id="backendAuthPassword" type="password" minlength="8" required autocomplete="current-password" placeholder="At least 8 characters"></label>
+          <label id="backendPasswordConfirmWrap" class="hidden">Confirm password<input id="backendAuthPasswordConfirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter the same password again"></label>
+          <button id="backendAuthSubmit" class="button backend-auth-submit" type="submit">Sign in</button>
+        </form>
+        <p id="backendAuthMessage" class="backend-gate-message" role="status"></p>
+        <div class="backend-gate-secondary-actions backend-auth-help-row">
+          <span>Field users receive access from the business owner.</span>
+        </div>
+      </div>
+
+      <div id="backendLoadingStep" class="backend-gate-step hidden">
+        <div class="backend-loader" aria-hidden="true"></div>
+        <h1>Opening TuinBooks</h1>
+        <p id="backendLoadingMessage">Checking your account and loading the business…</p>
+      </div>
+    </div>
+  </section>
+  <header class="admin-header">
+    <div class="admin-brand">
+      <img class="admin-product-logo" src="tuinbooks-logo.png" alt="TuinBooks">
+      <strong id="businessNameHeader" class="brand-title">TuinBooks</strong>
+    </div>
+    <nav class="admin-nav" aria-label="Admin sections">
+      <button data-view="schedule" class="nav-tab">Schedule</button>
+      <button data-view="capacity" class="nav-tab" title="Capacity &amp; Commitments" aria-label="Capacity & Commitments">Capacity</button>
+      <button data-view="marketing" class="nav-tab">Marketing</button>
+      <button data-view="mileage" class="nav-tab" title="Mileage &amp; Fleet" aria-label="Mileage & Fleet">Mileage</button>
+      <button data-view="invoices" class="nav-tab active" title="Billing Review">Billing</button>
+      <button data-view="clients" class="nav-tab">Clients</button>
+      <button data-view="records" class="nav-tab" title="Work Records">Work</button>
+      <button data-view="quotes" class="nav-tab">Quotes</button>
+      <button data-view="reports" class="nav-tab">Reports</button>
+      <button data-view="year" class="nav-tab" title="Business Overview">Overview</button>
+      <button data-view="settings" class="nav-tab">Settings</button>
+    </nav>
+    <div class="header-actions">
+      <div id="backendAccountBar" class="backend-account-bar hidden">
+        <span id="backendSyncState" class="backend-sync-state">Workspace ready</span>
+        <span id="backendUserLabel" class="backend-user-label"></span>
+        <button type="button" class="button secondary compact" id="backendSignOutBtn">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <div id="appToast" class="toast" aria-live="polite"></div>
+
+    <section id="view-schedule" class="app-view">
+      <div class="page-heading schedule-page-heading">
+        <div>
+          <span class="eyebrow">Weekly operations</span>
+          <h1>Schedule</h1>
+          <p>See who is going where, what work is due and what needs attention. Open a team-day only when you need the full route detail.</p>
+        </div>
+        <div class="heading-actions schedule-week-actions" aria-label="Week navigation">
+          <button class="button secondary compact schedule-arrow-button" id="previousWeekBtn" aria-label="Previous week" title="Previous week">←</button>
+          <label class="schedule-week-picker-label"><span>Week starting</span><input type="date" id="scheduleWeekPicker" class="control compact-control"></label>
+          <button class="button secondary compact schedule-arrow-button" id="nextWeekBtn" aria-label="Next week" title="Next week">→</button>
+          <button class="button secondary compact" id="currentWeekBtn">Current week</button>
+          <button class="button" id="generateWeekBtn">Generate smart week</button>
+        </div>
+      </div>
+
+      <div class="schedule-workspace-toolbar panel v26">
+        <div class="schedule-toolbar-copy">
+          <span class="eyebrow">Live scheduling board</span>
+          <strong id="scheduleModeTitle">All teams stay on screen</strong>
+          <span id="scheduleModeHelp" class="schedule-mode-help">Drag individual bookings between team-days. Click any team-day to magnify it while the full board remains visible.</span>
+        </div>
+        <div class="toolbar-meta" id="scheduleWeekSummary"></div>
+      </div>
+
+      <section class="schedule-filter-bar panel" aria-label="Schedule filters">
+        <div class="schedule-density-toggle" id="scheduleDensityToggle" role="group" aria-label="Schedule display density">
+          <button type="button" class="active" data-density="comfortable">Comfortable</button>
+          <button type="button" data-density="compact">Compact</button>
+        </div>
+        <select id="scheduleTeamFilter" class="control compact-control" aria-label="Filter by team"><option value="all">All teams</option></select>
+        <select id="scheduleClientTypeFilter" class="control compact-control" aria-label="Filter by client type"><option value="all">All client types</option></select>
+        <select id="scheduleFrequencyFilter" class="control compact-control" aria-label="Filter by service frequency"><option value="all">All frequencies</option></select>
+        <select id="scheduleServiceFilter" class="control compact-control" aria-label="Filter by service"><option value="all">All services</option></select>
+        <select id="scheduleClusterFilter" class="control compact-control" aria-label="Filter by service area"><option value="all">All service areas</option></select>
+        <select id="scheduleStatusFilter" class="control compact-control" aria-label="Filter by status"><option value="all">All statuses</option><option value="scheduled">Scheduled</option><option value="completed">Completed</option><option value="attention">Needs attention</option></select>
+        <button type="button" class="button secondary compact" id="clearScheduleFiltersBtn">Clear filters</button>
+        <button type="button" class="button secondary compact" id="openServiceGuideBtn">Service guide</button>
+      </section>
+
+      <details class="cluster-legend-toggle">
+        <summary>Area colours</summary>
+        <div id="clusterLegend" class="cluster-legend"></div>
+      </details>
+      <div id="scheduleActionAlerts" class="schedule-action-alerts hidden" aria-live="polite"></div>
+
+      <div class="schedule-control-room">
+        <div id="weeklyScheduleBoard" class="schedule-board"></div>
+        <aside id="scheduleDetailPanel" class="schedule-detail-panel hidden" aria-live="polite">
+          <div class="schedule-detail-head">
+            <div><span id="scheduleDetailEyebrow" class="eyebrow">Magnified team-day</span><h2 id="scheduleDetailTitle">Select a team-day</h2></div>
+            <button type="button" class="icon-button" id="closeScheduleDetail" aria-label="Close schedule detail">×</button>
+          </div>
+          <div id="scheduleDetailContent" class="schedule-detail-content"></div>
+        </aside>
+      </div>
+
+      <details id="unresolvedPastPanel" class="schedule-exception-banner panel compact-exception-banner">
+        <summary>
+          <div><strong>Catch-up queue</strong><span>Past visits that still need an outcome or have been scheduled for catch-up.</span></div>
+          <span id="unresolvedPastCount" class="status-badge review">0</span>
+        </summary>
+        <div id="unresolvedPastTray" class="unresolved-past-tray"></div>
+      </details>
+      <div id="weeklyOperationsBoard" class="weekly-operations-board hidden"></div>
+
+      <details id="weekReviewPanel" class="panel schedule-review-panel">
+        <summary>
+          <div><strong>Week review</strong><span>Compare scheduled work with processed work records, cover work and unresolved outcomes.</span></div>
+          <span class="status-badge neutral">Review</span>
+        </summary>
+        <div id="teamViewerIntro" class="team-viewer-intro">
+          <div><span class="eyebrow">What actually happened</span><h2>Week Review</h2><p>Scheduled work, completed logs, cover work and exceptions stay together on this page.</p></div>
+        </div>
+        <div id="teamScheduleBoard" class="week-review-board"></div>
+      </details>
+
+      <details class="panel unscheduled-panel">
+        <summary>
+          <div><strong>Unscheduled work this week</strong><span>Due service sites that have not yet been placed on this week’s calendar.</span></div>
+          <span id="unscheduledCount" class="status-badge neutral">0</span>
+        </summary>
+        <div id="unscheduledTray" class="unscheduled-tray"></div>
+      </details>
+    </section>
+
+
+
+    <section id="view-marketing" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Existing-client growth</span>
+          <h1>Marketing</h1>
+          <p>Build relevant campaigns from active clients, protect consent, check delivery capacity and turn accepted offers into scheduled work.</p>
+        </div>
+        <div class="heading-actions">
+          <button type="button" class="button secondary" id="reviewMarketingAudienceBtnV553">Review audience</button>
+          <button type="button" class="button" id="newMarketingCampaignBtnV553">New campaign</button>
+        </div>
+      </div>
+
+      <div id="marketingConnectionBannerV553" class="v553-connection-banner"></div>
+      <div id="marketingSummaryV553" class="metric-grid six"></div>
+
+      <section class="panel v553-audience-builder">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Audience builder</span><h2>Start with active clients, then remove ineligible contacts</h2><p>The system excludes invalid numbers, opt-outs, missing permission, recent promotions and duplicate phones before estimating paid deliveries.</p></div>
+          <span id="marketingAudienceStatusV553" class="status-badge neutral">Not calculated</span>
+        </div>
+        <div class="v553-filter-grid">
+          <label>Audience mode<select id="marketingAudienceModeV553"><option value="all">All active clients</option><option value="targeted">Targeted active clients</option></select></label>
+          <label>Service<select id="marketingServiceFilterV553"><option value="all">All services</option></select></label>
+          <label>Client type<select id="marketingClientTypeFilterV553"><option value="all">All client types</option></select></label>
+          <label>Cluster<select id="marketingClusterFilterV553"><option value="all">All clusters</option></select></label>
+          <label>Language<select id="marketingLanguageFilterV553"><option value="all">All languages</option><option value="en">English</option><option value="af">Afrikaans</option></select></label>
+          <label>Minimum days since promotion<input id="marketingCooldownDaysV553" type="number" min="0" max="365" value="30"></label>
+        </div>
+        <div id="marketingAudienceBreakdownV553" class="v553-audience-breakdown"></div>
+      </section>
+
+      <section class="panel v553-capacity-check">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Capacity-aware promotion</span><h2>Can the teams deliver the likely bookings?</h2><p>Estimate likely bookings and compare the required service hours with suitable capacity before the message is sent.</p></div>
+        </div>
+        <div class="v553-filter-grid">
+          <label>Offer service<select id="marketingCapacityServiceV553"></select></label>
+          <label>Estimated response rate<input id="marketingResponseRateV553" type="number" min="0" max="100" step="0.5" value="10"><small>Percentage of recipients expected to book.</small></label>
+          <label>Minutes per booking<input id="marketingDurationV553" type="number" min="15" max="1440" step="15" value="60"></label>
+          <label>Fulfilment starts<input id="marketingWindowStartV553" type="date"></label>
+          <label>Fulfilment ends<input id="marketingWindowEndV553" type="date"></label>
+          <label>Estimated message rate (R)<input id="marketingMessageRateV553" type="number" min="0" max="50" step="0.01" value="0.85"><small>Editable estimate; actual Meta billing remains separate.</small></label>
+        </div>
+        <div id="marketingCapacityImpactV553" class="v553-capacity-impact"></div>
+      </section>
+
+      <div class="v553-two-column">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Campaign pipeline</span><h2>Campaigns</h2><p>Draft, approve, send and track the work generated.</p></div></div>
+          <div id="marketingCampaignListV553" class="v553-card-list"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Replies to work</span><h2>Accepted work</h2><p>Convert interested replies into the next visit, a separate job or an office follow-up.</p></div><button type="button" class="button secondary compact" id="recordMarketingAcceptanceBtnV553">Record accepted response</button></div>
+          <div id="marketingAcceptedListV553" class="v553-card-list"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Permission review</span><h2>Marketing eligibility</h2><p>Visit-report communication stays separate. Promotional messages require a recorded marketing basis and may be withdrawn at any time.</p></div></div>
+        <div class="v553-consent-toolbar"><input id="marketingConsentSearchV553" class="control" type="search" placeholder="Search clients"><select id="marketingConsentFilterV553" class="control compact-control"><option value="all">All clients</option><option value="allowed">Allowed</option><option value="not-allowed">Not allowed</option><option value="opted-out">Opted out</option><option value="invalid">Invalid number</option></select></div>
+        <div id="marketingConsentListV553" class="v553-consent-list"></div>
+      </section>
+    </section>
+
+    <section id="view-mileage" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Route and fleet control</span>
+          <h1>Mileage &amp; Fleet</h1>
+          <p>Compare planned and actual kilometres, estimate fuel cost and identify expensive routes without permanent phone tracking.</p>
+        </div>
+        <div class="heading-actions">
+          <input id="mileageMonthV553" type="month" class="control compact-control">
+          <button type="button" class="button secondary" id="newVehicleBtnV553">Add vehicle</button>
+          <button type="button" class="button" id="newRouteLogBtnV553">Log team route</button>
+        </div>
+      </div>
+
+      <div id="mileageSummaryV553" class="metric-grid six"></div>
+
+      <section class="panel v553-route-settings">
+        <div class="section-title-row"><div><span class="eyebrow">Planning assumptions</span><h2>Fuel and route settings</h2><p>Actual kilometres come from odometer readings. Route estimates use saved map pins where available, otherwise the optional per-stop planning fallback.</p></div></div>
+        <form id="mileageSettingsFormV553" class="v553-filter-grid">
+          <label>Fuel price per litre (R)<input id="mileageFuelPriceV553" type="number" min="0" step="0.01" required></label>
+          <label>Planning fallback km per visit<input id="mileageFallbackKmV553" type="number" min="0" step="0.1"><small>Used only when route map pins are incomplete.</small></label>
+          <label>Business base latitude<input id="mileageBaseLatV553" type="number" min="-90" max="90" step="0.000001"></label>
+          <label>Business base longitude<input id="mileageBaseLngV553" type="number" min="-180" max="180" step="0.000001"></label>
+          <label>Default fuel type<select id="mileageFuelTypeV553"><option value="petrol_95">Petrol 95</option><option value="petrol_93">Petrol 93</option><option value="diesel_50ppm">Diesel 50ppm</option><option value="diesel_500ppm">Diesel 500ppm</option><option value="other">Other</option></select></label>
+          <div class="v553-form-action"><button class="button" type="submit">Save route settings</button></div>
+        </form>
+        <div id="mileagePinStatusV553" class="persistent-inline-note"></div>
+      </section>
+
+      <div class="v553-two-column mileage-columns-v553">
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Vehicles</span><h2>Fleet profiles</h2><p>Assign a vehicle to each team and record its realistic working fuel consumption.</p></div></div>
+          <div id="vehicleListV553" class="v553-card-list"></div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><span class="eyebrow">Monthly mileage</span><h2>Team totals</h2><p>Actual odometer distance takes priority; planned distance remains visible for comparison.</p></div></div>
+          <div id="mileageTeamTotalsV553" class="v553-team-totals"></div>
+        </section>
+      </div>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Daily evidence</span><h2>Route logs</h2><p>Record starting and ending odometer readings after each team-day. Fuel and per-visit costs calculate automatically.</p></div></div>
+        <div id="routeLogListV553" class="v553-route-log-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-title-row"><div><span class="eyebrow">Route intelligence</span><h2>What is costing the business?</h2><p>Surface large variances, expensive routes and days with high kilometres per completed visit.</p></div></div>
+        <div id="mileageInsightsV553" class="v553-insight-grid"></div>
+      </section>
+    </section>
+
+    <section id="view-invoices" class="app-view active">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Accounting workflow</span>
+          <h1>Billing Review</h1>
+          <p>Review completed work and prepare controlled billing drafts for the accounting workflow.</p>
+        </div>
+        <div class="heading-actions month-navigation">
+          <button class="button secondary compact" data-month-shift="-1" data-target="invoiceMonth">←</button>
+          <input type="month" id="invoiceMonth" class="control compact-control">
+          <button class="button secondary compact" data-month-shift="1" data-target="invoiceMonth">→</button>
+          <button class="button secondary" data-current-month="invoiceMonth">Current month</button>
+        </div>
+      </div>
+
+      <div id="invoiceExceptionSummary" class="exception-summary-grid"></div>
+      <div id="invoiceClosedNotice"></div>
+      <section id="missingWorkLogSection" class="missing-work-log panel hidden">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Operational resolution</span><h2>Needs resolution</h2><p>Add the missing outcome, move the visit into catch-up, or close it with a final reason.</p></div>
+          <span id="missingWorkLogCount" class="status-badge review">0</span>
+        </div>
+        <div id="missingWorkLogList" class="missing-work-list"></div>
+      </section>
+      <section id="catchUpQueueSection" class="catch-up-queue panel hidden">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Waiting to be rescheduled</span><h2>Catch-up queue</h2><p>Missed visits stay here until the office chooses a new date and team.</p></div>
+          <span id="catchUpQueueCount" class="status-badge review">0</span>
+        </div>
+        <div id="catchUpQueueList" class="catch-up-queue-list"></div>
+      </section>
+
+      <div id="invoiceSummaryCards" class="metric-grid five"></div>
+
+      <section class="section-block">
+        <div class="section-title-row">
+          <div>
+            <span class="eyebrow">Primary workflow</span>
+            <h2>Uninvoiced work</h2>
+            <p>Open a billing draft, confirm every work source and correct it before it leaves TuinBooks.</p>
+          </div>
+          <div class="legend"><span class="dot ready"></span> Ready <span class="dot review"></span> Needs review</div>
+        </div>
+        <div id="invoiceDraftQueue" class="invoice-draft-list"></div>
+      </section>
+
+      <details class="panel compact-section" id="alreadyInvoicedSection">
+        <summary>
+          <div><strong>Already invoiced</strong><span>Compact sent-invoice history for this month.</span></div>
+          <span id="alreadyInvoicedCount" class="status-badge neutral">0</span>
+        </summary>
+        <div id="alreadyInvoicedList" class="compact-invoice-list"></div>
+      </details>
+
+      <details class="panel compact-section" id="noWorkSection">
+        <summary>
+          <div><strong>No work this month</strong><span>Hidden from the main invoice workflow.</span></div>
+          <span id="noWorkCount" class="status-badge neutral">0</span>
+        </summary>
+        <div id="noWorkList" class="simple-list"></div>
+      </details>
+    </section>
+
+
+    <section id="view-capacity" class="app-view">
+      <div class="page-heading capacity-page-heading-v552">
+        <div>
+          <span class="eyebrow">Capacity protection</span>
+          <h1>Capacity &amp; Commitments</h1>
+          <p>Compare the services promised to clients with the realistic time and capability available to deliver them.</p>
+        </div>
+        <div class="heading-actions capacity-period-controls-v552">
+          <label><span>Month</span><input id="capacityMonthV552" class="control compact-control" type="month"></label>
+          <button id="generateCommitmentsBtnV552" type="button" class="button secondary">Refresh commitments</button>
+          <button id="openNewAgreementBtnV552" type="button" class="button">New service agreement</button>
+        </div>
+      </div>
+
+      <section id="capacityStatusBannerV552" class="capacity-status-banner-v552 panel" aria-live="polite"></section>
+
+      <section class="capacity-summary-grid-v552" aria-label="Capacity summary">
+        <article><span>Promised work</span><strong id="capacityPromisedV552">0h</strong><small id="capacityCommitmentCountV552">0 commitments</small></article>
+        <article><span>Realistic capacity</span><strong id="capacityAvailableV552">0h</strong><small>After travel, breaks and buffer</small></article>
+        <article><span>Scheduled</span><strong id="capacityScheduledV552">0h</strong><small id="capacityScheduledCountV552">0 visits</small></article>
+        <article><span>Unscheduled paid-for work</span><strong id="capacityUnscheduledV552">0h</strong><small>Still needs a suitable slot</small></article>
+        <article class="attention"><span>Commitments at risk</span><strong id="capacityRiskCountV552">0</strong><small id="capacityRiskHoursV552">0h exposed</small></article>
+        <article><span>Catch-up load</span><strong id="capacityCatchupV552">0h</strong><small>Recovery work also uses capacity</small></article>
+        <article id="capacityForecastCardV552"><span>Month-end forecast</span><strong id="capacityFulfilmentForecastV552">On track</strong><small id="capacityFulfilmentForecastHelpV552">Paid-for commitments are covered</small></article>
+      </section>
+
+      <div class="capacity-layout-v552">
+        <section class="panel capacity-team-panel-v552">
+          <div class="section-heading-v552">
+            <div><span class="eyebrow">This week</span><h2>Team capacity</h2><p>Realistic service hours, scheduled load and remaining recovery buffer.</p></div>
+            <div class="capacity-team-heading-actions-v552"><label><span>Week starting</span><input id="capacityWeekV552" class="control compact-control" type="date"></label><button id="openCapacityExceptionBtnV552" type="button" class="button secondary compact">Add absence / capacity change</button></div>
+          </div>
+          <div id="capacityTeamGridV552" class="capacity-team-grid-v552"></div>
+        </section>
+
+        <section class="panel capacity-risk-panel-v552">
+          <div class="section-heading-v552">
+            <div><span class="eyebrow">Protect client promises</span><h2>At-risk commitments</h2><p>These services may miss their fulfilment window without intervention.</p></div>
+            <button id="openRecoveryPlanBtnV552" type="button" class="button">Open recovery plan</button>
+          </div>
+          <div class="capacity-filter-row-v552">
+            <select id="capacityRiskFilterV552" class="control"><option value="all">All risk levels</option><option value="critical">Critical</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option></select>
+            <select id="capacityServiceFilterV552" class="control"><option value="all">All services</option></select>
+            <input id="capacitySearchV552" class="control grow" placeholder="Search client or service">
+          </div>
+          <div id="capacityRiskListV552" class="capacity-risk-list-v552"></div>
+        </section>
+      </div>
+
+      <section id="capacityRecoveryPanelV552" class="panel capacity-recovery-panel-v552 hidden">
+        <div class="section-heading-v552">
+          <div><span class="eyebrow">Guided recovery</span><h2>Capacity Recovery Plan</h2><p>Review practical moves in order: rebalance, add capacity, catch up, then resolve the client obligation.</p></div>
+          <button id="closeRecoveryPlanBtnV552" type="button" class="button secondary">Close</button>
+        </div>
+        <div id="capacityRecoveryListV552" class="capacity-recovery-list-v552"></div>
+      </section>
+
+      <section class="panel capacity-agreements-panel-v552">
+        <div class="section-heading-v552">
+          <div><span class="eyebrow">What each client bought</span><h2>Service agreements</h2><p>Only active, confirmed agreements generate enforceable commitments. Imported suggestions remain draft until reviewed.</p></div>
+          <div class="capacity-agreement-actions-v552">
+            <button id="reviewDraftAgreementsBtnV552" type="button" class="button secondary">Review draft suggestions</button>
+          </div>
+        </div>
+        <div class="capacity-filter-row-v552">
+          <select id="capacityAgreementStatusV552" class="control"><option value="all">All statuses</option><option value="Active">Active</option><option value="Draft">Draft</option><option value="Paused">Paused</option><option value="Needs review">Needs review</option></select>
+          <input id="capacityAgreementSearchV552" class="control grow" placeholder="Search client or agreement">
+        </div>
+        <div id="capacityAgreementListV552" class="capacity-agreement-list-v552"></div>
+      </section>
+    </section>
+
+    <section id="view-catchup" class="app-view">
+      <div class="page-heading">
+        <div><span class="eyebrow">Operational exceptions</span><h1>Catch-up queue</h1><p>Past visits that still need an outcome or have been scheduled for catch-up.</p></div>
+        <div class="heading-actions"><button type="button" class="button secondary" id="backFromCatchUpBtn">Back to Billing Review</button></div>
+      </div>
+      <section class="catchup-overview-v55">
+        <article><span>Needs an outcome</span><strong id="catchupNeedsOutcomeV55">0</strong><small>Past visits with no final result</small></article>
+        <article><span>Waiting for a date</span><strong id="catchupWaitingV55">0</strong><small>Moved into catch-up but not scheduled</small></article>
+        <article><span>Catch-up scheduled</span><strong id="catchupScheduledV55">0</strong><small>Recovery visit has a date and team</small></article>
+      </section>
+      <section class="panel catchup-workspace-v55">
+        <div class="catchup-filter-bar-v55">
+          <select id="catchupAgeFilterV55" class="control"><option value="all">All ages</option><option value="today">Today</option><option value="yesterday">Yesterday</option><option value="2-7">2–7 days old</option><option value="older">More than 7 days</option></select>
+          <select id="catchupTeamFilterV55" class="control"><option value="all">All teams</option></select>
+          <select id="catchupStatusFilterV55" class="control"><option value="all">All queue statuses</option><option value="unlogged">Needs outcome</option><option value="waiting">Waiting for catch-up</option><option value="scheduled">Catch-up scheduled</option></select>
+          <input id="catchupSearchV55" class="control grow" placeholder="Search client, suburb or service">
+        </div>
+        <div id="catchupListV55" class="catchup-list-v55"></div>
+      </section>
+    </section>
+
+    <section id="view-clients" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Customer records</span>
+          <h1>Clients</h1>
+          <p>Manage service rules, contact details, fees, notes and mobile-created incomplete records.</p>
+        </div>
+        <div class="heading-actions">
+          <button class="button secondary" id="openSpreadsheetImporterBtn">Import spreadsheet</button>
+          <button class="button secondary" id="openImporterBtn">Import from photo</button>
+        </div>
+      </div>
+
+      <div id="clientSummaryCards" class="metric-grid four"></div>
+      <div id="incompleteClientAlert"></div>
+      <section id="clientSetupPanel" class="client-setup-panel panel"></section>
+      <div class="split-layout clients-layout">
+        <div class="panel list-panel">
+          <div class="toolbar client-filter-toolbar">
+            <input id="clientSearch" class="control grow" placeholder="Search client, address, suburb, contact or tag">
+            <select id="clientStatusFilter" class="control compact-control">
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="paused">Paused</option>
+              <option value="seasonal">Seasonal</option>
+              <option value="trial">Trial</option>
+              <option value="archived">Closed / archived</option>
+              <option value="incomplete">Incomplete</option>
+            </select>
+            <select id="clientTypeFilter" class="control compact-control"><option value="all">All client types</option></select>
+            <select id="clientFrequencyFilter" class="control compact-control"><option value="all">All frequencies</option></select>
+            <select id="clientServiceFilter" class="control compact-control"><option value="all">All services</option></select>
+          </div>
+          <div id="clientList" class="client-admin-list"></div>
+        </div>
+        <form id="clientForm" class="panel form-panel">
+          <div class="form-heading">
+            <div><span class="eyebrow">Client record</span><h2 id="clientFormTitle">New client</h2></div>
+            <button type="button" class="icon-button" id="clearClientFormBtn" aria-label="Clear form">×</button>
+          </div>
+          <input type="hidden" id="clientId">
+          <div class="form-grid two">
+            <label>Client name<input id="clientName" required></label>
+            <label>Client type<select id="clientCustomerType"><option value="Residential">Residential</option><option value="Business">Business</option><option value="Body corporate">Body corporate</option><option value="Estate">Estate</option><option value="School or institution">School or institution</option><option value="Government or municipal">Government or municipal</option><option value="Other">Other</option><option value="Not classified">Not classified</option></select></label>
+            <label>Contact person<input id="clientContact"></label>
+            <label class="span-two">Property address<input id="clientAddress" required></label>
+            <label>Confirmed suburb<input id="clientSuburb" list="clientSuburbOptions" required autocomplete="off"><datalist id="clientSuburbOptions"></datalist><small id="clientSuburbStatus">Choose an existing suburb or type the suburb the office uses for this site.</small></label>
+            <label>Location description (optional)<input id="clientLocationDescription"><small>Use this for smallholdings, mini-suburbs or properties between recognised areas.</small></label>
+            <div id="clientSuburbSuggestion" class="span-two client-reporting-editor hidden" style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 14px">
+              <div><strong id="clientSuburbSuggestionTitle">Suggested suburb</strong><small id="clientSuburbSuggestionText" style="display:block;margin-top:3px"></small></div>
+              <button type="button" class="button secondary compact" id="useClientSuburbSuggestionBtn">Use suggestion</button>
+            </div>
+            <label>WhatsApp<input id="clientWhatsapp" placeholder="+27..."></label>
+            <label>Email<input id="clientEmail" type="email"></label>
+            <label>Preferred communication<select id="clientCommunicationPreference"><option value="WhatsApp">WhatsApp</option><option value="Email">Email</option><option value="Both">Both</option><option value="None">No routine message</option></select></label>
+            <label>Completion update<select id="clientCompletionReport"><option value="yes">Send after completed visit</option><option value="no">Do not send routine update</option></select></label>
+            <section id="clientReportingPanel" class="span-two client-reporting-editor hidden">
+              <div class="section-title-row compact-title-row"><div><span class="eyebrow">Corporate reporting</span><h3>Email reports for this customer</h3><p>Used for body corporates, property managers, commercial clients and subcontract principals. TuinBooks prepares the report; the office decides whether to send.</p></div></div>
+              <div class="reporting-toggle-grid">
+                <label class="check-card"><input id="clientReportDaily" type="checkbox"> Daily completion email</label>
+                <label class="check-card"><input id="clientReportWeekly" type="checkbox"> Weekly work summary</label>
+                <label class="check-card"><input id="clientReportMonthly" type="checkbox"> Monthly work summary</label>
+              </div>
+              <div class="form-grid two compact-reporting-fields">
+                <label>Report recipients<input id="clientReportRecipients" type="email" multiple></label>
+                <label>CC recipients<input id="clientReportCc" type="email" multiple></label>
+                <label>Report grouping<select id="clientReportGrouping"><option value="combined">Combine this customer’s sites</option><option value="site">Separate by service site</option></select></label>
+                <label>Incomplete visits<select id="clientReportIncludeIncomplete"><option value="yes">Include with explanation</option><option value="no">Hold report for office review</option></select></label>
+                <label>Extras recorded<select id="clientReportIncludeExtras"><option value="yes">Include extras recorded</option><option value="no">Leave extras out</option></select></label>
+                <label>Reporting notes<input id="clientReportNotes"></label>
+              </div>
+            </section>
+            <label>Monthly fee<input id="clientMonthlyFee" type="number" min="0" step="1"></label>
+            <label>Billing arrangement<select id="clientBillingArrangement"><option value="Per visit">Per visit</option><option value="Monthly fixed fee">Monthly fixed fee</option><option value="Recurring package">Recurring package</option><option value="Quote-based">Quote-based</option><option value="Ad hoc">Ad hoc</option><option value="Not classified">Not classified</option></select></label>
+            <label>Service frequency<select id="clientFrequency"><option>Weekly</option><option>Fortnightly</option><option>Monthly</option><option>Ad hoc</option><option>Seasonal</option><option>Custom</option><option>Not classified</option></select></label>
+            <label id="clientRecurrenceAnchorWrap">First service date<input id="clientRecurrenceAnchor" type="date"><small>Anchors fortnightly and monthly scheduling so the pattern does not shift.</small></label>
+            <label>Preferred day<select id="clientPreferredDay"><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option></select></label>
+            <label class="day-rule-field"><span>Day rule</span><span class="check-row"><input id="clientFixedDay" type="checkbox"> Fixed appointment day</span><small>Leave unticked so Smart Week may move the visit to a better cluster day.</small></label>
+            <label>Estimated hours<input id="clientEstimatedHours" type="number" min="0.5" step="0.5"></label>
+            <label>Service area override (optional)<select id="clientCluster"></select><small>Leave this unchanged to use the service area assigned to the confirmed suburb.</small></label>
+            <label>Preferred team (optional)<select id="clientPreferredTeam"><option value="">No preference</option></select></label>
+            <label>Status<select id="clientStatus"><option value="active">Active</option><option value="paused">Paused</option><option value="archived">Archived</option></select></label>
+            <div class="span-two field-group"><span class="field-label">Services for this client</span><div id="clientServicePickerV55" class="service-picker-v55"></div><small>Choose the services that normally appear on the schedule and field phone. The detailed checklist below controls the exact field tasks.</small></div>
+            <div class="span-two field-group legacy-work-picker"><span class="field-label">Detailed recurring checklist</span><div id="clientWorkTypePicker" class="work-type-picker"></div><small>Select the exact tasks that must appear inside the field worker's service checklist.</small></div>
+            <label class="span-two">Custom tags<input id="clientCustomTags" placeholder="Key client, dog on property, gate code"><small>Comma-separated. Important tags appear in job detail, not on every schedule card.</small></label>
+            <label class="span-two">Custom site tasks<textarea id="clientCustomTasks" placeholder="One custom task per line, for example: Weed the rose bed by hand"></textarea></label>
+            <textarea id="clientServiceDescription" class="hidden" aria-hidden="true"></textarea>
+            <label class="span-two">Access notes<textarea id="clientAccessNotes"></textarea></label>
+            <label class="span-two">Garden / pet notes<textarea id="clientGardenNotes"></textarea></label>
+          </div>
+          <div class="form-actions">
+            <button class="button" type="submit">Save client</button>
+            <button class="button danger secondary" type="button" id="archiveClientBtn">Archive</button>
+          </div>
+        </form>
+      </div>
+
+      <dialog id="clientImporterDialog" class="dialog photo-import-dialog">
+        <form method="dialog" class="dialog-shell">
+          <div class="dialog-heading"><div><span class="eyebrow">Photo onboarding</span><h2>Import clients from photographed lists</h2></div><button class="icon-button" value="cancel" aria-label="Close photo importer">×</button></div>
+          <p>Choose one or more clear photos. TuinBooks reads the actual images, identifies likely client details, and holds every row for review before import.</p>
+          <label class="drop-upload" for="clientImportPhoto"><input id="clientImportPhoto" type="file" accept="image/*" multiple><span>Choose or drop one or more photos</span><small>Printed or clearly handwritten lists work best. Nothing is imported automatically.</small></label>
+          <div id="clientImportPreview" class="photo-import-preview-grid"></div>
+          <div class="photo-import-toolbar">
+            <button type="button" class="button" id="extractClientsBtn">Read photos</button>
+            <button type="button" class="button secondary" id="rebuildPhotoRowsBtn">Rebuild rows from corrected text</button>
+            <span id="clientImportFileCount" class="import-file-count"></span>
+          </div>
+          <div id="photoOcrStatus" class="ocr-status hidden" role="status" aria-live="polite">
+            <div class="ocr-status-top"><strong id="photoOcrStatusText">Preparing OCR…</strong><span id="photoOcrPercent">0%</span></div>
+            <progress id="photoOcrProgress" max="100" value="0"></progress>
+            <small id="photoOcrDetail">The first run may take a little longer while the recognition engine loads.</small>
+          </div>
+          <details id="photoOcrRawPanel" class="ocr-raw-panel hidden">
+            <summary>Review or correct the extracted text</summary>
+            <textarea id="clientImportRawText" spellcheck="false" placeholder="Recognised text will appear here."></textarea>
+          </details>
+          <div id="clientImportMeta" class="import-meta"></div>
+          <div id="clientImportRows" class="photo-import-review"></div>
+          <div class="dialog-actions"><button value="cancel" class="button secondary">Cancel</button><button type="button" class="button" id="importSelectedClientsBtn">Import selected rows</button></div>
+        </form>
+      </dialog>
+
+      <dialog id="spreadsheetImporterDialog" class="dialog large-dialog">
+        <form method="dialog" class="dialog-shell">
+          <div class="dialog-heading"><div><span class="eyebrow">Spreadsheet importer</span><h2>Import clients from a spreadsheet</h2></div><button class="icon-button" value="cancel">×</button></div>
+          <p>Upload a CSV exported from Excel or Google Sheets. Rows are reviewed and editable before import.</p>
+          <div class="spreadsheet-import-actions">
+            <label class="drop-upload" for="clientSpreadsheetFile"><input id="clientSpreadsheetFile" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values"><span>Choose or drop a CSV / TSV file</span></label>
+            <button type="button" class="button secondary" id="downloadClientTemplateBtn">Download template</button>
+          </div>
+          <div id="spreadsheetImportMeta" class="import-meta"></div>
+          <div id="spreadsheetImportRows" class="import-rows spreadsheet-rows"></div>
+          <div class="dialog-actions"><button value="cancel" class="button secondary">Cancel</button><button type="button" class="button" id="importSpreadsheetClientsBtn">Import selected</button></div>
+        </form>
+      </dialog>
+    </section>
+
+    <section id="view-records" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Proof and history</span>
+          <h1>Work Records</h1>
+          <p>Processed work history in a compact list. Open one row for tasks, photos, extras and audit detail.</p>
+        </div>
+        <div class="heading-actions month-navigation">
+          <button class="button secondary compact" data-month-shift="-1" data-target="recordsMonth">←</button>
+          <input type="month" id="recordsMonth" class="control compact-control">
+          <button class="button secondary compact" data-month-shift="1" data-target="recordsMonth">→</button>
+        </div>
+      </div>
+      <div class="panel toolbar">
+        <input id="recordSearch" class="control grow" placeholder="Search client, address, suburb, work or notes">
+        <select id="recordTeamFilter" class="control compact-control"><option value="all">All teams</option></select>
+        <select id="recordStatusFilter" class="control compact-control"><option value="all">All records</option><option value="extra">Extras only</option><option value="photos">With photos</option><option value="scheduled">Scheduled</option></select>
+        <button class="button secondary" id="exportRecordsBtn">Export CSV</button>
+      </div>
+      <div id="workRecordCards" class="work-record-list"></div>
+    </section>
+
+    <section id="view-quotes" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Back-office sales</span>
+          <h1>Quotes</h1>
+          <p>Create editable quotes, approve work, schedule it and carry approved lines into invoicing.</p>
+        </div>
+        <button class="button" id="newQuoteBtn">+ New quote</button>
+      </div>
+      <div id="quoteEmailStatus" class="quote-email-status panel"></div>
+      <section class="panel opportunity-inbox-panel">
+        <div class="opportunity-inbox-heading">
+          <div><span class="eyebrow">Field observations</span><h2>Opportunity inbox</h2><p>Review photos first. Only start a quote after marking the work as an easy win.</p></div>
+          <span id="opportunityInboxCount" class="status-badge neutral">0 open</span>
+        </div>
+        <div id="opportunityAdminList" class="opportunity-admin-list"></div>
+      </section>
+      <div id="quoteSummaryCards" class="metric-grid four"></div>
+      <div id="quoteList" class="quote-list"></div>
+    </section>
+
+    <section id="view-reports" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Month-end intelligence</span>
+          <h1>Reports</h1>
+          <p>Browse a historical month, close it, review month-end intelligence and export accounting records.</p>
+        </div>
+        <div class="heading-actions month-navigation">
+          <button class="button secondary compact" data-month-shift="-1" data-target="reportMonth">←</button>
+          <input type="month" id="reportMonth" class="control compact-control">
+          <button class="button secondary compact" data-month-shift="1" data-target="reportMonth">→</button>
+          <button class="button secondary" data-current-month="reportMonth">Current month</button>
+        </div>
+      </div>
+
+      <div class="panel report-close-panel">
+        <div><span class="eyebrow">Month control</span><h2 id="reportMonthTitle">Month report</h2><p id="monthCloseChecks"></p></div>
+        <div id="monthCloseActions"></div>
+      </div>
+
+      <div id="reportMetricCards" class="metric-grid five"></div>
+
+      <section class="panel client-reports-panel" id="clientReportsPanel">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Client reporting</span><h2>Reports ready to review</h2><p>Corporate daily, weekly and monthly emails are prepared from completed work records. The office reviews each report before sending.</p></div>
+          <button type="button" class="button secondary compact" id="refreshClientReportsBtn">Refresh reports</button>
+        </div>
+        <div id="clientReportsQueueSummary" class="client-report-alert"></div>
+        <div id="clientReportQueue" class="client-report-queue"></div>
+      </section>
+
+      <div class="report-columns">
+        <section class="panel"><div class="section-title-row"><div><h2>Financial summary</h2><p>Revenue, collections and client value.</p></div></div><div id="financialReport" class="report-list"></div></section>
+        <section class="panel"><div class="section-title-row"><div><h2>Work summary</h2><p>Visits, tasks, extras and proof.</p></div></div><div id="workReport" class="report-list"></div></section>
+        <section class="panel"><div class="section-title-row"><div><h2>Client summary</h2><p>Growth, value and outstanding accounts.</p></div></div><div id="clientReport" class="report-list"></div></section>
+        <section class="panel"><div class="section-title-row"><div><h2>Operational intelligence</h2><p>Suburbs, teams and weekdays.</p></div></div><div id="operationsReport" class="bar-report"></div></section>
+      </div>
+
+
+
+      <section class="panel v553-intelligence-report-panel">
+        <div class="section-title-row"><div><span class="eyebrow">Growth and travel</span><h2>Marketing and route intelligence</h2><p>Supporting indicators from campaigns, mileage and fuel records for the selected month.</p></div></div>
+        <div id="v553IntelligenceReport" class="v553-intelligence-report"></div>
+      </section>
+
+      <div class="report-export-actions"><button class="button secondary" id="printReportBtn">Print / Save PDF</button><button class="button secondary" id="exportInvoiceRegisterBtn">Invoice register CSV</button><button class="button secondary" id="exportClientRevenueBtn">Client revenue CSV</button><button class="button" id="exportQuickBooksBtn">Accountant CSV</button></div>
+    </section>
+
+    <section id="view-year" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">High-level business view</span>
+          <h1>Business Overview</h1>
+          <p>See where the work and revenue are coming from, then decide which types of work the business should pursue more deliberately.</p>
+        </div>
+        <div class="heading-actions business-period-controls">
+          <select id="overviewPeriodMode" class="control compact-control">
+            <option value="this-month">This month</option>
+            <option value="last-month">Last month</option>
+            <option value="last-3" selected>Last 3 months</option>
+            <option value="ytd">Year to date</option>
+            <option value="custom">Custom dates</option>
+          </select>
+          <div id="overviewCustomDates" class="business-custom-dates hidden">
+            <label>From<input id="overviewStartDate" type="date" class="control compact-control"></label>
+            <label>To<input id="overviewEndDate" type="date" class="control compact-control"></label>
+          </div>
+          <label id="overviewYearWrap" class="hidden">Year<input id="overviewYear" type="number" min="2020" max="2100" class="control compact-control"></label>
+          <label id="overviewEndMonthWrap" class="hidden">Ending month<input id="overviewEndMonth" type="month" class="control compact-control"></label>
+        </div>
+      </div>
+
+      <div id="businessPeriodLabel" class="business-period-label"></div>
+      <div id="yearSummaryCards" class="metric-grid six"></div>
+      <div id="businessClientReportAlert" class="client-report-alert business-report-alert"></div>
+
+      <section class="panel business-work-mix-panel">
+        <div class="section-title-row">
+          <div><span class="eyebrow">Work mix</span><h2>What type of work is filling the business?</h2><p>Compare revenue, completed jobs and team-hours by work type. TuinBooks does not calculate profit yet—the owner uses this mix to steer toward the work they know is healthier.</p></div>
+        </div>
+        <div id="businessWorkMix" class="business-work-mix"></div>
+      </section>
+
+      <section class="panel year-chart-panel">
+        <div class="section-title-row"><div><span class="eyebrow">Work-type trend</span><h2 id="yearOverviewTitle">Work mix by month</h2><p>Each stacked bar separates the four work types. The total above each bar shows all invoiced work combined, with completed work records below.</p></div></div>
+        <div id="businessWorkLegend" class="business-work-legend"></div>
+        <div id="yearOverviewChart" class="year-overview-chart work-type-chart"></div>
+      </section>
+
+      <section class="panel business-opportunity-panel">
+        <div class="section-title-row"><div><span class="eyebrow">Existing-client growth</span><h2>Opportunities and quotes</h2><p>See which types of additional work are being found, quoted and accepted.</p></div></div>
+        <div id="businessOpportunitySummary" class="business-opportunity-summary"></div>
+        <div id="businessOpportunityCategories" class="business-opportunity-categories"></div>
+      </section>
+
+      <details class="panel business-period-detail">
+        <summary><div><strong>Monthly detail</strong><span>Open the underlying month-by-month totals for the selected period.</span></div><span class="status-badge neutral">Detail</span></summary>
+        <div class="table-scroll"><table class="year-overview-table"><thead><tr><th>Month</th><th>Invoiced</th><th>Collected</th><th>Outstanding</th><th>Credits</th><th>Work records</th><th>Active clients</th></tr></thead><tbody id="yearOverviewTable"></tbody></table></div>
+      </details>
+
+      <div class="report-export-actions"><button class="button secondary" id="exportYearOverviewBtn">Export overview CSV</button><button class="button" id="exportQuickBooksYearBtn">Accountant CSV for selected period</button></div>
+    </section>
+
+    <section id="view-settings" class="app-view">
+      <div class="page-heading">
+        <div>
+          <span class="eyebrow">Business setup</span>
+          <h1>Settings</h1>
+          <p>Configure service clusters first, then teams, capacity and business details.</p>
+        </div>
+      </div>
+      <section class="panel setup-status-card" id="setupStatusSummary"><div><strong>Business setup</strong><span>Review the first-run setup or continue configuring below.</span></div><button type="button" class="button secondary compact" id="runOnboardingBtn">Run setup wizard</button></section>
+      <section class="panel backend-settings-card" id="backendSettingsPanel">
+        <div><span class="eyebrow">Cloud account</span><h2>Secure online saving</h2><p id="backendSettingsStatus">Checking account…</p></div>
+        <div><button type="button" class="button secondary compact" id="backendSettingsSyncBtn">Save changes now</button></div>
+      </section>
+      <nav class="settings-quick-nav panel" aria-label="Settings sections">
+        <a href="#serviceCatalogSettings">Services</a>
+        <a href="#serviceClusterSettings">Service clusters</a>
+        <a href="#teamCapacitySettings">Teams & capacity</a>
+        <a href="#userAccessSettings">Users & access</a>
+        <a href="#businessDetailSettings">Business details</a>
+        <a href="#clientCommunicationSettings">Client communications</a>
+        <a href="#invoiceSettingPanel">Invoices & email</a>
+      </nav>
+      <form id="settingsForm" class="settings-grid">
+        <section class="panel span-two-panel service-catalog-panel" id="serviceCatalogSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Shared visual language</span><h2>Service catalogue</h2><p>Each service has one symbol, short label and default duration. The same service appears on the scheduler, field phone, Work Records and billing detail.</p></div><div class="dialog-actions"><button type="button" class="button secondary" id="openServiceGuideSettingsBtn">View guide</button><button type="button" class="button" id="addServiceBtnV55">+ Add service</button></div></div>
+          <div id="serviceCatalogListV55" class="service-catalog-list-v55"></div>
+        </section>
+        <section class="panel span-two-panel cluster-config-panel" id="serviceClusterSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Routing foundation</span><h2>Service areas & clusters</h2><p>Create the actual areas used by Smart Week. Add the suburbs that belong together, choose a colour and rank the nearest neighbouring clusters. Changes save automatically.</p></div><button type="button" class="button" id="addClusterBtn">+ Add cluster</button></div>
+          <div id="clusterCoverageSummary" class="cluster-coverage-summary"></div>
+          <div id="clusterSettingsList" class="cluster-settings-list"></div>
+        </section>
+        <section class="panel" id="businessDetailSettings">
+          <div class="section-title-row"><div><h2>Business details</h2></div></div>
+          <div class="form-grid two">
+            <label>Business name<input id="settingBusinessName"></label>
+            <label>Phone<input id="settingPhone"></label>
+            <label>Email<input id="settingEmail" type="email"></label>
+            <label>Address<input id="settingAddress"></label>
+            <label>VAT registered<select id="settingVatRegistered"><option value="no">No</option><option value="yes">Yes</option></select></label>
+            <label>VAT number<input id="settingVatNumber"></label>
+            <label>VAT rate (%)<input id="settingVatRate" type="number" min="0" max="100" step="0.01" value="15"></label>
+          </div>
+        </section>
+        <section class="panel span-two-panel" id="clientCommunicationSettings">
+          <div class="section-title-row"><div><span class="eyebrow">Client communications</span><h2>WhatsApp updates and corporate reports</h2><p>Set the default wording. TuinBooks prepares messages from completed work records; the office still chooses whether to send client reports.</p></div></div>
+          <div class="form-grid two">
+            <label class="span-two">Visit completed WhatsApp template<textarea id="settingVisitCompleteTemplate"></textarea></label>
+            <label class="span-two">Daily corporate email template<textarea id="settingCorporateDailyTemplate"></textarea></label>
+            <label class="span-two">Weekly corporate email template<textarea id="settingCorporateWeeklyTemplate"></textarea></label>
+            <label class="span-two">Monthly corporate email template<textarea id="settingCorporateMonthlyTemplate"></textarea></label>
+            <label class="span-two">Email signature<textarea id="settingCorporateReportSignature"></textarea></label>
+          </div>
+        </section>
+
+        <section class="panel" id="invoiceSettingPanel">
+          <div class="section-title-row"><div><h2>Invoice settings</h2></div></div>
+          <div class="form-grid two">
+            <label>Invoice prefix<input id="settingInvoicePrefix"></label>
+            <label>Next invoice number<input id="settingNextInvoice" type="number"></label>
+            <label>Payment terms<input id="settingPaymentTerms"></label>
+            <label class="span-two">Banking details<textarea id="settingBanking"></textarea></label>
+            <label class="span-two">Default invoice note<textarea id="settingInvoiceNote"></textarea></label>
+            <label class="span-two">Default WhatsApp / email message<textarea id="settingClientMessage"></textarea></label>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="section-title-row"><div><h2>Email delivery</h2><p>For the MVP, TuinBooks opens the computer's email app with the quote or invoice filled in. Direct in-app sending comes with the Supabase backend.</p></div></div>
+          <div class="form-grid two">
+            <label>Sender name<input id="settingEmailSenderName"></label>
+            <label>Preferred business email<input id="settingSendingEmail" type="email"><small>Shown as the business contact. The active account in your email app controls the actual From address.</small></label>
+            <label>Reply-to email<input id="settingReplyTo" type="email"></label>
+            <label>Delivery mode<select id="settingEmailMode"><option value="mailto">Open computer email app (MVP)</option><option value="connected" disabled>Connected business email (backend phase)</option></select></label>
+          </div>
+          <div id="emailConnectionStatus" class="email-connection-status"></div>
+          <button type="button" class="button secondary compact" id="testEmailBtn">Open test email</button>
+        </section>
+
+
+        <section class="panel span-two-panel" id="teamCapacitySettings">
+          <div class="section-title-row"><div><h2>Teams and capacity</h2><p>Teams are movable resources. Set a planning anchor and safe buffer, not permanent client ownership.</p></div><button type="button" class="button secondary" id="addTeamBtn">+ Add team</button></div>
+          <div id="teamSettingsList" class="team-settings-list"></div>
+        </section>
+        <section class="panel span-two-panel user-access-panel" id="userAccessSettings">
+          <div class="section-title-row">
+            <div><span class="eyebrow">Secure access</span><h2>Users & field phones</h2><p>The office controls every field phone. Name the phone, assign its team, and give the phone the one-time code.</p></div>
+            <div class="dialog-actions">
+              <button type="button" class="button secondary" id="addBusinessUserBtn">Invite office user</button>
+            </div>
+          </div>
+          <div class="field-phone-controller">
+            <div>
+              <span class="eyebrow">Field phones</span>
+              <h3>Pair a team phone</h3>
+              <p>The office chooses both the phone name and assigned team. The phone only enters the generated code.</p>
+            </div>
+            <button type="button" class="button" id="pairFieldPhoneBtn">Add field phone</button>
+          </div>
+          <div class="user-access-explainer">
+            <div><strong>Owner / Admin</strong><span>Email and password · full desktop workspace</span></div>
+            <div><strong>Field phone</strong><span>Office-named · office-assigned team · 10-character code</span></div>
+          </div>
+          <div id="businessUsersStatus" class="persistent-inline-note">Loading users…</div>
+          <div id="businessUsersList" class="business-user-list"></div>
+          <div class="pending-invite-heading"><div><h3>Email invitations</h3><p>Use email invitations for named admin or field accounts. Team phones can be paired more simply with a one-time code.</p></div></div>
+          <div id="businessInvitesList" class="business-invite-list"></div>
+        </section>
+        <div class="settings-save-bar"><button class="button" type="submit">Save settings</button><button class="button danger secondary" type="button" id="resetDemoBtn">Clear all business data</button></div>
+      </form>
+    </section>
+  </main>
+
+
+  <dialog id="businessUserDialog" class="dialog user-access-dialog">
+    <form id="businessUserForm" class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Users & teams</span><h2 id="businessUserDialogTitle">Create access link</h2></div>
+        <button type="button" class="icon-button" id="closeBusinessUserDialog" aria-label="Close">×</button>
+      </div>
+      <input type="hidden" id="businessUserId">
+      <div id="businessUserInviteHelp" class="persistent-inline-note">TuinBooks creates a secure invitation link. Share it with the user; no password is created by the office.</div>
+      <div class="form-grid two">
+        <label>Display name<input id="businessUserDisplayName" autocomplete="name" placeholder="e.g. Team Green phone"></label>
+        <label>Email address<input id="businessUserEmail" type="email" autocomplete="email" required placeholder="teamgreen@example.com"></label>
+        <label>Access role<select id="businessUserRole" required><option value="field">Field user</option><option value="admin">Admin user</option></select></label>
+        <label id="businessUserTeamWrap">Assigned team<select id="businessUserTeam"></select><small>Required for field users.</small></label>
+        <label id="businessUserActiveWrap" class="checkbox-setting hidden"><input id="businessUserActive" type="checkbox" checked><span>Access enabled</span></label>
+      </div>
+      <p id="businessUserError" class="backend-gate-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelBusinessUserDialog">Cancel</button><button type="submit" class="button" id="saveBusinessUserBtn">Create link</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="mobilePairingDialog" class="dialog invite-link-dialog">
+    <form id="mobilePairingForm" class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Field phone access</span><h2>Pair a field phone</h2></div>
+        <button type="button" class="icon-button" id="closeMobilePairingDialog" aria-label="Close">×</button>
+      </div>
+      <p>The office sets the phone name and team. The field phone will only be asked for the 10-character code.</p>
+      <div class="form-grid two">
+        <label>Phone name<input id="mobilePairingName" autocomplete="off" required><small>For example: Team Green phone or Sipho's phone.</small></label>
+        <label>Assigned team<select id="mobilePairingTeam" required></select><small>The phone cannot change this team.</small></label>
+      </div>
+      <div id="mobilePairingCodePanel" class="persistent-inline-note hidden">
+        <span id="mobilePairingAssignment">Field phone access code</span>
+        <strong id="mobilePairingCode" style="display:block;font-size:2.2rem;letter-spacing:.28em;margin:.45rem 0"></strong>
+        <small id="mobilePairingExpiry"></small>
+      </div>
+      <p id="mobilePairingError" class="backend-gate-error" role="alert"></p>
+      <div class="dialog-actions">
+        <button type="button" class="button secondary" id="cancelMobilePairingDialog">Done</button>
+        <button type="submit" class="button" id="generateMobilePairingCodeBtn">Generate code</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="inviteLinkDialog" class="dialog invite-link-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Access link ready</span><h2>Send this link to the user</h2></div><button type="button" class="icon-button" id="closeInviteLinkDialog" aria-label="Close">×</button></div>
+      <p>The user must open this link and create or sign in to the account using the invited email address.</p>
+      <label>Invitation link<textarea id="generatedInviteLink" readonly rows="4"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="closeInviteLinkBtn">Done</button><button type="button" class="button" id="copyInviteLinkBtn">Copy link</button></div>
+    </div>
+  </dialog>
+
+  <dialog id="onboardingDialog" class="dialog onboarding-dialog">
+    <div class="dialog-shell onboarding-shell">
+      <div class="onboarding-header">
+        <div><span class="eyebrow">First-time setup</span><h1>Set up TuinBooks</h1><p>Start with the basics. Your real client list comes next.</p></div>
+        <button type="button" class="icon-button hidden" id="onboardingCloseBtn" aria-label="Close setup">×</button>
+      </div>
+      <div class="onboarding-progress" aria-label="Setup progress">
+        <span class="onboarding-progress-step active" data-step="1"><i>1</i>Business</span>
+        <span class="onboarding-progress-step" data-step="2"><i>2</i>Team</span>
+        <span class="onboarding-progress-step" data-step="3"><i>3</i>Clients</span>
+      </div>
+      <form id="onboardingForm" novalidate>
+        <section class="onboarding-step active" data-onboarding-step="1">
+          <span class="eyebrow">Business details</span><h2>Tell us about the garden service</h2><p>This information appears on quotes, invoices and client messages.</p>
+          <div class="form-grid two">
+            <label>Business name *<input id="onboardingBusinessName" required></label>
+            <label>Phone<input id="onboardingPhone"></label>
+            <label>Email<input id="onboardingEmail" type="email"></label>
+            <label>Business address<input id="onboardingAddress"></label>
+          </div>
+        </section>
+        <section class="onboarding-step" data-onboarding-step="2">
+          <span class="eyebrow">First field team</span><h2>Add the first team</h2><p>More teams can be added later in Settings.</p>
+          <div class="form-grid two">
+            <label>Team name *<input id="onboardingTeamName" required></label>
+            <label>Team leader <span class="optional-label">Optional</span><input id="onboardingLeaderName"></label>
+            <label class="span-two">About how many sites does this team normally complete in a day? *<input id="onboardingDailySites" type="number" min="1" step="1" required><small>A rough estimate is fine. TuinBooks will use this as a starting point when planning the week, and you can change it later.</small></label>
+          </div>
+        </section>
+
+        <section class="onboarding-step" data-onboarding-step="3">
+          <span class="eyebrow">Real client list</span><h2>How will you add the first clients?</h2><p>Your client addresses will create the suburb list. You will organise those suburbs into service areas afterwards.</p>
+          <div class="onboarding-choice-grid">
+            <label><input type="radio" name="onboardingClientChoice" value="manual" checked><strong>Add manually</strong><span>Enter the first client in the normal client form.</span></label>
+            <label><input type="radio" name="onboardingClientChoice" value="spreadsheet"><strong>Import spreadsheet</strong><span>Upload and review a CSV or TSV client list.</span></label>
+            <label><input type="radio" name="onboardingClientChoice" value="photo"><strong>Import photographed list</strong><span>Use OCR, then review every row before import.</span></label>
+            <label><input type="radio" name="onboardingClientChoice" value="later"><strong>Do this later</strong><span>Finish setup and open the empty Clients page.</span></label>
+          </div>
+        </section>
+        <p id="onboardingError" class="onboarding-error" role="alert"></p>
+        <div class="onboarding-footer"><span id="onboardingStepCount">Step 1 of 3</span><div><button type="button" class="button secondary hidden" id="onboardingBackBtn">Back</button><button type="button" class="button" id="onboardingNextBtn">Continue</button><button type="button" class="button hidden" id="onboardingFinishBtn">Finish setup</button></div></div>
+      </form>
+    </div>
+  </dialog>
+
+
+  <dialog id="suburbClusterDialog" class="dialog large-dialog suburb-cluster-dialog">
+    <div class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Service-area setup</span><h2>Organise your suburbs</h2><p>Suburbs come from real client addresses. You decide which ones should be worked together.</p></div>
+        <button type="button" class="icon-button" id="closeSuburbClusterDialog" aria-label="Close">×</button>
+      </div>
+      <div class="cluster-organiser-layout">
+        <section class="cluster-organiser-create">
+          <h3>Create a service area</h3>
+          <div class="form-grid two">
+            <label>Service-area name<input id="newClusterName"></label>
+            <label>Colour<input id="newClusterColor" type="color" value="#2e8b68"></label>
+          </div>
+          <button type="button" class="button secondary compact" id="addClusterFromSuburbsBtn">Add service area</button>
+          <div id="clusterOrganiserAreas" class="cluster-organiser-areas"></div>
+        </section>
+        <section>
+          <div class="section-title-row"><div><h3>Suburbs found in client addresses</h3><p>Assign each suburb to a service area, or leave it unassigned for now.</p></div></div>
+          <div id="suburbAssignmentList" class="suburb-assignment-list"></div>
+        </section>
+      </div>
+      <p id="suburbClusterError" class="onboarding-error" role="alert"></p>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelSuburbClusterDialog">Close</button><button type="button" class="button" id="saveSuburbClustersBtn">Save organisation</button></div>
+    </div>
+  </dialog>
+  <dialog id="teamDayDetailDialog" class="dialog large-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Team-day detail</span><h2 id="teamDayDetailTitle">Planned work</h2></div><button class="icon-button" value="cancel" aria-label="Close team-day detail">×</button></div>
+      <div id="teamDayDetailContent" class="team-day-detail-content"></div>
+      <div class="dialog-actions"><button value="cancel" class="button secondary">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="moveScheduleJobDialog" class="dialog">
+    <form id="moveScheduleJobForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Schedule adjustment</span><h2>Move job</h2></div><button type="button" class="icon-button" onclick="document.getElementById('moveScheduleJobDialog').close()" aria-label="Close move job">×</button></div>
+      <p id="moveScheduleJobSummary" class="dialog-note"></p>
+      <input type="hidden" id="moveScheduleJobId">
+      <div class="form-grid two">
+        <label>Day<select id="moveScheduleJobDate"></select></label>
+        <label>Team<select id="moveScheduleJobTeam"></select></label>
+      </div>
+      <div id="moveScheduleCapacityNote" class="persistent-inline-note"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" onclick="document.getElementById('moveScheduleJobDialog').close()">Cancel</button><button type="submit" class="button">Move job</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="missingWorkRecordDialog" class="dialog">
+    <form id="missingWorkRecordForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Add work record</span><h2 id="missingWorkRecordTitle">Confirm completed visit</h2></div><button type="button" class="icon-button" id="closeMissingWorkRecordDialog" aria-label="Close">×</button></div>
+      <input type="hidden" id="missingWorkRecordJobId">
+      <div id="missingWorkRecordSummary" class="missing-work-dialog-summary"></div>
+      <div class="form-grid two">
+        <label>Work date<input class="control" type="date" id="missingWorkRecordDate" required></label>
+        <label>Team<select class="control" id="missingWorkRecordTeam" required></select></label>
+        <label>Actual hours<input class="control" type="number" min="0" step="0.1" id="missingWorkRecordHours" required></label>
+        <label class="span-two">Work completed<textarea class="control" id="missingWorkRecordTasks" rows="5" required></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMissingWorkRecord">Cancel</button><button type="submit" class="button">Save work record</button></div>
+    </form>
+  </dialog>
+
+
+  <dialog id="capacityAgreementDialogV552" class="dialog capacity-agreement-dialog-v552">
+    <form id="capacityAgreementFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Client promise</span><h2 id="capacityAgreementTitleV552">Service agreement</h2></div><button type="button" class="icon-button" id="closeCapacityAgreementBtnV552">×</button></div>
+      <input id="capacityAgreementIdV552" type="hidden">
+      <div class="form-grid two">
+        <label>Client<select id="capacityAgreementClientV552" required></select></label>
+        <label>Agreement name<input id="capacityAgreementNameV552" required maxlength="120"></label>
+        <label>Status<select id="capacityAgreementStatusFieldV552"><option>Draft</option><option>Active</option><option>Paused</option><option>Ending</option><option>Ended</option><option>Needs review</option></select></label>
+        <label>Billing arrangement<select id="capacityAgreementBillingV552"><option>Monthly fixed fee</option><option>Per visit</option><option>Recurring package</option><option>Quote-based</option><option>Ad hoc</option></select></label>
+        <label>Start date<input id="capacityAgreementStartV552" type="date" required></label>
+        <label>Monthly fee<input id="capacityAgreementFeeV552" type="number" min="0" step="1"></label>
+        <label>Default team<select id="capacityAgreementTeamV552"></select></label>
+        <label>Catch-up policy<select id="capacityAgreementCatchupV552"><option value="required">Catch-up required</option><option value="credit">Credit if not recovered</option><option value="review">Manager review</option></select></label>
+      </div>
+      <section class="capacity-agreement-lines-v552">
+        <div class="section-heading-v552 compact"><div><strong>Included services</strong><small>Define quantity, period, duration and flexibility for each paid-for service.</small></div><button id="addAgreementLineBtnV552" type="button" class="button secondary compact">Add service</button></div>
+        <div id="capacityAgreementLinesV552"></div>
+      </section>
+      <section id="capacityAgreementImpactV552" class="capacity-agreement-impact-v552" aria-live="polite"></section>
+      <label id="capacityAgreementOverrideWrapV552" class="capacity-agreement-override-v552 hidden">Capacity override reason<textarea id="capacityAgreementOverrideReasonV552" maxlength="500" placeholder="Explain how this client promise will be protected despite the shortage."></textarea></label>
+      <div id="capacityAgreementErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityAgreementBtnV552">Cancel</button><button type="submit" class="button">Save agreement</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityProfileDialogV552" class="dialog capacity-profile-dialog-v552">
+    <form id="capacityProfileFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Realistic team capacity</span><h2>Edit capacity profile</h2></div><button type="button" class="icon-button" id="closeCapacityProfileBtnV552">×</button></div>
+      <p>Set the usable service time after breaks, loading, travel and a recovery buffer. These values drive scheduler warnings.</p>
+      <div class="form-grid two">
+        <label>Team<select id="capacityProfileTeamV552" required></select></label>
+        <label>Workday<select id="capacityProfileDayV552"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option></select></label>
+        <label>Paid workday hours<input id="capacityProfilePaidHoursV552" type="number" min="1" max="16" step="0.25" required></label>
+        <label>Break minutes<input id="capacityProfileBreakV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Loading / admin minutes<input id="capacityProfileAdminV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Expected travel minutes<input id="capacityProfileTravelV552" type="number" min="0" max="360" step="5" required></label>
+        <label>Recovery buffer minutes<input id="capacityProfileBufferV552" type="number" min="0" max="240" step="5" required></label>
+        <label>Maximum service hours<input id="capacityProfileMaxHoursV552" type="number" min="0.5" max="16" step="0.25" required></label>
+      </div>
+      <fieldset class="capacity-capability-fieldset-v552"><legend>Team capabilities</legend><div class="capacity-capability-grid-v552">
+        <label><input type="checkbox" value="general" data-capability-v552> General maintenance</label>
+        <label><input type="checkbox" value="irrigation" data-capability-v552> Irrigation</label>
+        <label><input type="checkbox" value="tree-work" data-capability-v552> Tree work</label>
+        <label><input type="checkbox" value="landscaping" data-capability-v552> Landscaping</label>
+        <label><input type="checkbox" value="waste-removal" data-capability-v552> Waste removal</label>
+        <label><input type="checkbox" value="all-services" data-capability-v552> All services</label>
+      </div></fieldset>
+      <label class="check-row capacity-apply-week-v552"><input id="capacityProfileApplyWeekV552" type="checkbox"><span>Apply these time and capability settings to Monday–Saturday</span></label>
+      <div id="capacityProfileErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityProfileBtnV552">Cancel</button><button type="submit" class="button">Save capacity profile</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityExceptionDialogV552" class="dialog capacity-exception-dialog-v552">
+    <form id="capacityExceptionFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Temporary capacity</span><h2>Add absence or capacity change</h2></div><button type="button" class="icon-button" id="closeCapacityExceptionBtnV552">×</button></div>
+      <div class="form-grid two">
+        <label>Team<select id="capacityExceptionTeamV552" required></select></label>
+        <label>Change type<select id="capacityExceptionTypeV552"><option>Team unavailable</option><option>Reduced workday</option><option>Vehicle breakdown</option><option>Equipment unavailable</option><option>Overtime approved</option><option>Cover team</option><option>Subcontractor capacity</option></select></label>
+        <label>Start date<input id="capacityExceptionStartV552" type="date" required></label>
+        <label>End date<input id="capacityExceptionEndV552" type="date" required></label>
+        <label>Capacity change in hours<input id="capacityExceptionHoursV552" type="number" step="0.25" min="-16" max="16" required><small>Use a negative number for lost time and a positive number for added capacity.</small></label>
+        <label>Reason<textarea id="capacityExceptionReasonV552" required maxlength="500"></textarea></label>
+      </div>
+      <div id="capacityExceptionErrorV552" class="form-error" aria-live="polite"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityExceptionBtnV552">Cancel</button><button type="submit" class="button">Save capacity change</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="capacityOverrideDialogV552" class="dialog capacity-override-dialog-v552">
+    <form id="capacityOverrideFormV552" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Owner decision</span><h2>Accept capacity overload</h2></div><button type="button" class="icon-button" id="closeCapacityOverrideBtnV552">×</button></div>
+      <p id="capacityOverrideMessageV552"></p>
+      <input id="capacityOverrideJobV552" type="hidden"><input id="capacityOverrideTeamV552" type="hidden"><input id="capacityOverrideDateV552" type="hidden">
+      <label>Reason<textarea id="capacityOverrideReasonV552" required maxlength="500" placeholder="Explain why this overload is acceptable and how the work will be protected."></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelCapacityOverrideBtnV552">Cancel move</button><button type="submit" class="button danger">Accept overload</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="desktopOpportunityDialogV551" class="dialog desktop-opportunity-dialog-v551">
+    <form id="desktopOpportunityFormV551" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Visit observation</span><h2>Opportunity Spotter</h2></div><button type="button" class="icon-button" id="closeDesktopOpportunityV551">×</button></div>
+      <p>Spot additional work, maintenance needs or improvement opportunities noticed on site.</p>
+      <input id="desktopOpportunityJobV551" type="hidden">
+      <div id="desktopOpportunityCategoriesV551" class="opportunity-category-buttons"></div>
+      <input id="desktopOpportunityCategoryV551" type="hidden">
+      <label>Short description<textarea id="desktopOpportunityNoteV551" required maxlength="500"></textarea></label>
+      <div class="form-grid two"><label>Urgency<select id="desktopOpportunityUrgencyV551"><option>Routine</option><option>Soon</option><option>Urgent</option></select></label><label>Recommended next step<select id="desktopOpportunityNextV551"><option>Quote now</option><option>Site visit needed</option><option>Design consultation</option><option>Add to next visit</option><option>Defer</option><option>Close</option></select></label></div>
+      <label class="opportunity-photo-picker" for="desktopOpportunityPhotosV551"><input id="desktopOpportunityPhotosV551" type="file" accept="image/*" multiple hidden><strong>Take or add opportunity photos</strong><span>Photos stay linked to this visit and opportunity.</span></label>
+      <div id="desktopOpportunityPreviewV551" class="opportunity-photo-preview"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelDesktopOpportunityV551">Cancel</button><button type="submit" class="button">Save opportunity</button></div>
+    </form>
+  </dialog>
+
+
+
+  <dialog id="marketingAudienceDialogV553" class="dialog large-dialog v553-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Paid audience review</span><h2>Marketing audience</h2></div><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <div id="marketingAudienceDialogSummaryV553" class="v553-audience-dialog-summary"></div>
+      <div id="marketingAudienceRowsV553" class="v553-audience-rows"></div>
+      <div class="dialog-actions"><button value="cancel" class="button">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="marketingCampaignDialogV553" class="dialog large-dialog v553-dialog">
+    <form id="marketingCampaignFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Capacity-aware campaign</span><h2>New marketing campaign</h2></div><button type="button" class="icon-button" id="closeMarketingCampaignBtnV553">×</button></div>
+      <div class="form-grid two">
+        <label>Campaign name<input id="marketingCampaignNameV553" required maxlength="120"></label>
+        <label>Offer name<input id="marketingOfferNameV553" required maxlength="120"></label>
+        <label>Offer price (R)<input id="marketingOfferPriceV553" type="number" min="0" step="0.01"></label>
+        <label>Service<select id="marketingCampaignServiceV553" required></select></label>
+        <label>Template<select id="marketingTemplateV553"><option value="">No approved template loaded</option></select><small>Sending is blocked until an approved Meta template is available.</small></label>
+        <label>Language<select id="marketingCampaignLanguageV553"><option value="auto">Match client language</option><option value="en">English</option><option value="af">Afrikaans</option></select></label>
+        <label>Expected response rate<input id="marketingCampaignResponseRateV553" type="number" min="0" max="100" step="0.5" required></label>
+        <label>Minutes per booking<input id="marketingCampaignDurationV553" type="number" min="15" step="15" required></label>
+        <label>Fulfilment starts<input id="marketingCampaignStartV553" type="date" required></label>
+        <label>Fulfilment ends<input id="marketingCampaignEndV553" type="date" required></label>
+        <label class="span-two">Message preview<textarea id="marketingCampaignMessageV553" maxlength="1000" placeholder="Approved template variables and the customer-facing offer summary."></textarea></label>
+      </div>
+      <div id="marketingCampaignReviewV553" class="v553-campaign-review"></div>
+      <label id="marketingCapacityOverrideWrapV553" class="hidden">Capacity override reason<textarea id="marketingCapacityOverrideV553" maxlength="500" placeholder="Explain how likely bookings will be delivered despite the shortage."></textarea></label>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMarketingCampaignBtnV553">Cancel</button><button type="submit" class="button">Save campaign</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="marketingAcceptanceDialogV553" class="dialog v553-dialog">
+    <form id="marketingAcceptanceFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Reply to operational work</span><h2 id="marketingAcceptanceTitleV553">Record accepted response</h2></div><button type="button" class="icon-button" id="closeMarketingAcceptanceBtnV553">×</button></div>
+      <input id="marketingAcceptanceLinkV553" type="hidden">
+      <div class="form-grid two">
+        <label>Campaign<select id="marketingAcceptanceCampaignV553" required></select></label>
+        <label>Client<select id="marketingAcceptanceClientV553" required></select></label>
+        <label>Action<select id="marketingAcceptanceActionV553"><option value="next-visit">Add to next visit</option><option value="separate-job">Create separate job</option><option value="contact">Office must contact client</option></select></label>
+        <label>Team<select id="marketingAcceptanceTeamV553"></select></label>
+        <label>Target date<input id="marketingAcceptanceDateV553" type="date"></label>
+        <label>Accepted value (R)<input id="marketingAcceptanceValueV553" type="number" min="0" step="0.01"></label>
+        <label class="span-two">Office note<textarea id="marketingAcceptanceNoteV553" maxlength="500"></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelMarketingAcceptanceBtnV553">Cancel</button><button type="submit" class="button" id="marketingAcceptanceSubmitV553">Create work link</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="vehicleDialogV553" class="dialog v553-dialog">
+    <form id="vehicleFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Fleet profile</span><h2 id="vehicleDialogTitleV553">Add vehicle</h2></div><button type="button" class="icon-button" id="closeVehicleBtnV553">×</button></div>
+      <input id="vehicleIdV553" type="hidden">
+      <div class="form-grid two">
+        <label>Vehicle name<input id="vehicleNameV553" required maxlength="100"></label>
+        <label>Registration<input id="vehicleRegistrationV553" maxlength="30"></label>
+        <label>Assigned team<select id="vehicleTeamV553"><option value="">Unassigned</option></select></label>
+        <label>Fuel type<select id="vehicleFuelTypeV553"><option value="petrol_95">Petrol 95</option><option value="petrol_93">Petrol 93</option><option value="diesel_50ppm">Diesel 50ppm</option><option value="diesel_500ppm">Diesel 500ppm</option><option value="other">Other</option></select></label>
+        <label>Working litres / 100 km<input id="vehicleConsumptionV553" type="number" min="1" max="100" step="0.1" required></label>
+        <label>Current odometer km<input id="vehicleOdometerV553" type="number" min="0" step="0.1"></label>
+        <label class="check-row span-two"><input id="vehicleActiveV553" type="checkbox" checked><span>Vehicle is active</span></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelVehicleBtnV553">Cancel</button><button type="submit" class="button">Save vehicle</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="routeLogDialogV553" class="dialog large-dialog v553-dialog">
+    <form id="routeLogFormV553" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Team-day mileage</span><h2 id="routeLogDialogTitleV553">Log route</h2></div><button type="button" class="icon-button" id="closeRouteLogBtnV553">×</button></div>
+      <input id="routeLogIdV553" type="hidden">
+      <div class="form-grid two">
+        <label>Date<input id="routeLogDateV553" type="date" required></label>
+        <label>Team<select id="routeLogTeamV553" required></select></label>
+        <label>Vehicle<select id="routeLogVehicleV553" required></select></label>
+        <label>Planned distance km<input id="routeLogPlannedKmV553" type="number" min="0" step="0.1"></label>
+        <label>Planned travel minutes<input id="routeLogTravelMinutesV553" type="number" min="0" step="1"></label>
+        <div class="v553-form-action"><button type="button" class="button secondary" id="estimateRouteBtnV553">Calculate planning estimate</button></div>
+        <label>Starting odometer km<input id="routeLogStartOdometerV553" type="number" min="0" step="0.1"></label>
+        <label>Ending odometer km<input id="routeLogEndOdometerV553" type="number" min="0" step="0.1"></label>
+        <label>Fuel price per litre (R)<input id="routeLogFuelPriceV553" type="number" min="0" step="0.01"></label>
+        <label>Fuel purchased litres<input id="routeLogFuelPurchasedV553" type="number" min="0" step="0.01"></label>
+        <label class="span-two">Notes<textarea id="routeLogNotesV553" maxlength="500"></textarea></label>
+      </div>
+      <div id="routeLogEstimateNoteV553" class="persistent-inline-note"></div>
+      <div id="routeLogCalculationV553" class="v553-route-calculation"></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="cancelRouteLogBtnV553">Cancel</button><button type="submit" class="button">Save route log</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="serviceGuideDialogV55" class="dialog large-dialog service-guide-dialog-v55">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Visual language</span><h2>Service guide</h2></div><button value="cancel" class="icon-button" aria-label="Close">×</button></div>
+      <p>Icons are always paired with service names while teams learn the system.</p>
+      <div id="serviceGuideListV55" class="service-guide-list-v55"></div>
+      <div class="dialog-actions"><button value="cancel" class="button">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="invoicePreviewDialog" class="dialog large-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Invoice preview</span><h2 id="invoicePreviewTitle">Invoice</h2></div><button class="icon-button" value="cancel">×</button></div>
+      <div id="invoicePreviewContent"></div>
+      <div class="dialog-actions"><button value="cancel" class="button secondary">Close</button><button type="button" class="button" id="printInvoiceBtn">Print / Save PDF</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="quoteEditorDialog" class="dialog large-dialog">
+    <form id="quoteEditorForm" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Quote editor</span><h2 id="quoteEditorTitle">New quote</h2></div><button type="button" class="icon-button" id="closeQuoteDialogBtn">×</button></div>
+      <input type="hidden" id="quoteId">
+      <div class="form-grid two"><label>Client<select id="quoteClient"></select></label><label>Date<input type="date" id="quoteDate"></label><label class="span-two">Notes<textarea id="quoteNotes"></textarea></label></div>
+      <div class="line-editor-heading"><strong>Quote line items</strong><button type="button" class="button secondary compact" id="addQuoteLineBtn">+ Add line</button></div>
+      <div id="quoteLineEditor" class="line-editor"></div>
+      <div class="invoice-total-bar"><span>Total</span><strong id="quoteEditorTotal">R0</strong></div>
+      <div class="dialog-actions"><button type="button" class="button secondary" id="previewQuoteBtn">Preview</button><button class="button" type="submit">Save quote</button></div>
+    </form>
+  </dialog>
+
+  <script src="assets/ocr/tesseract.min.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script src="app.js?v=55.3-marketing-mileage1"></script>
+</body>
+</html>

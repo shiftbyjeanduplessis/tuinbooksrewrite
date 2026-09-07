@@ -1,0 +1,12 @@
+TuinBooks v60.3.3 — Schedule frozen authority
+
+Upload these files inside /app.
+
+Purpose:
+- Promote the exact approved Schedule renderer path used by the v60.0.11 canary.
+- Remove the legacy TEAM-DAY ITEMS toolbar; Note/Event remain on the team/day calendar cells.
+- Keep Basket behavior from the approved canary.
+- Keep recurring-move choice: This visit only / This + future visits.
+- Restore the canonical rolling 8-week engine only after operational hydration is ready, including Management support mode. This avoids the premature support-session rolling/cloud warning seen in v60.3.2.
+- Work v60.2.1 and Billing v60.3.1 are unchanged.
+- No SQL required.

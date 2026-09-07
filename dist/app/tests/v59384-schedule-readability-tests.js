@@ -1,0 +1,21 @@
+const fs=require('fs');
+const path=require('path');
+const root=path.resolve(__dirname,'..');
+const app=fs.readFileSync(path.join(root,'app.js'),'utf8');
+const css=fs.readFileSync(path.join(root,'styles.css'),'utf8');
+const index=fs.readFileSync(path.join(root,'index.html'),'utf8');
+const sw=fs.readFileSync(path.join(root,'service-worker.js'),'utf8');
+function assert(ok,message){if(!ok)throw new Error(message);}
+assert(app.includes("const TUINBOOKS_SCHEDULE_READABILITY_V59384='59.3.84-schedule-card-readability'"),'version marker missing');
+assert(app.includes('function scheduleCardV59384(job,team,date)'),'final compact schedule card missing');
+assert(app.includes('scheduleCard=scheduleCardV59384;'),'schedule card override is not active');
+assert(app.includes('onmouseenter="showScheduleInfoTooltipV59384'),'information icon does not show hover preview');
+assert(app.includes('onfocus="showScheduleInfoTooltipV59384'),'information icon does not support keyboard preview');
+assert(app.includes("openScheduleJobV55('${job.id}')"),'information icon no longer opens full details');
+assert(!app.match(/scheduleCardV59384[\s\S]*DONE\$\{completionTime/),'completion time is duplicated in the DONE label');
+assert(css.includes('.schedule-card-clean.v59384-card strong'),'compact card typography missing');
+assert(css.includes('.schedule-info-tooltip-v59384'),'hover information styling missing');
+assert(css.includes('@media(max-width:680px)'),'mobile hover guard missing');
+assert(index.includes('app.js?v=59.3.84-schedule-card-readability'),'index cache version not updated');
+assert(sw.includes("const CACHE='tuinbooks-v59-3-84'"),'service worker cache not updated');
+console.log('v59.3.84 schedule readability tests passed');

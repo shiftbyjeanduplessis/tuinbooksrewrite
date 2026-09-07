@@ -1,0 +1,70 @@
+/* TuinBooks v60.2.0 — consolidated Work */
+#workProgressSummaryV6020{margin:0 0 16px}
+.work-progress-summary-v6020{border:1px solid #d6e2da;border-radius:16px;background:#fbfdfc;padding:14px 15px}
+.work-progress-summary-head-v6020,.work-section-head-v6020{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.work-progress-summary-head-v6020{margin-bottom:11px}
+.work-progress-summary-head-v6020>div,.work-section-head-v6020>div{display:grid;gap:2px}
+.work-progress-summary-head-v6020 strong,.work-section-head-v6020 strong{color:#173d2c}
+.work-progress-summary-head-v6020 small,.work-section-head-v6020 small{color:#6c7b73;font-size:.76rem}
+.work-progress-grid-v6020{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:10px}
+.work-progress-card-v6020{border:1px solid #dbe7df;border-radius:13px;background:#fff;padding:12px 13px;min-width:0}
+.work-progress-card-v6020.complete{background:#f7fbf8;border-color:#bdd9c7}
+.work-progress-card-top-v6020{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.work-progress-card-top-v6020>div{display:grid;gap:2px;min-width:0}
+.work-progress-card-top-v6020 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#153d2a;font-size:.9rem}
+.work-progress-card-top-v6020 span{font-size:.72rem;color:#6b7a72}
+.work-progress-card-top-v6020>b{font-size:1.2rem;color:#17643e;line-height:1}
+.work-progress-track-v6020{height:7px;margin:10px 0;border-radius:999px;overflow:hidden;background:#e8efeb}
+.work-progress-track-v6020 i{display:block;height:100%;border-radius:inherit;background:#2d8a58}
+.work-progress-metrics-v6020{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.work-progress-metrics-v6020 span{display:grid;gap:1px}
+.work-progress-metrics-v6020 b{font-size:.9rem;color:#243b30}
+.work-progress-metrics-v6020 small{font-size:.64rem;color:#728078;text-transform:uppercase;letter-spacing:.035em}
+.work-progress-exception-v6020{display:block;margin-top:8px;color:#9a5b17;font-size:.7rem}
+.work-progress-empty-v6020{color:#67766e;padding:4px 1px}
+
+#view-records .work-record-list{display:grid;gap:16px}
+.work-today-v6020,.work-history-v6020{display:grid;gap:10px}
+.work-section-head-v6020{padding:0 2px}
+.work-today-team-v6020{border:1px solid #dce7e0;border-radius:14px;background:#fff;overflow:hidden}
+.work-today-team-v6020>header{padding:10px 13px;border-bottom:1px solid #e8efea;background:#f9fbfa}
+.work-today-team-v6020>header strong{color:#173d2c;font-size:.9rem}
+.work-team-job-list-v6020{display:grid;gap:8px;padding:10px}
+
+.work-history-days-v6020{display:grid;gap:9px}
+.work-day-v6020{border:1px solid #dce5df;border-radius:14px;background:#fff;overflow:hidden}
+.work-day-v6020>summary{display:flex;align-items:center;gap:12px;padding:12px 14px;cursor:pointer;list-style:none;background:#fbfcfb}
+.work-day-v6020>summary::-webkit-details-marker{display:none}
+.work-day-v6020>summary>div{display:grid;gap:2px;flex:1;min-width:0}
+.work-day-v6020>summary strong{color:#223c30}
+.work-day-meta-v6020{font-size:.74rem;color:#708077;white-space:nowrap}
+.work-day-v6020.reference>summary{background:#f7f8f7}
+.work-day-body-v6020{display:grid;gap:10px;padding:10px;border-top:1px solid #e7eee9}
+
+.work-past-team-v6020{border:1px solid #e1e9e4;border-radius:12px;overflow:hidden;background:#fff}
+.work-past-team-v6020>header{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 12px;background:#fafcfb;border-bottom:1px solid #e8efea}
+.work-past-team-v6020>header>div:first-child{display:grid;gap:1px;min-width:120px}
+.work-past-team-v6020>header strong{color:#173d2c;font-size:.87rem}
+.work-past-team-v6020>header small{color:#6d7d74;font-size:.68rem}
+.work-past-team-metrics-v6020{display:flex;gap:15px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.work-past-team-metrics-v6020 span{display:grid;gap:0;text-align:right}
+.work-past-team-metrics-v6020 b{font-size:.82rem;color:#34463d}
+.work-past-team-metrics-v6020 small{font-size:.59rem;color:#76837c;text-transform:uppercase;letter-spacing:.035em}
+.work-past-team-metrics-v6020 .attention b{color:#a44f39}
+.reference-v6020.work-job-card-v59386{border-style:dashed;background:#fbfbfa}
+.work-chip-v59386.reference-v6020{background:#eef0ee;color:#68716c;border-color:#dfe4e1}
+.work-simple-job-v6020{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e3eae6;border-radius:10px;padding:10px 11px}
+.work-simple-job-v6020>div{display:grid;gap:2px}
+.work-simple-job-v6020 small{font-size:.72rem;color:#6e7c74}
+
+/* Old Work layers are never visible in the consolidated build. */
+#workTeamHistoryV59694,.work-team-progress-v59692{display:none!important}
+
+@media (max-width:760px){
+  .work-progress-summary-head-v6020,.work-section-head-v6020{align-items:flex-start;flex-direction:column;gap:4px}
+  .work-progress-grid-v6020{grid-template-columns:1fr}
+  .work-past-team-v6020>header{align-items:flex-start;flex-direction:column}
+  .work-past-team-metrics-v6020{width:100%;justify-content:space-between;gap:8px}
+  .work-past-team-metrics-v6020 span{text-align:left}
+  .work-day-v6020>summary{align-items:flex-start}
+}

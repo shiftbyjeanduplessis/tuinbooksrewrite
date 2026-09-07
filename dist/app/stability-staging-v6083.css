@@ -1,0 +1,2 @@
+/* Staging-only visual guardrails */
+html[data-schedule-renderer="schedule-v2-60.8.3-staging"] .admin-product-logo{max-height:36px;width:auto;object-fit:contain}

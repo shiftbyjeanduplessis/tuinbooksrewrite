@@ -1,0 +1,33 @@
+/* TuinBooks v60.4.16 — demo guidance over the REAL TuinBooks layout only.
+   No backdrop, no blur, no page dimming, no replacement Work/Schedule layout. */
+.tb-demo-guide-launcher-v60413{
+  position:fixed;top:88px;right:18px;z-index:2147482000;border:1px solid #c9d8d1;background:#fff;color:#164d3b;
+  border-radius:999px;padding:8px 12px;font:800 12px/1 system-ui,-apple-system,Segoe UI,sans-serif;box-shadow:0 7px 22px rgba(18,55,43,.13);cursor:pointer
+}
+.tb-demo-guide-launcher-v60413 span{display:inline-grid;place-items:center;width:19px;height:19px;margin-right:5px;border-radius:50%;background:#e8f4ee;color:#176044}.tb-demo-guide-launcher-v60413.hidden{display:none}
+.tb-demo-guide-card-v60413{
+  position:fixed!important;top:88px!important;right:18px!important;bottom:auto!important;left:auto!important;z-index:2147482100;
+  width:min(390px,calc(100vw - 28px));max-height:calc(100vh - 108px);overflow:auto;background:#fff;color:#17372c;
+  border:1px solid #d5e1db;border-radius:16px;padding:17px;box-shadow:0 14px 42px rgba(18,55,43,.18);font-family:system-ui,-apple-system,Segoe UI,sans-serif
+}
+.tb-demo-guide-close-v60413{position:absolute;right:9px;top:9px;width:30px;height:30px;border:0;border-radius:50%;background:#eef4f1;color:#17372c;font-size:21px;line-height:1;cursor:pointer}
+.tb-demo-guide-kicker-v60413{display:block;padding-right:34px;font-size:10px;font-weight:900;letter-spacing:.11em;text-transform:uppercase;color:#1f6f54}
+.tb-demo-guide-card-v60413 h3{margin:6px 32px 6px 0;font-size:20px;line-height:1.2}.tb-demo-guide-card-v60413 p{margin:0;color:#53685f;font-size:13px;line-height:1.48}
+.tb-demo-guide-facts-v60413{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:13px}.tb-demo-guide-facts-v60413 span{border:1px solid #e0e9e5;border-radius:10px;padding:9px 7px;background:#f8fbf9;text-align:center;font-size:10px;color:#65776f}.tb-demo-guide-facts-v60413 b{display:block;font-size:17px;color:#174e3d;margin-bottom:2px}
+.tb-demo-mobile-strip-v60413{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:13px;padding:10px 11px;border-radius:11px;background:#f1f7f4;border:1px solid #d6e5dd}.tb-demo-mobile-strip-v60413 span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#648077;font-weight:800}.tb-demo-mobile-strip-v60413 strong{display:block;margin-top:2px;font-size:15px;color:#17372c}.tb-demo-mobile-strip-v60413 button{border:1px solid #bcd4c8;border-radius:8px;background:#fff;color:#16513e;padding:7px 10px;font-weight:800;cursor:pointer}
+.tb-demo-guide-progress-v60413{height:4px;background:#e8efeb;border-radius:99px;margin:14px 0 0;overflow:hidden}.tb-demo-guide-progress-v60413 i{display:block;height:100%;background:#1f6f54;border-radius:99px}
+.tb-demo-guide-actions-v60413{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:13px}.tb-demo-guide-actions-v60413>div{display:flex;gap:7px}.tb-demo-guide-actions-v60413 button{border:1px solid #176044;border-radius:8px;background:#176044;color:#fff;padding:8px 10px;font-weight:800;cursor:pointer}.tb-demo-guide-actions-v60413 button.secondary{background:#fff;color:#315b4c;border-color:#ccd9d3}
+/* Tour attention is deliberately subtle. It never shades or blocks the rest of the software. */
+.nav-tab.tb-demo-nav-highlight-v60413{outline:3px solid #e4b83f!important;outline-offset:-3px!important;border-radius:9px!important}
+.tb-demo-native-focus-v60413{outline:2px solid rgba(228,184,63,.9)!important;outline-offset:2px!important}
+@media(max-width:720px){.tb-demo-guide-card-v60413{top:78px!important;right:10px!important;width:calc(100vw - 20px);max-height:calc(100vh - 90px)}.tb-demo-guide-launcher-v60413{top:78px;right:10px}.tb-demo-guide-facts-v60413{grid-template-columns:repeat(3,1fr)}}
+
+.tb-demo-guide-points-v60416{margin:12px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+.tb-demo-guide-points-v60416 li{position:relative;padding:8px 9px 8px 28px;border:1px solid #e1eae5;border-radius:9px;background:#fafcfb;color:#3f5c51;font-size:12px;line-height:1.4}
+.tb-demo-guide-points-v60416 li:before{content:'✓';position:absolute;left:10px;top:8px;color:#1f6f54;font-weight:900}
+.tb-demo-guide-card-v60413{width:min(430px,calc(100vw - 28px))}
+
+.tb-demo-seeding-v60417{position:fixed;inset:0;z-index:2147483500;background:#f7faf8;display:grid;place-items:center;padding:24px;color:#17372c}
+.tb-demo-seeding-v60417>div{background:#fff;border:1px solid #dbe7e1;border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,.12);padding:22px 26px;text-align:center;max-width:420px}
+.tb-demo-seeding-v60417 strong{display:block;font-size:20px;margin-bottom:6px}
+.tb-demo-seeding-v60417 span{font-size:14px;color:#63766d}

@@ -1,0 +1,29 @@
+TuinBooks v60.3.4 — EXACT APPROVED CANARY SCHEDULE + NAV AUTHORITY
+
+WHY THIS IS A FULLER DEPLOY
+- v60.3.3 accidentally retained the canary-only guard, so its Schedule script exited immediately in production.
+- Recent releases were partial overlays and did not re-ship app.js, so an older core could remain deployed.
+- This package deliberately re-ships the canonical app.js that was promoted from the approved v60 canary.
+
+WHAT THIS RELEASE DOES
+1. Restores the exact v60.0.11-approved Schedule render path.
+2. Removes the legacy TEAM-DAY ITEMS toolbar. Note/Event live on each team/day cell.
+3. Basket remains on the established basket path.
+4. Recurring moves retain This visit only / This + future visits.
+5. Rolling 8-week maintenance activates only AFTER the Management operational workspace is hydrated.
+6. Preserves the admin's explicitly clicked tab while Management hydration finishes, so Schedule/Billing do not bounce back to Clients.
+7. Re-ships canonical app.js to eliminate partial-deploy lineage ambiguity.
+8. Work v60.2.1 and Billing v60.3.1 are copied byte-for-byte unchanged.
+9. Mobile day instruction stays first on the route.
+
+DEPLOY
+Upload every file in this ZIP inside /app. No SQL.
+
+FIRST SMOKE TEST ONLY
+- Open Stepping Stones Management.
+- Click Schedule.
+- Confirm it stays on Schedule for at least 10 seconds.
+- Confirm the approved compact calendar appears, with + Note / + Event on team/day cells and NO TEAM-DAY ITEMS toolbar.
+- Confirm no red rolling-connection warning.
+
+Do not test Work or Billing until Schedule + navigation pass.

@@ -1,0 +1,110 @@
+/* TuinBooks v60.2.1 — compact Work evidence
+   Keeps v60.2 team/date structure; restores compact expandable job evidence cards. */
+#workProgressSummaryV6020{margin:0 0 9px}
+.work-progress-summary-v6020{border:1px solid #d6e2da;border-radius:13px;background:#fbfdfc;padding:9px 11px}
+.work-progress-summary-head-v6020,.work-section-head-v6020{display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.work-progress-summary-head-v6020{margin-bottom:7px}
+.work-progress-summary-head-v6020>div,.work-section-head-v6020>div{display:grid;gap:1px}
+.work-progress-summary-head-v6020 strong,.work-section-head-v6020 strong{color:#173d2c;font-size:.88rem}
+.work-progress-summary-head-v6020 small,.work-section-head-v6020 small{color:#6c7b73;font-size:.67rem}
+.work-progress-summary-head-v6020 .eyebrow,.work-section-head-v6020 .eyebrow{font-size:.62rem}
+.work-progress-grid-v6020{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:7px}
+.work-progress-card-v6020{border:1px solid #dbe7df;border-radius:10px;background:#fff;padding:8px 9px;min-width:0}
+.work-progress-card-v6020.complete{background:#f7fbf8;border-color:#bdd9c7}
+.work-progress-card-top-v6020{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.work-progress-card-top-v6020>div{display:grid;gap:0;min-width:0}
+.work-progress-card-top-v6020 strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#153d2a;font-size:.8rem}
+.work-progress-card-top-v6020 span{font-size:.63rem;color:#6b7a72}
+.work-progress-card-top-v6020>b{font-size:1rem;color:#17643e;line-height:1}
+.work-progress-track-v6020{height:6px;margin:6px 0;border-radius:999px;overflow:hidden;background:#f4e8bc}
+.work-progress-track-v6020 i{display:block;height:100%;border-radius:inherit;background:#2d8a58}
+.work-progress-metrics-v6020{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.work-progress-metrics-v6020 span{display:flex;align-items:baseline;gap:4px}
+.work-progress-metrics-v6020 b{font-size:.78rem;color:#243b30}
+.work-progress-metrics-v6020 small{font-size:.56rem;color:#728078;text-transform:uppercase;letter-spacing:.025em}
+.work-progress-exception-v6020{display:block;margin-top:5px;color:#9a5b17;font-size:.62rem}
+.work-progress-empty-v6020{color:#67766e;padding:3px 1px}
+
+#view-records .work-record-list{display:grid;gap:10px}
+.work-today-v6020,.work-history-v6020{display:grid;gap:7px}
+.work-section-head-v6020{padding:0 1px}
+.work-today-team-v6020{border:1px solid #dce7e0;border-radius:11px;background:#fff;overflow:hidden}
+.work-today-team-v6020>header{padding:6px 9px;border-bottom:1px solid #e8efea;background:#f9fbfa}
+.work-today-team-v6020>header strong{color:#173d2c;font-size:.78rem}
+.work-team-job-list-v6020{display:grid;gap:4px;padding:6px}
+
+.work-history-days-v6020{display:grid;gap:6px}
+.work-day-v6020{border:1px solid #dce5df;border-radius:11px;background:#fff;overflow:hidden}
+.work-day-v6020>summary{display:flex;align-items:center;gap:9px;padding:8px 10px;cursor:pointer;list-style:none;background:#fbfcfb}
+.work-day-v6020>summary::-webkit-details-marker{display:none}
+.work-day-v6020>summary>div{display:grid;gap:0;flex:1;min-width:0}
+.work-day-v6020>summary strong{color:#223c30;font-size:.81rem}
+.work-day-meta-v6020{font-size:.65rem;color:#708077;white-space:nowrap}
+.work-day-v6020.reference>summary{background:#f7f8f7}
+.work-day-body-v6020{display:grid;gap:6px;padding:6px;border-top:1px solid #e7eee9}
+
+.work-past-team-v6020{border:1px solid #e1e9e4;border-radius:9px;overflow:hidden;background:#fff}
+.work-past-team-v6020>header{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:6px 8px;background:#fafcfb;border-bottom:1px solid #e8efea}
+.work-past-team-v6020>header>div:first-child{display:grid;gap:0;min-width:110px}
+.work-past-team-v6020>header strong{color:#173d2c;font-size:.76rem}
+.work-past-team-v6020>header small{color:#6d7d74;font-size:.59rem}
+.work-past-team-metrics-v6020{display:flex;gap:9px;align-items:center;justify-content:flex-end;flex-wrap:wrap}
+.work-past-team-metrics-v6020 span{display:flex;gap:3px;align-items:baseline;text-align:right}
+.work-past-team-metrics-v6020 b{font-size:.7rem;color:#34463d}
+.work-past-team-metrics-v6020 small{font-size:.52rem;color:#76837c;text-transform:uppercase;letter-spacing:.02em}
+.work-past-team-metrics-v6020 .attention b{color:#a44f39}
+.reference-v6020.work-job-card-v59386{border-style:dashed;background:#fbfbfa}
+.work-chip-v59386.reference-v6020{background:#eef0ee;color:#68716c;border-color:#dfe4e1}
+
+/* Restore the compact v59.3 job-card experience inside the consolidated team/date layout. */
+.work-evidence-card-v6021{margin:0;border-radius:9px!important}
+.work-evidence-card-v6021>summary{grid-template-columns:25px minmax(190px,1fr) auto 16px!important;gap:7px!important;padding:6px 8px!important}
+.work-evidence-card-v6021 .work-marker-v59386{width:22px;height:22px;border-radius:6px;font-size:.64rem}
+.work-evidence-card-v6021 .work-job-main-v59386{gap:0}
+.work-evidence-card-v6021 .work-job-main-v59386 strong{font-size:.78rem}
+.work-evidence-card-v6021 .work-job-main-v59386>small{font-size:.62rem}
+.work-evidence-line-v6021{margin-top:1px;color:#46675a!important;font-weight:650;white-space:nowrap!important;overflow:hidden;text-overflow:ellipsis}
+.work-evidence-card-v6021.pending{border-left:4px solid #d2ad54}
+.work-evidence-card-v6021.completed{border-left:4px solid #3c9a70}
+.work-evidence-card-v6021.attention,.work-evidence-card-v6021.missed{border-left:4px solid #c85e52}
+.work-evidence-card-v6021 .work-job-summary-v59386{gap:3px}
+.work-evidence-card-v6021 .work-chip-v59386{min-height:20px;padding:2px 6px;font-size:.59rem}
+.work-evidence-card-v6021 .work-chip-v59386.pending{background:#fff6dd;color:#7b5b14}
+.work-evidence-card-v6021 .work-chip-v59386.completed{background:#e7f4ec;color:#216344}
+.work-evidence-card-v6021 .work-job-detail-v59386{gap:9px;padding:9px 10px 10px}
+.work-evidence-card-v6021 .work-job-detail-v59386 h4{margin-bottom:5px;font-size:.72rem}
+.work-evidence-card-v6021 .work-detail-meta-v59386{grid-template-columns:repeat(4,minmax(90px,1fr));gap:5px}
+.work-evidence-card-v6021 .work-detail-meta-v59386>span{padding:6px 7px;border-radius:8px}
+.work-evidence-card-v6021 .work-detail-meta-v59386 small{font-size:.55rem}
+.work-evidence-card-v6021 .work-detail-meta-v59386 strong{font-size:.69rem}
+.work-evidence-card-v6021 .work-task-list-v59386{gap:3px}
+.work-evidence-card-v6021 .work-task-row-v59386{grid-template-columns:19px minmax(0,1fr);gap:5px;padding:5px 7px;border-radius:7px}
+.work-evidence-card-v6021 .work-task-row-v59386>span{width:17px;height:17px;border-radius:5px;font-size:.6rem}
+.work-evidence-card-v6021 .work-task-row-v59386 strong{font-size:.69rem}
+.work-evidence-card-v6021 .work-task-row-v59386 small{font-size:.61rem}
+.work-evidence-card-v6021 .work-note-v59386,.work-evidence-card-v6021 .work-extra-v59386{padding:7px 8px;border-radius:8px}
+.work-evidence-card-v6021 .work-note-v59386 p,.work-evidence-card-v6021 .work-extra-v59386 p{font-size:.69rem}
+.work-evidence-card-v6021 .work-photo-grid-v59386{grid-template-columns:repeat(auto-fill,minmax(90px,115px));gap:5px}
+.work-evidence-card-v6021 .work-photo-thumb-v59386{min-height:74px;border-radius:8px}
+.work-evidence-card-v6021 .work-photo-thumb-v59386 img{height:74px}
+.work-evidence-card-v6021 .work-photo-thumb-v59386>span{font-size:.56rem;left:4px;bottom:4px;padding:2px 4px}
+.work-evidence-card-v6021 .work-card-actions-v59386{gap:5px}
+.work-evidence-card-v6021 .work-card-actions-v59386 .button{min-height:30px;padding:5px 8px;font-size:.66rem}
+
+/* Old duplicate Work layers never reappear. */
+#workTeamHistoryV59694,.work-team-progress-v59692,#needsResolutionV56{display:none!important}
+
+@media(max-width:1050px){
+  .work-evidence-card-v6021>summary{grid-template-columns:25px minmax(140px,1fr) 16px!important}
+  .work-evidence-card-v6021 .work-job-summary-v59386{grid-column:2/-1;justify-content:flex-start}
+  .work-evidence-card-v6021>summary>.work-chevron-v59386{grid-column:3;grid-row:1}
+  .work-evidence-card-v6021 .work-detail-meta-v59386{grid-template-columns:repeat(2,minmax(90px,1fr))}
+}
+@media(max-width:760px){
+  .work-progress-summary-head-v6020,.work-section-head-v6020{align-items:flex-start;flex-direction:column;gap:2px}
+  .work-progress-grid-v6020{grid-template-columns:1fr}
+  .work-past-team-v6020>header{align-items:flex-start;flex-direction:column}
+  .work-past-team-metrics-v6020{width:100%;justify-content:flex-start;gap:8px}
+  .work-day-v6020>summary{align-items:flex-start}
+  .work-evidence-card-v6021 .work-photo-grid-v59386{grid-template-columns:repeat(3,minmax(0,1fr))}
+}

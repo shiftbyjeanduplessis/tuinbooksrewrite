@@ -1,0 +1,23 @@
+TuinBooks v60.3.8 — v60.0.11 Schedule authority
+
+Upload EVERYTHING in this ZIP directly inside /app, replacing matching files.
+No SQL required.
+
+This is the v60.3.7 production package with one Schedule correction:
+- REMOVED schedule-rolling-production-v6037.js from the desktop load order.
+- v60.0.11 consolidation-v6011.js is now the final Schedule authority.
+- The production CSS that hides the canary label remains unchanged.
+- Management, Work and Billing production modules remain loaded.
+
+Browser verification after deploy:
+window.__tuinbooksProductionRelease
+=> "60.3.8-v6011-schedule-authority"
+
+window.__tuinbooksScheduleAuthority
+=> "60.0.11-schedule-action-permission-fix"
+
+window.__TUINBOOKS_CONSOLIDATION_CANARY__?.build
+=> "60.0.11-schedule-action-permission-fix"
+
+[...document.scripts].map(s=>s.src).filter(Boolean).filter(s=>s.includes('schedule-rolling-production-v6037'))
+=> []

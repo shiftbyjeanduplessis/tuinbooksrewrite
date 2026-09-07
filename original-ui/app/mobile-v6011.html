@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>TuinBooks Garden Service — Mobile</title>
+  <link rel="stylesheet" href="styles.css?v=59.3.87-work-deploy-repair">
+  <link rel="icon" type="image/png" href="tuinbooks-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1f6f54">
+  <link rel="stylesheet" href="consolidation-v6011.css?v=60.0.11-schedule-action-permission-fix">
+</head>
+<body class="mobile-body" data-app="mobile">
+  <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:2147483647;background:#9a3412;color:white;padding:4px 10px;border-radius:0 0 8px 8px;font:800 10px system-ui">v60.0.11 MOBILE CANARY</div>
+  <section id="backendGate" class="backend-gate" aria-live="polite">
+    <div class="backend-gate-card">
+      <div class="backend-gate-brand"><img src="tuinbooks-logo.png" alt="TuinBooks"><span>Field team access</span></div>
+
+      <div id="backendConnectionStep" class="backend-gate-step backend-unavailable-step hidden">
+        <span class="eyebrow">Temporarily unavailable</span>
+        <h1>TuinBooks is not ready on this site</h1>
+        <p>Please contact the office or try again shortly.</p>
+        <button type="button" class="button backend-retry-button" onclick="window.location.reload()">Try again</button>
+        <p id="backendConnectionError" class="backend-gate-error" role="alert"></p>
+      </div>
+
+      <div id="backendAuthStep" class="backend-gate-step backend-auth-step hidden">
+        <span class="eyebrow">Field phone access</span>
+        <h1>Enter the setup PIN</h1>
+        <p>Enter the four-digit setup PIN once. This phone then stays linked until the office revokes it.</p>
+        <form id="mobilePairingCodeForm" class="backend-gate-form">
+          <label>Setup PIN<input id="mobileAccessCode" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" autocomplete="one-time-code" required></label>
+          <button id="mobilePairingSubmit" class="button backend-auth-submit" type="submit">Open today’s route</button>
+        </form>
+        <p id="mobilePairingMessage" class="backend-gate-message" role="status"></p>
+        <div class="backend-gate-secondary-actions backend-auth-help-row"><span>Enter it once. This phone stays linked until the office changes or disables access.</span></div>
+      </div>
+
+      <div id="backendLoadingStep" class="backend-gate-step hidden">
+        <div class="backend-loader" aria-hidden="true"></div>
+        <h1>Opening today’s route</h1>
+        <p id="backendLoadingMessage">Checking your account and assigned team…</p>
+      </div>
+    </div>
+  </section>
+  <div class="mobile-shell">
+    <header class="mobile-header">
+      <div class="mobile-header-title"><span class="eyebrow">Field logger</span><strong>Today’s work</strong><small id="mobileOutboxState" class="mobile-outbox-state" role="status" aria-live="polite"></small></div>
+      <div class="mobile-account-context"><span id="mobileToday" class="mobile-date"></span><button type="button" id="mobileServiceGuideBtnV55" class="mobile-guide-button">Services</button></div>
+    </header>
+    <div id="mobileIdentityBar" class="mobile-identity-bar hidden"><div><strong id="mobileIdentityName">Field user</strong><span id="mobileIdentityTeam">Assigned team</span></div></div>
+
+    <main class="mobile-main">
+      <div id="mobileToast" class="toast" aria-live="polite"></div>
+
+      <section id="mobile-scheduled" class="mobile-view active">
+        <div class="mobile-team-context">
+          <label><span>Assigned by the office</span><strong id="mobileAssignedTeamName">Waiting for team assignment</strong></label>
+          <select id="mobileTeamSelect" hidden aria-hidden="true" tabindex="-1"></select>
+          <small id="mobileTeamRouteSummary">Enter the office code to load this team’s route.</small>
+        </div>
+        <div class="mobile-section-heading">
+          <div><span class="eyebrow">Scheduled today</span><h1>0 sites</h1></div>
+          <span id="mobileRemainingCount" class="status-badge neutral"></span>
+        </div>
+        <div id="mobileScheduleList" class="mobile-schedule-list"></div>
+
+        <div class="mobile-search-block">
+          <div class="mobile-search-title"><strong>Log an unscheduled job</strong><span>Search for a site when work is done outside today’s route.</span></div>
+          <input id="mobileClientSearch" class="control" placeholder="Search address, suburb or client">
+          <div id="mobileSearchResults" class="mobile-search-results"></div>
+        </div>
+
+        <details class="mobile-new-client panel">
+          <summary><strong>+ New client</strong><span>Admin completes the record later.</span></summary>
+          <form id="mobileNewClientForm" class="mobile-form">
+            <label>Client name<input id="mobileNewName" required></label>
+            <label>Address<input id="mobileNewAddress" required></label>
+            <label>Suburb<input id="mobileNewSuburb" required></label>
+            <label>WhatsApp, optional<input id="mobileNewWhatsapp"></label>
+            <button class="button" type="submit">Save and open</button>
+          </form>
+        </details>
+      </section>
+
+      <section id="mobile-log" class="mobile-view">
+        <button id="mobileBackToRouteV59382" class="mobile-back-route-v59382" type="button" onclick="window.returnToMobileRouteV59382?.()">← Back to today’s route</button>
+        <div id="mobileActiveClient" class="mobile-active-client empty-state">Choose a scheduled site or search for a client first.</div>
+
+        <form id="mobileVisitForm" class="mobile-visit-form">
+          <section id="mobileJobScript" class="mobile-job-script hidden"></section>
+          <div id="mobileWorkChecklist" class="mobile-task-grid"></div>
+
+          <div class="mobile-photo-block v551">
+            <div class="mobile-section-heading compact"><div><span class="eyebrow">Visit evidence</span><h2>Internal job photos</h2></div><select id="mobilePhotoCategoryV551" class="control compact-control" aria-label="Photo category"><option value="Before">Before</option><option value="Issue">Issue</option><option value="After" selected>After</option><option value="Opportunity">Opportunity</option></select></div>
+            <label class="report-photo-picker" for="mobilePhotoInput" aria-label="Take a report photo">
+              <strong>📷 Take internal job photo</strong>
+              <span>Stored with this job for office use. Photos are not sent to the client.</span>
+            </label>
+            <input id="mobilePhotoInput" type="file" accept="image/*" capture="environment" hidden>
+            <div id="mobilePhotoPreview" class="mobile-photo-preview hidden"></div>
+          </div>
+
+
+          <section class="mobile-opportunity-inline-v551">
+            <span class="eyebrow">On-site growth</span>
+            <h2>Opportunity Spotter</h2>
+            <p>Spot additional work, maintenance needs or improvement opportunities noticed on site.</p>
+            <button id="mobileOpportunityInlineBtnV551" class="button secondary full-width" type="button">Add opportunity</button>
+            <div id="mobileOpportunitySavedV551" class="mobile-opportunity-saved-v551 hidden"></div>
+          </section>
+
+          <div class="form-grid two">
+            <label>Visit outcome<select id="mobileVisitOutcome">
+              <option>Completed</option>
+              <option>Partially completed</option>
+              <option>Access failed</option>
+              <option>Weather delay</option>
+              <option>Unable to complete</option>
+            </select></label>
+            <label>Outcome note<textarea id="mobileOutcomeNote" maxlength="500" placeholder="Required when the visit was not completed"></textarea></label>
+          </div>
+          <button type="button" class="extra-button" id="mobileExtraBtn">+ Extra work</button>
+          <div id="mobileExtraSummary" class="extra-summary hidden"></div>
+          <button id="mobileSaveVisitBtn" class="button full-width" type="submit">Complete visit</button>
+        </form>
+
+        <section id="mobileClientReportPanel" class="mobile-client-report hidden" aria-live="polite">
+          <span class="eyebrow">Visit saved</span>
+          <h2>Send report to client</h2>
+          <p id="mobileClientReportRecipient"></p>
+          <div id="mobileClientReportSummary" class="mobile-report-summary"></div>
+          <button id="sendMobileClientReportBtn" class="button full-width" type="button">Send WhatsApp report</button>
+          <button id="skipMobileClientReportBtn" class="button secondary full-width" type="button">Continue without sending</button>
+        </section>
+
+        <section id="mobileOpportunityPromptPanel" class="mobile-opportunity-prompt hidden" aria-live="polite">
+          <span class="eyebrow">Before you leave</span>
+          <h2>Did you notice an opportunity?</h2>
+          <p>Take one last look around. Flag anything the office should review for possible future work.</p>
+          <button id="mobileOpportunityYesBtn" class="button full-width" type="button">Yes — take a photo</button>
+          <button id="mobileOpportunityNoBtn" class="button secondary full-width" type="button">No opportunity — next job</button>
+        </section>
+      </section>
+    </main>
+
+    <nav id="mobileBottomNav" class="mobile-bottom-nav single" aria-label="Mobile navigation">
+      <button id="mobileNavScheduled" data-mobile-view="scheduled" class="active">Scheduled</button>
+      <button id="mobileNavLog" data-mobile-view="log" class="hidden">Log visit</button>
+    </nav>
+  </div>
+
+  <dialog id="mobileServiceGuideDialogV55" class="dialog mobile-dialog service-guide-dialog-v55">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><div><span class="eyebrow">Service guide</span><h2>What each symbol means</h2></div><button value="cancel" class="icon-button">×</button></div>
+      <div id="mobileServiceGuideListV55" class="service-guide-list-v55 mobile"></div>
+      <div class="dialog-actions"><button value="cancel" class="button full-width">Close</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="mobileExtraDialog" class="dialog mobile-dialog">
+    <form method="dialog" class="dialog-shell">
+      <div class="dialog-heading"><h2>Extra work</h2><button value="cancel" class="icon-button">×</button></div>
+      <label>Describe the extra work<textarea id="mobileExtraDescription" placeholder="e.g. Removed storm-damaged branch"></textarea></label>
+      <div class="dialog-actions"><button value="cancel" class="button secondary">Cancel</button><button value="default" type="button" class="button" id="saveMobileExtraBtn">Save description</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="mobileOpportunityDialog" class="dialog mobile-dialog opportunity-dialog">
+    <form id="mobileOpportunityForm" class="dialog-shell">
+      <div class="dialog-heading">
+        <div><span class="eyebrow">Field observation</span><h2>Flag an opportunity</h2></div>
+        <button type="button" class="icon-button" id="closeMobileOpportunityBtn">×</button>
+      </div>
+      <p class="opportunity-dialog-help">This is linked to the job you have just completed. The office decides whether to quote, inspect, defer or close it.</p>
+      <div id="mobileOpportunityCurrentClient" class="opportunity-current-client"></div>
+
+      <fieldset class="opportunity-category-fieldset">
+        <legend>What did you notice?</legend>
+        <div id="mobileOpportunityCategoryButtons" class="opportunity-category-buttons" role="group" aria-label="Opportunity category">
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Lawn" aria-pressed="false">Lawn</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Plants" aria-pressed="false">Plants</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Irrigation" aria-pressed="false">Irrigation</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Trees" aria-pressed="false">Trees</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Upgrade" aria-pressed="false">Upgrade</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Cleanup" aria-pressed="false">Cleanup</button>
+          <button type="button" class="opportunity-category-button" data-opportunity-category="Other" aria-pressed="false">Other</button>
+        </div>
+        <input id="mobileOpportunityCategory" type="hidden" value="">
+      </fieldset>
+
+      <label class="opportunity-photo-picker" for="mobileOpportunityPhotos">
+        <input id="mobileOpportunityPhotos" type="file" accept="image/*" capture="environment" hidden>
+        <strong>📷 Take opportunity photo</strong>
+        <span>Optional evidence. Use the camera one photo at a time; maximum four.</span>
+      </label>
+      <div id="mobileOpportunityPhotoPreview" class="opportunity-photo-preview"></div>
+
+      <label>Short description<textarea id="mobileOpportunityNote" required maxlength="500" placeholder="e.g. Bare bed beside braai area. Possible planting and screening."></textarea></label>
+      <div class="opportunity-private-note">🔒 Office review only. Record what you noticed; the office decides whether to create a quote.</div>
+      <div id="mobileOpportunityError" class="opportunity-error" aria-live="polite"></div>
+      <div class="dialog-actions">
+        <button type="button" class="button secondary" id="cancelMobileOpportunityBtn">Cancel</button>
+        <button type="submit" class="button" id="saveMobileOpportunityBtn">Submit to office</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>window.__TUINBOOKS_CONSOLIDATION_CANARY__={build:"60.0.11-schedule-action-permission-fix",startedAt:new Date().toISOString()};</script>
+  <script src="app-consolidated-v6007.js?v=60.0.11-schedule-action-permission-fix"></script>
+  <script src="consolidation-v6011.js?v=60.0.11-schedule-action-permission-fix"></script>
+</body>
+</html>

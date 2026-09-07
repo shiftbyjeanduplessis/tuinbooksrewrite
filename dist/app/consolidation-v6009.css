@@ -1,0 +1,22 @@
+/* TuinBooks v60.0.9 CANARY — calendar-native team/day actions, normal basket */
+body::before{content:'CONSOLIDATION CANARY — v60.0.9 CALENDAR ACTIONS'!important;background:#9a3412!important}
+
+/* There is deliberately NO separate operations toolbar. Actions live on the actual calendar. */
+#v6008ScheduleOps,.v6007-ops,#scheduleOperationsToolbarV6005,#scheduleToolbarV6006{display:none!important}
+
+.v6009-calendar-actions{display:flex;gap:4px;align-items:center;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
+.v6009-calendar-actions button{border:1px solid #c8dbd1;border-radius:7px;background:#fff;color:#165c41;padding:4px 6px;font:800 10px/1 system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+.v6009-calendar-actions button:hover{background:#edf8f2;border-color:#8fbea8}
+.schedule-lane-head.v6009-has-actions{gap:6px;align-items:flex-start}
+.schedule-lane-head.v6009-has-actions>.schedule-lane-state{margin-left:0}
+
+/* Keep calendar actions subtle on narrow cells. */
+@media(max-width:1100px){.v6009-calendar-actions button{padding:3px 5px;font-size:9px}.v6009-calendar-actions{gap:3px}}
+
+/* v60.0.8 hid the real basket. This unique page does not load that CSS, but these rules
+   explicitly preserve the established floating-basket behaviour if an older stylesheet is cached. */
+#scheduleParkingLotV5537:not(.hidden){display:block!important}
+#scheduleBasketLauncherV58931:not(.hidden){display:flex!important}
+
+.tuinbooks-canary-status-v6009{position:fixed;right:10px;bottom:10px;z-index:2147483647;background:#fff;border:2px solid #9a3412;border-radius:10px;padding:8px 10px;font:800 11px/1.35 system-ui,sans-serif;color:#334155;box-shadow:0 4px 18px rgba(15,23,42,.18);max-width:min(820px,calc(100vw - 20px))}.tuinbooks-canary-status-v6009 strong{color:#9a3412}
+@media(max-width:720px){.tuinbooks-canary-status-v6009{display:none}}

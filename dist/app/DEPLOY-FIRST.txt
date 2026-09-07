@@ -1,0 +1,39 @@
+TuinBooks v60.4.7 — Demo Billing Profile repair
+
+PURPOSE
+Stops the recurring red:
+"browser-only Billing Profile ID was still present"
+client/setup save error caused by stale local-profile-* IDs inside nested
+client/service-site browser payloads.
+
+IMPORTANT
+- Front-end only.
+- NO SQL.
+- app.js is NOT changed.
+- Frozen Schedule / Work / navigation files are NOT changed.
+- Historical quote/invoice Billing Profile snapshots are NOT rewritten.
+
+UPLOAD
+In GitHub, OPEN THE EXISTING /app FOLDER FIRST.
+Upload/replace ONLY these three application files:
+
+1. index.html
+2. service-worker.js
+3. demo-billing-profile-repair-v6047.js   (new file)
+
+Do NOT upload this containing folder into /app.
+Do NOT upload these files at repository root.
+Do NOT replace app.js.
+
+AFTER RENDER IS LIVE
+1. Open https://www.tuinbooks.garden/app/ in a private window.
+2. Log into the demo account.
+3. Move through Settings -> Clients -> Schedule -> Work -> Quotes -> Billing.
+4. Leave the app open for at least 30 seconds so background sync runs.
+5. The red browser-only Billing Profile error must not appear.
+6. Edit one harmless demo client field and save it; cloud save must complete.
+7. Open the field phone demo separately and confirm the existing PIN flow still works.
+
+If the account genuinely has no server Billing Profile, the patch will not
+fabricate one. It will show a normal "billing setup is still loading" message
+instead of exposing the old technical local-profile error.
