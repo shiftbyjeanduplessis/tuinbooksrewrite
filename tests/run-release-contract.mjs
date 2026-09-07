@@ -296,48 +296,21 @@ console.log('TUINBOOKS R16 SERVICE-DETAIL/DNS-TOGGLE CONTRACT: PASS');
 }
 console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
 
-// R18 active production UI contract: /app must be the established full office product, not the stripped rewrite shell.
+// R21 production authority: the rewrite runtime is active again, while the legacy office engine is reference-only.
 {
-  const [officeHtml,officeApp,officeStyles,bridge,buildScript]=await Promise.all([
-    read('original-ui/app/index.html'),read('original-ui/app/app.js'),read('original-ui/app/styles.css'),read('original-ui/app/r18-ui-parity-bridge.js'),read('scripts/build-release-ui-restored.mjs')
+  const [buildScript,chrome,styles,calendar,officeApp]=await Promise.all([
+    read('scripts/build-release-ui-restored.mjs'),read('src/features/shell/chrome.ts'),read('src/styles.css'),read('src/features/schedule/calendar.ts'),read('original-ui/app/app.js')
   ]);
-  assert.ok(officeHtml.length>100000,'R18 office index must be the full established interface');checks++;
-  assert.ok(officeApp.length>2000000,'R18 office app.js must be the full established office runtime');checks++;
-  assert.ok(officeStyles.length>250000,'R18 office styles must be the full established stylesheet');checks++;
-  for(const marker of ['id="view-schedule"','id="view-clients"','id="view-invoices"','id="view-records"'])has(officeHtml,marker,`R18 full office surface missing ${marker}`);
-  has(officeHtml,'r18-ui-parity-bridge.js','R18 parity bridge must load last in established office UI');
-  has(officeApp,"'Saturday','Sunday'",'R18 office schedule must include Sunday');
-  has(bridge,'Service normally','R18 must retain the literal normal-service choice');
-  has(bridge,'Do not service','R18 must retain the Do not service choice');
-  has(bridge,'schedule-card-address-r18','R18 must keep street address visible on schedule cards');
-  has(bridge,'Dragging visit ID','R18 must keep the visit ID visible while dragging');
-  has(bridge,'r18-service-chip','R18 must restore distinct service-icon chips');
-  has(bridge,'Recent activity','R18 must carry the R17 office-visible audit reader into the established UI');
-  has(bridge,'tuinbooks_v2_list_audit_log_r17','R18 active office must use the protected admin-only R17 audit RPC');
-  has(buildScript,"cp('original-ui/app', 'dist/app'",'R18 build must publish established office UI to /app');
-  has(buildScript,"copyRewriteTree('dist/rewrite'",'R18 rewrite must remain isolated until parity verification');
+  has(buildScript,"copyAppTree('dist/app', 'index.html')",'R21 must publish the rewrite runtime to /app');
+  not(buildScript,"cp('original-ui/app', 'dist/app'",'R21 must never publish the legacy app engine as /app');
+  has(buildScript,'legacy app engine inactive','Render build proof must state that the legacy engine is inactive');
+  has(chrome,'admin-header','R21 rewrite must retain the restored TuinBooks header');
+  has(chrome,'header-settings-button','R21 rewrite must retain the Settings gear control');
+  has(styles,'ORIGINAL TUINBOOKS UI AUTHORITY','R21 must retain the restored TuinBooks visual authority');
+  has(calendar,"location?.address||'Address not linked'",'R21 rewrite must retain address-on-card support');
+  assert.ok(officeApp.length>2000000,'Legacy app reference must remain available for parity/reference only');checks++;
 }
-console.log('TUINBOOKS R18 ACTIVE-OFFICE RECOVERY CONTRACT: PASS');
-
-
-// R19: narrow repair — encoding-safe Settings control + durable Business control panel.
-{
-  const [officeHtml,businessControl,serviceWorker,buildScript]=await Promise.all([
-    read('original-ui/app/index.html'),read('original-ui/app/business-needs-attention-v6052.js'),read('original-ui/app/service-worker.js'),read('scripts/build-release-ui-restored.mjs')
-  ]);
-  has(officeHtml,'id="headerSettingsBtnV58930"','R19 must retain the restored header Settings control');
-  has(officeHtml,'&#9881;','R19 Settings icon must be encoding-safe');
-  not(officeHtml,'>âš™</button>','R19 must remove the corrupted Settings glyph');
-  has(businessControl,"const BUILD='R19-business-control-repair'",'R19 Business control repair must be active');
-  has(businessControl,'runtime()?.workMarkerForJob','Business control must classify routine rows through canonical schedule logic');
-  has(businessControl,'validAssignedTeam','Business control must accept either valid team assignment field');
-  has(businessControl,"signature===lastRenderSignature",'Business control must not destructively rerender unchanged content');
-  has(businessControl,"render(false)",'Business control background refresh must preserve open detail state');
-  has(serviceWorker,"const VERSION='R19-business-control-repair'",'R19 service-worker cache must invalidate R18 UI assets');
-  has(buildScript,"cp('original-ui/app', 'dist/app'",'R19/R20 build must preserve the full established office UI');
-}
-console.log('TUINBOOKS R19 SETTINGS/BUSINESS-CONTROL CONTRACT: PASS');
-
+console.log('TUINBOOKS R21 PRODUCTION-AUTHORITY CONTRACT: PASS');
 
 // R20: Management must work when Render serves the document at /management without a trailing slash.
 {
@@ -351,6 +324,6 @@ console.log('TUINBOOKS R19 SETTINGS/BUSINESS-CONTROL CONTRACT: PASS');
   has(managementHtml,'href="/app/"','R20 Management brand return must not depend on document trailing-slash semantics');
   has(managementJs,'window.location.href=`/app/index.html?support=1&business=','R20 support-session handoff must use an absolute /app URL');
   not(managementJs,'window.location.href=`../app/index.html?support=1&business=','R20 must remove trailing-slash-sensitive Management handoff URLs');
-  has(buildScript,'TUINBOOKS UI-RESTORED RELEASE R20','Render build must prove R20 packaging');
+  has(buildScript,'R20 absolute-path fix','R21 build must explicitly preserve the R20 Management path correction');
 }
 console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');

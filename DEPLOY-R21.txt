@@ -1,0 +1,27 @@
+TUINBOOKS R21 — PRODUCTION AUTHORITY CORRECTION
+==============================================
+
+Purpose
+-------
+R18-R20 mistakenly made original-ui/app (the old TuinBooks JavaScript engine)
+the active /app runtime. That restored the appearance but also restored old bugs.
+
+R21 corrects the architecture:
+- /app/ = TypeScript rewrite runtime + restored TuinBooks visual shell from src/styles.css.
+- /management = established Management UI, retaining the R20 absolute asset-path fix.
+- original-ui/app = reference/source compatibility files only; its old app.js is NOT published as the active runtime.
+- Management still receives /app/supabase-config.js and /app/vendor/supabase.js for its established support-session flow.
+
+This is an OVERLAY on the current tuinbooksrewrite repository. Do not delete the repo.
+After overlay, commit/push and let Render run the normal build command.
+
+Expected Render proof line:
+TUINBOOKS RELEASE R21: rewrite runtime restored to /app with TuinBooks visual shell; R20 Management routing retained; legacy app engine inactive.
+
+First checks after deploy
+-------------------------
+1. Open /app/ and hard refresh once.
+2. Confirm normal TuinBooks header/navigation and Schedule styling.
+3. Confirm Schedule uses the rewrite behavior (not the old legacy scheduler runtime).
+4. Open Settings via the gear.
+5. Return to /management and open a support workspace.
