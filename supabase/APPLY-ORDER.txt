@@ -1,7 +1,9 @@
-TUINBOOKS V2 — DEFAULT ADDITIVE INSTALL ORDER
+TUINBOOKS V2 — CANONICAL DATABASE INSTALL ORDER
 
 Run against QA/staging Supabase first. Stop immediately on any SQL error.
+The application is NOT release-ready unless every REQUIRED step below is installed.
 
+BASE CONTRACT — REQUIRED
 1. migration-v2-schedule-mutations.sql
 2. migration-v2-recurrence-authority.sql
 3. migration-v2-operational-states.sql
@@ -11,18 +13,21 @@ Run against QA/staging Supabase first. Stop immediately on any SQL error.
 7. migration-v2-business-import-management.sql
 8. migration-v2-release-completion.sql
 
-For convenience, INSTALL-V2-CORE.sql contains these eight files concatenated in this exact order.
+CURRENT RELEASE CONTRACT — ALSO REQUIRED
+9. APPLY-R12-MISSED-VISIT-RESOLUTION.sql
+10. APPLY-R13-GROUP-DRAG.sql
+11. APPLY-R14-VISIT-DETAIL.sql
+12. APPLY-R24-MINI-STRESS-BLOCKERS.sql
+13. APPLY-R25-SCHEDULE-BASKET.sql
 
-NOT AUTOMATIC / REVIEW BEFORE RUNNING:
+The old statement that INSTALL-V2-CORE.sql alone represents the entire current database contract is no longer valid. It contains the eight base migrations only. A deployment must apply the five current-release migrations above as well, in order.
+
+This distinction is important: application source and database RPCs must move together. Do not deploy a new frontend against a database that has only part of this list installed.
+
+NOT AUTOMATIC / REVIEW BEFORE RUNNING
 - migration-v2-optional-adopt-legacy-recurrence.sql
-  This is the conservative bridge for adopting simple legacy recurrence into the v2 series model.
-  Keep it separate from the default installer so a deployment cannot silently rewrite legacy recurrence.
-R12: APPLY-R12-MISSED-VISIT-RESOLUTION.sql — restores three-way missed-visit resolution in Schedule.
+  This is the conservative bridge for adopting simple legacy recurrence into the v2 series model. Keep it separate so deployment cannot silently rewrite legacy recurrence.
 
-R13: APPLY-R13-GROUP-DRAG.sql — atomic multi-select calendar moves and group moves to Basket.
-
-R14: APPLY-R14-VISIT-DETAIL.sql — Schedule card detail restores service/task names, site instructions and simplified actions.
-
-R17: APPLY-R17-AUDIT-LOG.sql — admin-only reader for the existing audit_events history shown in Settings → Recent activity.
-
-R24: APPLY-R24-MINI-STRESS-BLOCKERS.sql — required hotfix after the 7 Sep mini stress checkpoint; support read/edit authority, quote persistence, business contact persistence and activity-log bridge.
+NOT REQUIRED BY CURRENT SETTINGS
+- APPLY-R17-AUDIT-LOG.sql
+  Recent activity has been removed from Settings. The audit_events table remains part of internal system history, but the R17 Settings reader is no longer a release dependency.
