@@ -1,0 +1,11 @@
+TUINBOOKS R20 — MANAGEMENT PATH HOTFIX
+
+This is a source overlay on top of R19.
+Do NOT replace the repository with only this patch.
+Overlay the files from the R20 PATCH ZIP into the existing R19 repository, preserving folders.
+
+Fix: /management now loads CSS/JS correctly even when Render serves the URL without a trailing slash.
+No Schedule, Clients, Work, Billing, Settings or Business-control logic is changed by R20.
+
+Expected Render build line:
+TUINBOOKS UI-RESTORED RELEASE R20: Management asset routing fixed for /management; R19 office UI preserved.

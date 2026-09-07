@@ -811,7 +811,7 @@ window.__TUINBOOKS_MANAGEMENT_BUILD='59.6.88-stable-client-open-restore';
     const row=Array.isArray(data)?data[0]:data;
     if (!row?.session_id) { $('sessionMessage').textContent='The server did not return a support session.'; return; }
     try { sessionStorage.setItem('tuinbooks_management_return','/management/'); } catch (_) {}
-    window.location.href=`../app/index.html?support=1&business=${encodeURIComponent(state.currentAccountId)}&session=${encodeURIComponent(row.session_id)}&v=59.3.19&cb=${Date.now()}`;
+    window.location.href=`/app/index.html?support=1&business=${encodeURIComponent(state.currentAccountId)}&session=${encodeURIComponent(row.session_id)}&v=59.3.19&cb=${Date.now()}`;
   }
 
 
@@ -847,7 +847,7 @@ window.__TUINBOOKS_MANAGEMENT_BUILD='59.6.88-stable-client-open-restore';
       return;
     }
     try { sessionStorage.setItem('tuinbooks_management_return','/management/'); } catch (_) {}
-    window.location.href=`../app/index.html?support=1&business=${encodeURIComponent(state.currentAccountId)}&session=${encodeURIComponent(row.session_id)}&v=59.3.19&cb=${Date.now()}`;
+    window.location.href=`/app/index.html?support=1&business=${encodeURIComponent(state.currentAccountId)}&session=${encodeURIComponent(row.session_id)}&v=59.3.19&cb=${Date.now()}`;
   }
 
 

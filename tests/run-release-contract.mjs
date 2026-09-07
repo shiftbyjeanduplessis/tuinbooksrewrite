@@ -334,6 +334,23 @@ console.log('TUINBOOKS R18 ACTIVE-OFFICE RECOVERY CONTRACT: PASS');
   has(businessControl,"signature===lastRenderSignature",'Business control must not destructively rerender unchanged content');
   has(businessControl,"render(false)",'Business control background refresh must preserve open detail state');
   has(serviceWorker,"const VERSION='R19-business-control-repair'",'R19 service-worker cache must invalidate R18 UI assets');
-  has(buildScript,'TUINBOOKS UI-RESTORED RELEASE R19','Render build must prove R19 packaging');
+  has(buildScript,"cp('original-ui/app', 'dist/app'",'R19/R20 build must preserve the full established office UI');
 }
 console.log('TUINBOOKS R19 SETTINGS/BUSINESS-CONTROL CONTRACT: PASS');
+
+
+// R20: Management must work when Render serves the document at /management without a trailing slash.
+{
+  const [managementHtml,managementJs,buildScript]=await Promise.all([
+    read('original-ui/management/index.html'),read('original-ui/management/management.js'),read('scripts/build-release-ui-restored.mjs')
+  ]);
+  has(managementHtml,'href="/management/management.css?v=R20-management-path-fix"','R20 Management CSS must use an absolute /management path');
+  has(managementHtml,'src="/management/management.js?v=R20-management-path-fix"','R20 Management JS must use an absolute /management path');
+  has(managementHtml,'src="/app/supabase-config.js"','R20 Management Supabase config must use an absolute /app path');
+  has(managementHtml,'src="/app/vendor/supabase.js"','R20 Management Supabase browser client must use an absolute /app path');
+  has(managementHtml,'href="/app/"','R20 Management brand return must not depend on document trailing-slash semantics');
+  has(managementJs,'window.location.href=`/app/index.html?support=1&business=','R20 support-session handoff must use an absolute /app URL');
+  not(managementJs,'window.location.href=`../app/index.html?support=1&business=','R20 must remove trailing-slash-sensitive Management handoff URLs');
+  has(buildScript,'TUINBOOKS UI-RESTORED RELEASE R20','Render build must prove R20 packaging');
+}
+console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');
