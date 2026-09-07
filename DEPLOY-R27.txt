@@ -1,0 +1,65 @@
+TUINBOOKS R27 — LEGACY OFFICE UI RESTORATION
+=============================================
+
+BASE
+----
+Apply this MINIMAL overlay on top of the CURRENT R26 frontend.
+
+NO SQL IS REQUIRED FOR R27.
+The R24 + R25 database repair already applied remains correct.
+
+WHAT R27 RESTORES
+-----------------
+WORK
+- Restores the legacy information hierarchy: Today & recent / Needs Review / All Work.
+- Replaces oversized separate team cards with compact team progress meters and grouped route sections.
+- Keeps current rewrite Support authority, opportunities, Do Not Service, photos and v2 data.
+
+CLIENTS
+- Restores the legacy summary + compact split list/detail workspace.
+- Adds Active clients / Service locations / Routine agreements / Paused clients summary.
+- Client list again prioritises client name + property/location context.
+
+QUOTES
+- Restores Open / Accepted / Declined / All status tabs.
+- Adds compact quote summary metrics.
+- Keeps current quote save, email/WhatsApp, acceptance and Basket workflows.
+
+BILLING
+- Restores the legacy tab hierarchy and compact financial rows.
+- Keeps Billing review, invoices, payments and statements.
+- Adds the old-style Create statement heading action while retaining Quick invoice.
+
+BUSINESS
+- Restores Overview / Monthly Review hierarchy.
+- Monthly Review regains previous/current/next month controls.
+- Metrics and attention panels use the flatter legacy TuinBooks presentation.
+
+SETTINGS
+- Restores Business setup wording and sticky quick navigation.
+- Business details / Billing defaults / Teams / Services / Mobile access / Recent activity are directly jumpable.
+- Keeps R24 durable settings, PINs, audit log and Import / Export.
+
+SCHEDULE
+- Not redesigned in R27. R26 seamless Schedule sync, R25 Basket persistence/multi-select, and R23 card polish are preserved unchanged.
+
+DEPLOY
+------
+1. Overlay this package onto the CURRENT R26 repository root.
+2. Run: npm run check
+3. Commit / push and deploy to Render.
+4. Hard refresh the browser after Render finishes.
+
+EXPECTED BUILD PROOF
+--------------------
+TUINBOOKS RELEASE R27: legacy TuinBooks visual hierarchy restored across Work, Clients, Quotes, Billing, Business and Settings; R26 seamless Schedule sync, R25 Basket persistence/multi-select, R24 blockers and R23 Schedule polish preserved; legacy app engine inactive.
+
+FAST VISUAL QA AFTER DEPLOY
+---------------------------
+Work: compact progress meters + compact grouped routes; no giant team-card dashboard.
+Clients: summary row + split list/detail.
+Quotes: Open / Accepted / Declined / All tabs.
+Billing: compact summary + section tabs.
+Business: Overview / Monthly Review with month controls.
+Settings: sticky quick-nav and compact flat sections.
+Schedule: confirm R26 Basket drop still remains seamless.

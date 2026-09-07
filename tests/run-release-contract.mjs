@@ -336,7 +336,7 @@ console.log('TUINBOOKS R22 TYPOGRAPHY CONTRACT: PASS');
   has(styles,'transition-delay:.28s','R23 quick info must wait briefly so moving across cards does not create popup flicker');
   has(styles,'.calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}','R23 quick info must stay out of rearrange mode');
   has(buildScript,'R23 Schedule polish preserved','R24 build must explicitly preserve the R23 card-hover cleanup');
-  has(pkg,'2.0.0-parity-r26','R26 package must carry the preserved R23 Schedule behavior');
+  has(pkg,'2.0.0-parity-r27','R27 package must carry the preserved R23 Schedule behavior');
 }
 console.log('TUINBOOKS R23 CARD-HOVER INFO CONTRACT: PASS');
 
@@ -383,8 +383,8 @@ console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');
   has(sql,'tuinbooks_v2_list_audit_log_r17','R24 SQL must install the Recent activity bridge');
   has(sql,'tuinbooks_v2_financials_enabled','R24 SQL must install the Planning-only financial write guard');
   has(sql,"Billing is disabled in Planning-only mode",'R24 SQL must reject financial writes when the business is Planning-only');
-  has(buildScript,'TUINBOOKS RELEASE R26','Render build proof must identify R26');
-  has(pkg,'2.0.0-parity-r26','Package version must identify R26');
+  has(buildScript,'TUINBOOKS RELEASE R27','Render build proof must identify current R27');
+  has(pkg,'2.0.0-parity-r27','Package version must identify R27');
 }
 console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');
 
@@ -417,7 +417,28 @@ console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');
   has(schedulePage,'async function syncWeekSilently()','R26 must provide a non-blanking authoritative Schedule sync');
   has(schedulePage,'if(saved&&!identity.demo)await syncWeekSilently();','R26 Basket placement must verify persisted state without using the loading-state fetch path');
   not(schedulePage,'if(saved&&!identity.demo)await fetchWeek();','R26 automatic post-save Schedule sync must not blank the calendar');
-  has(buildScript,'TUINBOOKS RELEASE R26','R26 build proof must identify the seamless Schedule sync release');
-  has(pkg,'2.0.0-parity-r26','Package version must identify R26');
+  has(buildScript,'R26 seamless Schedule sync','R27 build proof must explicitly preserve the R26 seamless Schedule sync');
+  has(pkg,'2.0.0-parity-r27','Package version must identify R27');
 }
 console.log('TUINBOOKS R26 SEAMLESS SCHEDULE-SYNC CONTRACT: PASS');
+
+// R27 office UI restoration: all rewrite pages keep the legacy TuinBooks information hierarchy.
+{
+  const [work,clients,money,businessOverview,businessSettings,styles]=await Promise.all([
+    read('src/features/work/workPage.ts'),read('src/features/clients/clientsPage.ts'),read('src/features/billing/moneyPage.ts'),read('src/features/business/businessOverviewPage.ts'),read('src/features/business/businessPage.ts'),read('src/styles.css')
+  ]);
+  for(const label of ['Today &amp; recent','Needs Review','All Work'])has(work,label,`R27 Work legacy section missing: ${label}`);
+  has(work,'work-team-progress-r27','R27 Work must restore compact team progress meters');
+  has(work,'work-team-section-r27','R27 Work must restore compact grouped team routes instead of giant team cards');
+  has(clients,'client-summary-r27','R27 Clients must restore summary metrics above the split workspace');
+  has(clients,'split-layout-r27','R27 Clients must preserve the compact list/detail split');
+  for(const label of ['Open','Accepted','Declined','All'])has(money,label,`R27 Quotes status section missing: ${label}`);
+  has(money,'billing-tabs-r27','R27 Billing must use the legacy section-tab hierarchy');
+  has(businessOverview,'Monthly Review','R27 Business must retain Monthly Review');
+  has(businessOverview,'businessMonth','R27 Monthly Review must restore month navigation controls');
+  has(businessSettings,'settings-quick-nav-r27','R27 Settings must restore the quick section navigation');
+  has(styles,'R27 — LEGACY OFFICE PAGE RESTORATION','R27 office restoration styles must be active');
+  not(work,'work-team-grid','R27 Work must not return to the oversized team-card grid');
+}
+console.log('TUINBOOKS R27 OFFICE UI RESTORATION CONTRACT: PASS');
+
