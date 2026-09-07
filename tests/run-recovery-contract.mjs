@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const read=p=>readFile(p,'utf8');
-const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,dbBuilder,mobile]=await Promise.all([
+const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,dbBuilder,mobile,r31Auth,r31Finance]=await Promise.all([
   read('src/features/business/businessPage.ts'),
   read('src/features/business/businessRepository.ts'),
   read('src/features/business/businessOverviewPage.ts'),
@@ -11,6 +11,8 @@ const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,d
   read('supabase/APPLY-ORDER.txt'),
   read('scripts/build-current-database-installer.mjs'),
   read('src/mobileApp.ts'),
+  read('supabase/APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql'),
+  read('supabase/APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql'),
 ]);
 let checks=0;
 const has=(s,v,label)=>{assert.ok(s.includes(v),label);checks++;};
@@ -45,9 +47,23 @@ for(const marker of [
   'tuinbooks_v2_financials_enabled',
 ])has(moneySql,marker,`Canonical finance migration missing ${marker}`);
 not(moneySql,'source_visit_id text not null,\n invoice_id text not null','Invoice visit authority must not invent a competing source_visit_id schema');
-has(applyOrder,'[RE-RUN — final finance authority]','Install order must explicitly restore final finance authority after R24');
+
+has(applyOrder,'[RE-RUN — final R27 finance authority]','Install order must explicitly restore final R27 finance authority after R24');
 has(applyOrder,'APPLY-R25-SCHEDULE-BASKET.sql','Current install order must include durable R25 Basket RPCs');
-has(dbBuilder,"'migration-v2-money-quotes.sql',\n  'APPLY-R25-SCHEDULE-BASKET.sql'",'Generated current installer must end with final finance authority then R25');
+has(applyOrder,'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql','Install order must finish the PIN/public-document repair');
+has(applyOrder,'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql','Install order must preserve repaired live R30 finance when present');
+has(dbBuilder,"'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql'",'Generated installer must include R31 PIN/public-document authority');
+has(dbBuilder,"'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql'",'Generated installer must include conditional R30 repair authority');
+
+has(r31Auth,'on conflict on constraint mobile_team_pins_v2_pkey','PIN generation must use an unambiguous conflict target');
+not(r31Auth,'on conflict(business_id,team_id)','R31 PIN generation must not reintroduce the ambiguous team_id target');
+has(r31Auth,'extensions.gen_random_bytes','Public document tokens must use Supabase pgcrypto schema explicitly');
+has(r31Auth,'extensions.digest','Public document hashing must use Supabase pgcrypto schema explicitly');
+has(r31Finance,'v_qp record','R30 prepayment reconciler must not collide with the quote-payments table alias');
+not(r31Finance,'declare qp record','R30 must not reintroduce the unassigned qp record collision');
+has(r31Finance,"c.payload->>'monthlyFee'",'R30 repair must understand imported legacy monthly fees');
+has(r31Finance,"lower(j.status)='cancelled'",'R30 repair must count chargeable routine cancellations as billable occurrences');
+
 has(mobile,'signInAnonymously','Field PIN pairing must create a mobile browser auth session');
 has(mobile,'tuinbooks_v2_claim_field_pin','Field PIN pairing must claim against permanent PIN authority');
 
