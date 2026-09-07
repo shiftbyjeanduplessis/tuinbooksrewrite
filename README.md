@@ -8,6 +8,6 @@ R14 restores useful visit detail to Schedule card clicks while keeping the clean
 3. Commit and push.
 4. Render build proof line must be:
 
-`TUINBOOKS UI-RESTORED RELEASE R14: visit work detail restored + simplified administrative actions published to /management/ + /app/.`
+`TUINBOOKS UI-RESTORED RELEASE R17: parity candidate + admin audit history reader published to /management/ + /app/.`
 
 Do not run the optional legacy recurrence-adoption migration as part of this release.

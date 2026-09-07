@@ -7,4 +7,4 @@ Then replace the contents of the local `tuinbooksrewrite` repository with the co
 Suggested commit summary: `Restore visit work details`
 
 Render proof line:
-`TUINBOOKS UI-RESTORED RELEASE R14: visit work detail restored + simplified administrative actions published to /management/ + /app/.`
+`TUINBOOKS UI-RESTORED RELEASE R17: parity candidate + admin audit history reader published to /management/ + /app/.`

@@ -22,3 +22,5 @@ R12: APPLY-R12-MISSED-VISIT-RESOLUTION.sql — restores three-way missed-visit r
 R13: APPLY-R13-GROUP-DRAG.sql — atomic multi-select calendar moves and group moves to Basket.
 
 R14: APPLY-R14-VISIT-DETAIL.sql — Schedule card detail restores service/task names, site instructions and simplified actions.
+
+R17: APPLY-R17-AUDIT-LOG.sql — admin-only reader for the existing audit_events history shown in Settings → Recent activity.

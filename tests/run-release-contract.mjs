@@ -117,8 +117,8 @@ console.log(`TUINBOOKS SCHEDULE USABILITY CONTRACT: PASS`);
   has(calendar,'visit-location','Street address must remain visible on visit cards');
   has(calendar,'ID ${esc(shortId(visit.id))}','Visible drag ID must remain');
   has(calendar,'visitDoNotService(visit)','Calendar must render visit-specific DO NOT SERVICE');
-  has(visitDialog,'DO NOT SERVICE — THIS VISIT','Visit dialog must distinguish visit-level DNS');
-  has(visitDialog,'DO NOT SERVICE — CLIENT','Visit dialog must preserve client-level DNS separately');
+  has(visitDialog,'Do not service is active for this visit','Visit dialog must distinguish visit-level DNS');
+  has(visitDialog,'Do not service is active for this client','Visit dialog must preserve client-level DNS separately');
   has(visitDialog,'onVisitDoNotService','Visit-specific DNS must be durable, not visual-only');
   has(schedulePage,'persistVisitDoNotService','Schedule must persist visit-specific DNS');
   has(operations,'setVisitDoNotServiceOptimistically','Visit DNS must use optimistic state with rollback');
@@ -250,7 +250,7 @@ console.log('TUINBOOKS R13 MULTI-SELECT/ONE-ACTION CONTRACT: PASS');
   has(visitDialog,'Site instructions','R14 visit detail must show site instructions when present');
   has(visitDialog,'Access','R14 visit detail must show access notes when present');
   has(visitDialog,'Routine notes','R14 visit detail must preserve agreement-specific notes');
-  has(visitDialog,'tasksForVisitDetail','R14 must derive visit-specific task labels');
+  has(visitDialog,'workItemsForVisitDetail','R14/R16 must derive visit-specific service and task detail');
   has(visitDialog,'data-op="dns-choice"','Do not service must be one simple top-level action that then asks scope');
   has(visitDialog,'data-op="cancel-choice"','Cancel must be one simple top-level action that then asks billing choice');
   not(visitDialog,'<b>Suspend visit</b>','Suspend must not compete in the primary visit action menu');
@@ -264,14 +264,34 @@ console.log('TUINBOOKS R13 MULTI-SELECT/ONE-ACTION CONTRACT: PASS');
 }
 console.log('TUINBOOKS R14 VISIT-DETAIL CONTRACT: PASS');
 
-// R15 Schedule: active Do Not Service states are directly reversible.
+// R16 Schedule: Do Not Service is a literal reversible state, and visit work uses the original icon language.
 {
   const [visitDialog,styles]=await Promise.all([read('src/features/schedule/visitActionDialog.ts'),read('src/styles.css')]);
-  has(visitDialog,'Allow this visit again','R15 active visit DNS must expose a direct clear action');
-  has(visitDialog,'Clear client DNS','R15 active client DNS must expose a direct clear action');
-  has(visitDialog,"onVisitDoNotService(visit.id,false",'R15 visit DNS clear must persist active=false');
-  has(visitDialog,"onClientHold(visit.accountId,false",'R15 client DNS clear must persist active=false');
-  has(styles,'R15 — DNS must be visibly reversible','R15 reversible DNS styles must be active');
+  has(visitDialog,'Service normally','R16 must expose the normal-service state beside Do not service');
+  has(visitDialog,'data-op="service-normal"','R16 normal service must be a real control, not explanatory copy');
+  has(visitDialog,"onVisitDoNotService(visit.id,false",'R16 normal service must clear visit-level DNS');
+  has(visitDialog,"onClientHold(visit.accountId,false",'R16 normal service must clear client-level DNS affecting the visit');
+  has(visitDialog,'visit-service-chip-r16','R16 visit work must render compact service chips');
+  has(visitDialog,'serviceIcon(','R16 service display must choose distinct icons by service');
+  has(visitDialog,'workIconSvg(','R16 must render the original-style visual service language');
+  not(visitDialog,'visit-task-r14','R16 must not render generic tick-circle task tiles');
+  has(styles,'R16 — literal service/DNS toggle + original-style service icon language','R16 styles must be active');
 }
-console.log('TUINBOOKS R15 REVERSIBLE-DNS CONTRACT: PASS');
+console.log('TUINBOOKS R16 SERVICE-DETAIL/DNS-TOGGLE CONTRACT: PASS');
 
+
+
+// R17 parity audit: Sunday remains supported and the existing audit_events history is office-readable.
+{
+  const [clientDialogs,businessPage,businessRepository,sql,styles]=await Promise.all([
+    read('src/features/clients/clientDialogs.ts'),read('src/features/business/businessPage.ts'),read('src/features/business/businessRepository.ts'),read('supabase/APPLY-R17-AUDIT-LOG.sql'),read('src/styles.css')
+  ]);
+  has(clientDialogs,"['Sun',7]",'R17 must preserve Sunday as a real routine service day');
+  has(businessPage,'Recent activity','R17 Settings must expose recent audit activity');
+  has(businessPage,'auditAvailable','R17 audit UI must fail gracefully before the SQL bridge is installed');
+  has(businessRepository,'tuinbooks_v2_list_audit_log_r17','R17 must read audit history through the admin RPC');
+  has(sql,'from public.audit_events a','R17 SQL must read the established audit_events history');
+  has(sql,'public.is_business_admin(p_business_id)','R17 audit reader must be restricted to business admins/support authority');
+  has(styles,'R17 — admin-visible audit/activity history','R17 audit history styles must be active');
+}
+console.log('TUINBOOKS R17 PARITY/AUDIT-LOG CONTRACT: PASS');
