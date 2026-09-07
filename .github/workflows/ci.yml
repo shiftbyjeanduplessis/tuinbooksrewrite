@@ -24,3 +24,11 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Run TuinBooks release checks
         run: npm run check
+      - name: Publish canonical database installer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuinbooks-current-database-installer
+          path: supabase/INSTALL-CURRENT.sql
+          if-no-files-found: ignore
+          retention-days: 7
