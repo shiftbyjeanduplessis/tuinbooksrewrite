@@ -63,7 +63,7 @@ export function openVisitActionDialog(
         <button type="button" data-op="service-normal" class="${anyDns?'':'active'}">${workIconSvg('check')}<span><b>Service normally</b><small>${anyDns?'Clear Do not service and allow this visit':'This visit will be serviced as planned'}</small></span></button>
         <button type="button" data-op="dns-choice" class="${anyDns?'active dns':'dns'}">${workIconSvg('blocked')}<span><b>Do not service</b><small>${anyDns?dnsSummary(visitDns.active,Boolean(hold)):'Block this visit or the entire client'}</small></span></button>
       </div>
-      ${anyDns?`<div class="service-status-current-r16 ${hold?'client-wide':''}"><strong>${hold?'Do not service is active for this client': 'Do not service is active for this visit'}</strong><span>${esc([visitDns.reason,visitDns.note,hold?.reason,hold?.note].filter(Boolean).join(' · '))}</span></div>`:''}
+      ${anyDns?`<div class="service-status-current-r16 ${hold?'client-wide':''}"><strong>${hold?'Do not service is active for this client':'Do not service is active for this visit'}</strong><span>${esc([visitDns.reason,visitDns.note,hold?.reason,hold?.note].filter(Boolean).join(' · '))}</span></div>`:''}
     </section>`:''}
 
     ${status==='missed'?`<section class="dialog-section missed-resolution-section">
@@ -76,11 +76,17 @@ export function openVisitActionDialog(
     </section>`:`<section class="dialog-section visit-actions-r14">
       <div class="dialog-section-title"><strong>Visit administration</strong><span>Secondary controls</span></div>
       <div class="operation-grid compact-operation-grid primary-actions-r14">
-        ${status==='scheduled'?`<button type="button" data-op="cancel-choice"><b>Cancel visit</b><span>Choose charge or no charge</span></button>`:''}
+        ${status==='scheduled'?`<button type="button" data-op="mark-missed"><b>Mark missed</b><span>Visit was not completed</span></button><button type="button" data-op="cancel-choice"><b>Cancel visit</b><span>Choose charge or no charge</span></button>`:''}
         ${status==='suspended'?`<button type="button" data-op="resume"><b>Resume visit</b><span>Return this occurrence to scheduled</span></button>`:''}
         ${status==='cancelled'?`<button type="button" data-op="undo-cancel"><b>Undo cancellation</b><span>Restore this visit</span></button>`:''}
       </div>
     </section>`}
+
+    <section class="operation-fields hidden" data-mark-missed-panel>
+      <div class="dialog-section-title"><strong>Mark this visit missed</strong><span>The visit stays in history and can then be resolved or rescheduled</span></div>
+      <label>Reason / note<textarea data-missed-reason rows="3" placeholder="Optional reason the visit was missed"></textarea></label>
+      <div class="dialog-actions"><button type="button" class="secondary-button" data-mark-missed-back>Back</button><button type="button" class="primary-button" data-mark-missed-save>Mark missed</button></div>
+    </section>
 
     <section class="operation-fields hidden" data-cancel-choice-panel>
       <div class="dialog-section-title"><strong>Cancel this visit</strong><span>Future recurrence is unchanged</span></div>
@@ -108,13 +114,14 @@ export function openVisitActionDialog(
   d.querySelectorAll<HTMLElement>('[data-close]').forEach(b=>b.onclick=close);
   d.addEventListener('close',()=>d.remove(),{once:true});
   const mainSections=Array.from(d.querySelectorAll<HTMLElement>('.dialog-section'));
+  const markMissedPanel=d.querySelector<HTMLElement>('[data-mark-missed-panel]')!;
   const cancelChoicePanel=d.querySelector<HTMLElement>('[data-cancel-choice-panel]')!;
   const dnsChoicePanel=d.querySelector<HTMLElement>('[data-dns-choice-panel]')!;
   const missedResolutionPanel=d.querySelector<HTMLElement>('[data-missed-resolution-panel]')!;
   const reschedulePanel=d.querySelector<HTMLElement>('[data-reschedule-panel]')!;
   const dnsPanel=d.querySelector<HTMLElement>('[data-dns-panel]')!;
   const holdPanel=d.querySelector<HTMLElement>('[data-hold-panel]')!;
-  const panels=[cancelChoicePanel,dnsChoicePanel,missedResolutionPanel,reschedulePanel,dnsPanel,holdPanel];
+  const panels=[markMissedPanel,cancelChoicePanel,dnsChoicePanel,missedResolutionPanel,reschedulePanel,dnsPanel,holdPanel];
   let pending:''|'missed-complete'|'missed-no-return'='';
 
   const showPanel=(panel:HTMLElement)=>{mainSections.forEach(s=>s.classList.add('hidden'));panels.forEach(p=>p.classList.add('hidden'));panel.classList.remove('hidden');};
@@ -122,6 +129,7 @@ export function openVisitActionDialog(
 
   d.querySelectorAll<HTMLButtonElement>('[data-op]').forEach(button=>button.onclick=()=>{
     const op=button.dataset.op||'';
+    if(op==='mark-missed'){showPanel(markMissedPanel);return;}
     if(op==='cancel-choice'){showPanel(cancelChoicePanel);return;}
     if(op==='dns-choice'){showPanel(dnsChoicePanel);return;}
     if(op==='service-normal'){
@@ -141,6 +149,8 @@ export function openVisitActionDialog(
     if(op==='hold'){showPanel(holdPanel);return;}
   });
 
+  d.querySelector<HTMLButtonElement>('[data-mark-missed-back]')!.onclick=showSections;
+  d.querySelector<HTMLButtonElement>('[data-mark-missed-save]')!.onclick=()=>{const reason=(d.querySelector<HTMLTextAreaElement>('[data-missed-reason]')!.value||'').trim();void callbacks.onMissed(visit.id,reason).then(close);};
   d.querySelector<HTMLButtonElement>('[data-cancel-choice-back]')!.onclick=showSections;
   d.querySelector<HTMLButtonElement>('[data-dns-choice-back]')!.onclick=showSections;
   d.querySelector<HTMLButtonElement>('[data-missed-resolution-cancel]')!.onclick=showSections;
@@ -216,4 +226,4 @@ function workIconSvg(name:string):string{
 }
 function dnsSummary(visitActive:boolean,clientActive:boolean):string{if(visitActive&&clientActive)return'Visit and client warnings active';if(clientActive)return'Client-wide warning active';return'This visit is blocked';}
 function statusLabel(status:string):string{if(status==='scheduled')return 'Scheduled';if(status==='missed')return 'Missed';if(status==='suspended')return 'Suspended';if(status==='cancelled')return 'Cancelled';if(status==='completed')return 'Completed';if(status==='rescheduled')return 'Rescheduled';return status||'Visit';}
-function esc(v:string):string{return String(v).replace(/[&<>'"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]??ch));}
+function esc(v:string):string{return String(v).replace(/[&<>'\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch]??ch));}

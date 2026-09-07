@@ -1,0 +1,34 @@
+name: TuinBooks CI
+
+on:
+  push:
+    branches:
+      - main
+      - restore-old-settings
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run TuinBooks release checks
+        run: npm run check
+      - name: Publish canonical database installer
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tuinbooks-current-database-installer
+          path: supabase/INSTALL-CURRENT.sql
+          if-no-files-found: ignore
+          retention-days: 7
