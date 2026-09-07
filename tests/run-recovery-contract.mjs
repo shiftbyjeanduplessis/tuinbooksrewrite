@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 const read=p=>readFile(p,'utf8');
-const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,dbBuilder,mobile,r31Auth,r31Finance]=await Promise.all([
+const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,dbBuilder,mobile,r31Auth,r31Finance,r31BillingRead]=await Promise.all([
   read('src/features/business/businessPage.ts'),
   read('src/features/business/businessRepository.ts'),
   read('src/features/business/businessOverviewPage.ts'),
@@ -13,6 +13,7 @@ const [settings,settingsRepo,business,calendar,visitDialog,moneySql,applyOrder,d
   read('src/mobileApp.ts'),
   read('supabase/APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql'),
   read('supabase/APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql'),
+  read('supabase/APPLY-R31-LIVE-R30-BILLING-READ.sql'),
 ]);
 let checks=0;
 const has=(s,v,label)=>{assert.ok(s.includes(v),label);checks++;};
@@ -52,8 +53,10 @@ has(applyOrder,'[RE-RUN — final R27 finance authority]','Install order must ex
 has(applyOrder,'APPLY-R25-SCHEDULE-BASKET.sql','Current install order must include durable R25 Basket RPCs');
 has(applyOrder,'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql','Install order must finish the PIN/public-document repair');
 has(applyOrder,'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql','Install order must preserve repaired live R30 finance when present');
+has(applyOrder,'APPLY-R31-LIVE-R30-BILLING-READ.sql','Install order must preserve repaired live R30 Billing review when present');
 has(dbBuilder,"'APPLY-R31-RECOVERY-AUTH-DOCUMENTS.sql'",'Generated installer must include R31 PIN/public-document authority');
 has(dbBuilder,"'APPLY-R31-LIVE-R30-FINANCE-REPAIR.sql'",'Generated installer must include conditional R30 repair authority');
+has(dbBuilder,"'APPLY-R31-LIVE-R30-BILLING-READ.sql'",'Generated installer must include conditional R30 Billing read authority');
 
 has(r31Auth,'on conflict on constraint mobile_team_pins_v2_pkey','PIN generation must use an unambiguous conflict target');
 not(r31Auth,'on conflict(business_id,team_id)','R31 PIN generation must not reintroduce the ambiguous team_id target');
@@ -63,6 +66,10 @@ has(r31Finance,'v_qp record','R30 prepayment reconciler must not collide with th
 not(r31Finance,'declare qp record','R30 must not reintroduce the unassigned qp record collision');
 has(r31Finance,"c.payload->>'monthlyFee'",'R30 repair must understand imported legacy monthly fees');
 has(r31Finance,"lower(j.status)='cancelled'",'R30 repair must count chargeable routine cancellations as billable occurrences');
+has(r31BillingRead,"'routine_monthly_fee'",'R30 Billing review must expose routine monthly fee');
+has(r31BillingRead,"c.payload->>'monthlyFee'",'R30 Billing review must understand imported legacy monthly fees');
+has(r31BillingRead,"'billing_disposition'",'R30 Billing review must retain explicit charge/no-charge state');
+has(r31BillingRead,"lower(e.status)='cancelled'",'R30 Billing review count must include chargeable routine cancellations');
 
 has(mobile,'signInAnonymously','Field PIN pairing must create a mobile browser auth session');
 has(mobile,'tuinbooks_v2_claim_field_pin','Field PIN pairing must claim against permanent PIN authority');
