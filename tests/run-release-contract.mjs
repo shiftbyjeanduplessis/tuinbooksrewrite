@@ -336,7 +336,7 @@ console.log('TUINBOOKS R22 TYPOGRAPHY CONTRACT: PASS');
   has(styles,'transition-delay:.28s','R23 quick info must wait briefly so moving across cards does not create popup flicker');
   has(styles,'.calendar-grid.drag-mode-active .visit-card>.visit-hover-card{display:none!important}','R23 quick info must stay out of rearrange mode');
   has(buildScript,'R23 Schedule polish preserved','R24 build must explicitly preserve the R23 card-hover cleanup');
-  has(pkg,'2.0.0-parity-r25','R25 package must carry the preserved R23 Schedule behavior');
+  has(pkg,'2.0.0-parity-r26','R26 package must carry the preserved R23 Schedule behavior');
 }
 console.log('TUINBOOKS R23 CARD-HOVER INFO CONTRACT: PASS');
 
@@ -383,8 +383,8 @@ console.log('TUINBOOKS R20 MANAGEMENT PATH CONTRACT: PASS');
   has(sql,'tuinbooks_v2_list_audit_log_r17','R24 SQL must install the Recent activity bridge');
   has(sql,'tuinbooks_v2_financials_enabled','R24 SQL must install the Planning-only financial write guard');
   has(sql,"Billing is disabled in Planning-only mode",'R24 SQL must reject financial writes when the business is Planning-only');
-  has(buildScript,'TUINBOOKS RELEASE R25','Render build proof must identify R25');
-  has(pkg,'2.0.0-parity-r25','Package version must identify R25');
+  has(buildScript,'TUINBOOKS RELEASE R26','Render build proof must identify R26');
+  has(pkg,'2.0.0-parity-r26','Package version must identify R26');
 }
 console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');
 
@@ -414,8 +414,10 @@ console.log('TUINBOOKS R24 MINI-STRESS BLOCKER CONTRACT: PASS');
   has(sql,'tuinbooks_v2_schedule_queue_items_group_r25','R25 SQL must define atomic multi-Basket placement');
   has(sql,"'v2QueueItemId',p_queue_item_id",'R25 queue placement must tag restored visits for retry idempotence');
   has(sql,"lower(coalesce(v_item.status,'open'))<>'open'",'R25 must guard duplicate Basket placement retries');
-  has(schedulePage,'if(saved&&!identity.demo)await fetchWeek();','R25 Basket placement must immediately verify authoritative persisted state');
-  has(buildScript,'TUINBOOKS RELEASE R25','R25 build proof must identify the Schedule Basket release');
-  has(pkg,'2.0.0-parity-r25','Package version must identify R25');
+  has(schedulePage,'async function syncWeekSilently()','R26 must provide a non-blanking authoritative Schedule sync');
+  has(schedulePage,'if(saved&&!identity.demo)await syncWeekSilently();','R26 Basket placement must verify persisted state without using the loading-state fetch path');
+  not(schedulePage,'if(saved&&!identity.demo)await fetchWeek();','R26 automatic post-save Schedule sync must not blank the calendar');
+  has(buildScript,'TUINBOOKS RELEASE R26','R26 build proof must identify the seamless Schedule sync release');
+  has(pkg,'2.0.0-parity-r26','Package version must identify R26');
 }
-console.log('TUINBOOKS R25 SCHEDULE-BASKET CONTRACT: PASS');
+console.log('TUINBOOKS R26 SEAMLESS SCHEDULE-SYNC CONTRACT: PASS');

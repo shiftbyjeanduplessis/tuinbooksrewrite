@@ -37,4 +37,4 @@ await mkdir('dist/app/vendor', { recursive: true });
 await copyFile('original-ui/app/vendor/supabase.js', 'dist/app/vendor/supabase.js');
 
 await writeFile('dist/index.html', `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="0;url=/app/"><title>TuinBooks</title></head><body><p><a href="/app/">Open TuinBooks</a></p></body></html>\n`);
-console.log('TUINBOOKS RELEASE R25: Schedule Basket is Rearrange-only; Basket placement persists under Support authority; multi-select Basket placement added; R24 blockers and R23 Schedule polish preserved; legacy app engine inactive.');
+console.log('TUINBOOKS RELEASE R26: Schedule mutations now re-sync silently without blanking the calendar; R25 Basket persistence/multi-select, R24 blockers and R23 Schedule polish preserved; legacy app engine inactive.');

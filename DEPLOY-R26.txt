@@ -1,0 +1,47 @@
+TUINBOOKS R26 — SEAMLESS SCHEDULE SYNC
+
+Apply this overlay on top of the CURRENT R25 frontend.
+
+NO SQL IS REQUIRED FOR R26.
+The R24 + R25 database repair you already applied remains correct.
+
+FIX
+---
+R25 correctly persisted Basket drops but then called the normal week-loading path
+to verify authoritative state. That path blanked the calendar and displayed the
+loading state, which caused the visible white-screen/reload effect.
+
+R26 keeps the authoritative verification but changes automatic post-save refreshes
+to a silent background sync:
+- optimistic card placement remains visible immediately;
+- database save completes;
+- fresh authoritative week data is loaded without clearing the calendar;
+- the fresh state is rendered in place;
+- no white loading screen is shown.
+
+This applies to automatic post-mutation Schedule re-syncs, including Basket group
+placement and drag/rearrange operations that require an authoritative reread.
+
+The explicit Refresh button and actual week navigation still use the normal loading
+state because those are user-requested loads.
+
+DEPLOY
+------
+1. Overlay this package onto the current R25 repository root.
+2. Run:
+   npm run check
+3. Commit/push and deploy to Render.
+
+Expected build proof:
+TUINBOOKS RELEASE R26: Schedule mutations now re-sync silently without blanking the calendar; R25 Basket persistence/multi-select, R24 blockers and R23 Schedule polish preserved; legacy app engine inactive.
+
+MANUAL CHECK
+------------
+1. Hard refresh after deploy.
+2. Turn on Drag mode.
+3. Drag one Basket card to a team/day.
+   PASS: card moves immediately; no white screen; no "Loading this week…" flash.
+4. Wait 1–2 seconds, exit Drag mode, refresh manually.
+   PASS: card remains exactly where dropped.
+5. Select 3 Basket cards and drag together.
+   PASS: all move together with no blank reload and persist after manual refresh.

@@ -185,6 +185,17 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     finally{saves=Math.max(0,saves-1);showSaving();}
   }
 
+  async function syncWeekSilently(){
+    if(identity.demo)return;
+    try{
+      const fresh=await loadWeek(identity.businessId,weekStart);
+      data=fresh;
+      render();
+    }catch(error){
+      showError(`Change was saved, but Schedule could not refresh automatically. ${msg(error)}`);
+    }
+  }
+
   async function moveVisit(proposed:MoveVisitInput){
     if(!data)return;
     const visit=data.visits.find(row=>row.id===proposed.visitId);if(!visit)return;
@@ -203,7 +214,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       data={...data,series:nextSeries,visits:moveVisitOptimistically(data.visits,move)};render();
     }catch(error){showError(msg(error));return;}
     const saved=await saveOptimistic(before,()=>persistVisitMove(identity.businessId,move));
-    if(saved&&move.scope==='future'&&!identity.demo)await fetchWeek();
+    if(saved&&move.scope==='future'&&!identity.demo)await syncWeekSilently();
   }
   async function moveVisitGroup(moves:MoveVisitInput[]){
     if(!data||!moves.length)return;
@@ -214,7 +225,7 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
       data={...data,visits};selectedVisitIds.clear();render();
     }catch(error){showError(msg(error));return;}
     const saved=await saveOptimistic(before,()=>persistVisitGroupMove(identity.businessId,moves.map(move=>({...move,scope:'one'}))));
-    if(saved&&!identity.demo)await fetchWeek();
+    if(saved&&!identity.demo)await syncWeekSilently();
   }
   async function resizeVisit(input:ResizeVisitInput){if(!data)return;const before=data;data={...data,visits:resizeVisitOptimistically(data.visits,input)};render();await saveOptimistic(before,()=>persistVisitResize(identity.businessId,input));}
   async function queueVisit(visitId:string){if(!data)return;const before=data,next=queueVisitOptimistically(data.visits,data.queueItems,visitId);data={...data,...next};render();await saveOptimistic(before,()=>persistVisitToBasket(identity.businessId,visitId));}
@@ -224,14 +235,14 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     for(const visitId of visitIds){const next=queueVisitOptimistically(visits,queueItems,visitId);visits=next.visits;queueItems=next.queueItems;}
     data={...data,visits,queueItems};selectedVisitIds.clear();render();
     const saved=await saveOptimistic(before,()=>persistVisitGroupToBasket(identity.businessId,visitIds));
-    if(saved&&!identity.demo)await fetchWeek();
+    if(saved&&!identity.demo)await syncWeekSilently();
   }
   async function placeQueueItem(input:PlaceQueueItemInput){
     if(!data)return;
     const before=data,next=placeQueueItemOptimistically(data.visits,data.queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);
     selectedQueueItemIds.delete(input.queueItemId);data={...data,...next};render();
     const saved=await saveOptimistic(before,()=>persistQueuePlacement(identity.businessId,input));
-    if(saved&&!identity.demo)await fetchWeek();
+    if(saved&&!identity.demo)await syncWeekSilently();
   }
   async function placeQueueItemGroup(inputs:PlaceQueueItemInput[]){
     if(!data||!inputs.length)return;
@@ -239,16 +250,16 @@ export function renderSchedulePage(root:HTMLElement,identity:ScheduleIdentity,na
     for(const input of inputs){const next=placeQueueItemOptimistically(visits,queueItems,input.queueItemId,input.date,input.teamId,input.sortOrder);visits=next.visits;queueItems=next.queueItems;}
     data={...data,visits,queueItems};selectedQueueItemIds.clear();render();
     const saved=await saveOptimistic(before,()=>persistQueuePlacementGroup(identity.businessId,inputs));
-    if(saved&&!identity.demo)await fetchWeek();
+    if(saved&&!identity.demo)await syncWeekSilently();
   }
   async function openAdditional(date:AdditionalVisitInput['date'],teamId:string,_index:number,sortOrder:number){if(!data)return;openAdditionalVisitDialog({businessId:identity.businessId,date,teamId,sortOrder,accounts:data.accounts,locations:data.locations},createAdditional);}
-  async function createAdditional(input:AdditionalVisitInput){if(!data)return;const before=data,visit=buildAdditionalVisit(input,identity.businessId);data={...data,visits:[...data.visits,visit]};render();const saved=await saveOptimistic(before,()=>persistAdditionalVisit(identity.businessId,input));if(saved&&!data.accounts.some(a=>a.id===input.accountId)&&!identity.demo)await fetchWeek();}
+  async function createAdditional(input:AdditionalVisitInput){if(!data)return;const before=data,visit=buildAdditionalVisit(input,identity.businessId);data={...data,visits:[...data.visits,visit]};render();const saved=await saveOptimistic(before,()=>persistAdditionalVisit(identity.businessId,input));if(saved&&!data.accounts.some(a=>a.id===input.accountId)&&!identity.demo)await syncWeekSilently();}
   function openVisitActions(visit:Visit,account:any,hold:ClientServiceHold|null){if(!data)return;const location=visit.serviceLocationId?data.locations.find(row=>row.id===visit.serviceLocationId):data.locations.find(row=>row.accountId===visit.accountId);const agreements=data.agreements.filter(row=>row.accountId===visit.accountId&&(!location||row.serviceLocationId===location.id)&&['active','paused'].includes(String(row.status).toLowerCase())).sort((a,b)=>Number(b.version||0)-Number(a.version||0));openVisitActionDialog(visit,account,location,agreements[0],data.services,data.teams,hold,{onCancel:cancelVisit,onUndoCancel:undoCancel,onMissed:markMissed,onResolveMissed:resolveMissed,onReschedule:rescheduleMissed,onSuspend:setSuspension,onVisitDoNotService:setVisitDoNotService,onClientHold:setClientHold});}
   async function cancelVisit(visitId:string,mode:CancelMode,reason:string){if(!data)return;const before=data;data={...data,visits:cancelVisitOptimistically(data.visits,visitId,mode,reason)};render();await saveOptimistic(before,()=>persistCancelVisit(identity.businessId,visitId,mode,reason));}
   async function undoCancel(visitId:string){if(!data)return;const before=data;data={...data,visits:undoCancelOptimistically(data.visits,visitId)};render();await saveOptimistic(before,()=>persistUndoCancel(identity.businessId,visitId));}
   async function markMissed(visitId:string,reason:string){if(!data)return;const before=data;data={...data,visits:markMissedOptimistically(data.visits,visitId,reason)};render();await saveOptimistic(before,()=>persistMarkMissed(identity.businessId,visitId,reason));}
-  async function resolveMissed(visitId:string,decision:'complete'|'no-return',note:string){if(!data)return;const before=data;data={...data,visits:data.visits.map(v=>v.id!==visitId?v:{...v,status:decision==='complete'?'completed':'cancelled',billingDisposition:decision==='no-return'?'no-charge':v.billingDisposition,payload:{...v.payload,resolvedMissedV2:true,missedResolutionV2:decision,missedResolutionNoteV2:note}})};render();const saved=await saveOptimistic(before,()=>persistResolveMissed(identity.businessId,visitId,decision,note));if(saved&&!identity.demo)await fetchWeek();}
-  async function rescheduleMissed(input:RescheduleMissedInput){if(!data)return;const before=data;data={...data,visits:rescheduleMissedOptimistically(data.visits,input)};render();const saved=await saveOptimistic(before,()=>persistRescheduleMissed(identity.businessId,input));if(saved&&!identity.demo&&(input.date<weekStart||input.date>addDays(weekStart,6)))await fetchWeek();}
+  async function resolveMissed(visitId:string,decision:'complete'|'no-return',note:string){if(!data)return;const before=data;data={...data,visits:data.visits.map(v=>v.id!==visitId?v:{...v,status:decision==='complete'?'completed':'cancelled',billingDisposition:decision==='no-return'?'no-charge':v.billingDisposition,payload:{...v.payload,resolvedMissedV2:true,missedResolutionV2:decision,missedResolutionNoteV2:note}})};render();const saved=await saveOptimistic(before,()=>persistResolveMissed(identity.businessId,visitId,decision,note));if(saved&&!identity.demo)await syncWeekSilently();}
+  async function rescheduleMissed(input:RescheduleMissedInput){if(!data)return;const before=data;data={...data,visits:rescheduleMissedOptimistically(data.visits,input)};render();const saved=await saveOptimistic(before,()=>persistRescheduleMissed(identity.businessId,input));if(saved&&!identity.demo&&(input.date<weekStart||input.date>addDays(weekStart,6)))await syncWeekSilently();}
   async function setSuspension(visitIds:string[],suspended:boolean,reason:string){if(!data)return;const before=data;data={...data,visits:setSuspendedOptimistically(data.visits,visitIds,suspended,reason)};render();await saveOptimistic(before,()=>persistSuspension(identity.businessId,visitIds,suspended,reason));}
   async function setVisitDoNotService(visitId:string,active:boolean,reason:string,note:string){if(!data)return;const before=data;data={...data,visits:setVisitDoNotServiceOptimistically(data.visits,visitId,active,reason,note)};render();await saveOptimistic(before,()=>persistVisitDoNotService(identity.businessId,visitId,active,reason,note));}
   async function setClientHold(clientId:string,active:boolean,reason:string,note:string){if(!data)return;const before=data;data={...data,clientHolds:setClientHoldOptimistically(data.clientHolds,identity.businessId,clientId,active,reason,note)};render();await saveOptimistic(before,()=>persistClientHold(identity.businessId,clientId,active,reason,note));}
